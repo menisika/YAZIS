@@ -1,0 +1,26 @@
+# YAZIS Default Configuration
+
+storage:
+  backend: json # json | sqlite
+  default_path: "" # empty = prompt user
+
+nlp:
+  strategy: nltk # nltk | spacy
+  spacy_model: en_core_web_sm
+  stemmer: snowball # porter | snowball
+
+ui:
+  page_size: 100
+  theme: system # system | light | dark
+  window_width: 1280
+  window_height: 800
+
+logging:
+  level: INFO
+
+flashcard:
+  sound_enabled: true
+  auto_advance: true
+  flip_speed: normal # slow | normal | fast
+  auto_fetch_definitions: true
+  cards_per_session: 20

@@ -1,0 +1,12 @@
+{
+  "good": {"comparative": "better", "superlative": "best"},
+  "bad": {"comparative": "worse", "superlative": "worst"},
+  "far": {"comparative": "farther", "superlative": "farthest"},
+  "little": {"comparative": "less", "superlative": "least"},
+  "much": {"comparative": "more", "superlative": "most"},
+  "many": {"comparative": "more", "superlative": "most"},
+  "old": {"comparative": "older", "superlative": "oldest"},
+  "late": {"comparative": "later", "superlative": "latest"},
+  "ill": {"comparative": "worse", "superlative": "worst"},
+  "well": {"comparative": "better", "superlative": "best"}
+}

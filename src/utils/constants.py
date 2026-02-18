@@ -42,6 +42,7 @@ SIBILANTS = frozenset(("s", "x", "z", "ch", "sh"))
 # Flashcard / study constants
 STUDY_PROGRESS_PATH = USER_DATA_DIR / "study_progress.json"
 SOUNDS_DIR = USER_DATA_DIR / "sounds"
+MUSIC_DIR = Path(__file__).resolve().parent.parent / "data" / "music"
 DEFAULT_CARDS_PER_SESSION = 20
 FLIP_SPEED_MS = {"slow": 600, "normal": 350, "fast": 150}
 

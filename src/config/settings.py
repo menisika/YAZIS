@@ -17,34 +17,39 @@ logger = get_logger("config.settings")
 
 @dataclass
 class StorageConfig:
-    backend: str = "json"      # json | sqlite
+    backend: str = "json"  # json | sqlite
     default_path: str = ""
+
 
 @dataclass
 class NLPConfig:
-    strategy: str = "nltk"     # nltk | spacy
+    strategy: str = "nltk"  # nltk | spacy
     spacy_model: str = "en_core_web_sm"
     stemmer: str = "snowball"  # porter | snowball
+
 
 @dataclass
 class UIConfig:
     page_size: int = DEFAULT_PAGE_SIZE
-    theme: str = "system"      # system | light | dark
+    theme: str = "system"  # system | light | dark
     window_width: int = 1280
     window_height: int = 800
+
 
 @dataclass
 class LoggingConfig:
     level: str = "INFO"
 
+
 @dataclass
 class FlashcardConfig:
     sound_enabled: bool = True
     auto_advance: bool = True
-    flip_speed: str = "normal"          # slow | normal | fast
+    flip_speed: str = "normal"  # slow | normal | fast
     groq_api_key: str = ""
     auto_fetch_definitions: bool = True
     cards_per_session: int = 20
+
 
 @dataclass
 class AppSettings:
@@ -103,8 +108,11 @@ class SettingsManager:
         if self._user_config_path.exists():
             self._merge_from_yaml(self._user_config_path)
 
-        logger.info("Settings loaded (backend=%s, nlp=%s)",
-                     self._settings.storage.backend, self._settings.nlp.strategy)
+        logger.info(
+            "Settings loaded (backend=%s, nlp=%s)",
+            self._settings.storage.backend,
+            self._settings.nlp.strategy,
+        )
         return self._settings
 
     def save(self) -> None:
@@ -134,47 +142,81 @@ class SettingsManager:
         if "storage" in data:
             s = data["storage"]
             if isinstance(s, dict):
-                self._settings.storage.backend = s.get("backend", self._settings.storage.backend)
-                self._settings.storage.default_path = s.get("default_path", self._settings.storage.default_path)
+                self._settings.storage.backend = s.get(
+                    "backend", self._settings.storage.backend
+                )
+                self._settings.storage.default_path = s.get(
+                    "default_path", self._settings.storage.default_path
+                )
 
         # NLP
         if "nlp" in data:
             n = data["nlp"]
             if isinstance(n, dict):
-                self._settings.nlp.strategy = n.get("strategy", self._settings.nlp.strategy)
-                self._settings.nlp.spacy_model = n.get("spacy_model", self._settings.nlp.spacy_model)
-                self._settings.nlp.stemmer = n.get("stemmer", self._settings.nlp.stemmer)
+                self._settings.nlp.strategy = n.get(
+                    "strategy", self._settings.nlp.strategy
+                )
+                self._settings.nlp.spacy_model = n.get(
+                    "spacy_model", self._settings.nlp.spacy_model
+                )
+                self._settings.nlp.stemmer = n.get(
+                    "stemmer", self._settings.nlp.stemmer
+                )
 
         # UI
         if "ui" in data:
             u = data["ui"]
             if isinstance(u, dict):
-                self._settings.ui.page_size = u.get("page_size", self._settings.ui.page_size)
+                self._settings.ui.page_size = u.get(
+                    "page_size", self._settings.ui.page_size
+                )
                 self._settings.ui.theme = u.get("theme", self._settings.ui.theme)
-                self._settings.ui.window_width = u.get("window_width", self._settings.ui.window_width)
-                self._settings.ui.window_height = u.get("window_height", self._settings.ui.window_height)
+                self._settings.ui.window_width = u.get(
+                    "window_width", self._settings.ui.window_width
+                )
+                self._settings.ui.window_height = u.get(
+                    "window_height", self._settings.ui.window_height
+                )
 
         # Logging
         if "logging" in data:
             lg = data["logging"]
             if isinstance(lg, dict):
-                self._settings.logging.level = lg.get("level", self._settings.logging.level)
+                self._settings.logging.level = lg.get(
+                    "level", self._settings.logging.level
+                )
 
         # Flashcard
         if "flashcard" in data:
             fc = data["flashcard"]
             if isinstance(fc, dict):
-                self._settings.flashcard.sound_enabled = fc.get("sound_enabled", self._settings.flashcard.sound_enabled)
-                self._settings.flashcard.auto_advance = fc.get("auto_advance", self._settings.flashcard.auto_advance)
-                self._settings.flashcard.flip_speed = fc.get("flip_speed", self._settings.flashcard.flip_speed)
-                self._settings.flashcard.groq_api_key = fc.get("groq_api_key", self._settings.flashcard.groq_api_key)
-                self._settings.flashcard.auto_fetch_definitions = fc.get("auto_fetch_definitions", self._settings.flashcard.auto_fetch_definitions)
-                self._settings.flashcard.cards_per_session = fc.get("cards_per_session", self._settings.flashcard.cards_per_session)
+                self._settings.flashcard.sound_enabled = fc.get(
+                    "sound_enabled", self._settings.flashcard.sound_enabled
+                )
+                self._settings.flashcard.auto_advance = fc.get(
+                    "auto_advance", self._settings.flashcard.auto_advance
+                )
+                self._settings.flashcard.flip_speed = fc.get(
+                    "flip_speed", self._settings.flashcard.flip_speed
+                )
+                self._settings.flashcard.groq_api_key = fc.get(
+                    "groq_api_key", self._settings.flashcard.groq_api_key
+                )
+                self._settings.flashcard.auto_fetch_definitions = fc.get(
+                    "auto_fetch_definitions",
+                    self._settings.flashcard.auto_fetch_definitions,
+                )
+                self._settings.flashcard.cards_per_session = fc.get(
+                    "cards_per_session", self._settings.flashcard.cards_per_session
+                )
 
     def _to_dict(self) -> dict[str, Any]:
         s = self._settings
         return {
-            "storage": {"backend": s.storage.backend, "default_path": s.storage.default_path},
+            "storage": {
+                "backend": s.storage.backend,
+                "default_path": s.storage.default_path,
+            },
             "nlp": {
                 "strategy": s.nlp.strategy,
                 "spacy_model": s.nlp.spacy_model,

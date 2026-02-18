@@ -111,7 +111,9 @@ class DictionaryManager(QObject):
         self._dirty = False
 
     @classmethod
-    def get_instance(cls, repository: DictionaryRepository | None = None) -> DictionaryManager:
+    def get_instance(
+        cls, repository: DictionaryRepository | None = None
+    ) -> DictionaryManager:
         """Return the singleton instance, creating it on first call.
 
         Args:

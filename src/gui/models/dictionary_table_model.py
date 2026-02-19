@@ -53,9 +53,11 @@ class DictionaryTableModel(QAbstractTableModel):
     def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
         if not index.isValid() or role != Qt.ItemDataRole.DisplayRole:
             return None
+        row, col = index.row(), index.column()
+        if not (0 <= row < len(self._entries)):
+            return None
 
-        entry = self._entries[index.row()]
-        col = index.column()
+        entry = self._entries[row]
         if col == 0:
             return entry.lexeme
         if col == 1:
@@ -85,8 +87,13 @@ class SortableProxyModel(QSortFilterProxyModel):
     """Proxy that enables column-based sorting on the dictionary table."""
 
     def lessThan(self, left: QModelIndex, right: QModelIndex) -> bool:  # noqa: N802
-        left_data = self.sourceModel().data(left, Qt.ItemDataRole.DisplayRole)
-        right_data = self.sourceModel().data(right, Qt.ItemDataRole.DisplayRole)
+        if not left.isValid() or not right.isValid():
+            return False
+        source = self.sourceModel()
+        if source is None:
+            return False
+        left_data = source.data(left, Qt.ItemDataRole.DisplayRole)
+        right_data = source.data(right, Qt.ItemDataRole.DisplayRole)
 
         # Numeric comparison for frequency column
         if left.column() == 3:

@@ -80,7 +80,7 @@ class UpdateEntryCommand(Command):
 
 class DictionaryManager(QObject):
     """
-    Singleton manager for dictionary CRUD with observer signals.
+    Manager for dictionary CRUD with undo/redo and Qt observer signals.
 
     Signals:
         dictionary_changed: Emitted when the dictionary content changes.
@@ -89,13 +89,10 @@ class DictionaryManager(QObject):
         dictionary_saved: Emitted when a dictionary is saved to disk.
     """
 
-    # Qt signals for Observer pattern
     dictionary_changed = pyqtSignal()
     entry_selected = pyqtSignal(object)  # DictionaryEntry or None
     dictionary_loaded = pyqtSignal()
     dictionary_saved = pyqtSignal()
-
-    _instance: DictionaryManager | None = None
 
     def __init__(self, repository: DictionaryRepository | None = None) -> None:
         super().__init__()
@@ -109,24 +106,6 @@ class DictionaryManager(QObject):
         self._redo_stack: list[Command] = []
         self._current_path: Path | None = None
         self._dirty = False
-
-    @classmethod
-    def get_instance(
-        cls, repository: DictionaryRepository | None = None
-    ) -> DictionaryManager:
-        """Return the singleton instance, creating it on first call.
-
-        Args:
-            repository: Storage backend (only used on first call).
-        """
-        if cls._instance is None:
-            cls._instance = cls(repository=repository)
-        return cls._instance
-
-    @classmethod
-    def reset_instance(cls) -> None:
-        """Reset singleton for testing."""
-        cls._instance = None
 
     # --- Properties ---
 

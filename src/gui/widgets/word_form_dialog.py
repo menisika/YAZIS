@@ -9,7 +9,6 @@ from PyQt6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
     QLabel,
-    QLineEdit,
     QPushButton,
     QTextEdit,
     QVBoxLayout,
@@ -17,17 +16,18 @@ from PyQt6.QtWidgets import (
 )
 
 from core.rule_engine import RuleEngine
-from models.enums import PartOfSpeech
 from models.lexeme import DictionaryEntry, MorphologicalFeature, WordForm
 
 
 class WordFormDialog(QDialog):
-    """Dialog to generate word forms from a lexeme with selectable features.
+    """
+    Dialog to generate word forms from a lexeme with selectable features.
 
     Args:
         entry: The dictionary entry to generate forms for.
         rule_engine: The rule engine to use for generation.
         parent: Parent widget.
+
     """
 
     def __init__(
@@ -52,7 +52,7 @@ class WordFormDialog(QDialog):
         info = QLabel(
             f"<b>Lexeme:</b> {self._entry.lexeme} &nbsp; "
             f"<b>POS:</b> {self._entry.pos.value} &nbsp; "
-            f"<b>Stem:</b> {self._entry.stem}"
+            f"<b>Stem:</b> {self._entry.stem}",
         )
         layout.addWidget(info)
 
@@ -62,7 +62,13 @@ class WordFormDialog(QDialog):
 
         self._tense_combo = QComboBox()
         self._tense_combo.addItem("(any)", None)
-        for t in ["present", "past", "past_participle", "present_participle", "infinitive"]:
+        for t in [
+            "present",
+            "past",
+            "past_participle",
+            "present_participle",
+            "infinitive",
+        ]:
             self._tense_combo.addItem(t, t)
         feat_layout.addRow("Tense:", self._tense_combo)
 
@@ -137,14 +143,17 @@ class WordFormDialog(QDialog):
     def _on_generate_one(self) -> None:
         features = self._build_features()
         wf = self._rule_engine.generate_form(
-            self._entry.lexeme, self._entry.pos, features
+            self._entry.lexeme,
+            self._entry.pos,
+            features,
         )
         self._generated_forms = [wf]
         self._display_forms([wf])
 
     def _on_generate_all(self) -> None:
         forms = self._rule_engine.generate_all_forms(
-            self._entry.lexeme, self._entry.pos
+            self._entry.lexeme,
+            self._entry.pos,
         )
         self._generated_forms = forms
         self._display_forms(forms)
@@ -153,7 +162,7 @@ class WordFormDialog(QDialog):
         lines: list[str] = []
         for wf in forms:
             lines.append(
-                f"  {wf.form:20s}  ending: {wf.ending:10s}  {wf.features.summary()}"
+                f"  {wf.form:20s}  ending: {wf.ending:10s}  {wf.features.summary()}",
             )
         header = f"Lexeme: {self._entry.lexeme} ({self._entry.pos.value})\n"
         header += "-" * 60 + "\n"

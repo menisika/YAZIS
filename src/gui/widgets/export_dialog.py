@@ -20,7 +20,8 @@ from PyQt6.QtWidgets import (
 
 
 class ExportDialog(QDialog):
-    """Dialog for choosing export format, scope, and output path.
+    """
+    Dialog for choosing export format, scope, and output path.
 
     After ``exec()`` returns ``Accepted``, read :attr:`selected_format`
     and :attr:`selected_path` for the user's choices.
@@ -122,7 +123,11 @@ class ExportDialog(QDialog):
         return self._scope_group.checkedId() == 1
 
     def _on_browse(self) -> None:
-        ext_map = {"json": "JSON Files (*.json)", "csv": "CSV Files (*.csv)", "txt": "Text Files (*.txt)"}
+        ext_map = {
+            "json": "JSON Files (*.json)",
+            "csv": "CSV Files (*.csv)",
+            "txt": "Text Files (*.txt)",
+        }
         fmt = self.selected_format
         filt = ext_map.get(fmt, "All Files (*)")
         path, _ = QFileDialog.getSaveFileName(self, "Export To", "", filt)

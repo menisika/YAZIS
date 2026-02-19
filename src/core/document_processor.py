@@ -1,8 +1,7 @@
-"""Document processing with Factory pattern for extensibility."""
+"""Document text extraction from .docx, .txt, and .pdf files."""
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from pathlib import Path
 
 from utils.exceptions import DocumentParsingError, UnsupportedFormatError
@@ -11,29 +10,7 @@ from utils.logging_config import get_logger
 logger = get_logger("core.document_processor")
 
 
-class DocumentProcessor(ABC):
-    """Abstract base for document text extraction."""
-
-    @abstractmethod
-    def extract_text(self, path: Path) -> str:
-        """Extract plain text from a document file.
-
-        Args:
-            path: Path to the document.
-
-        Returns:
-            Extracted text as a single string.
-
-        Raises:
-            DocumentParsingError: If the file cannot be parsed.
-        """
-
-    @abstractmethod
-    def supported_extensions(self) -> tuple[str, ...]:
-        """Return file extensions this processor handles (e.g. ``('.docx',)``)."""
-
-
-class DocxProcessor(DocumentProcessor):
+class DocxProcessor:
     """Extract text from Microsoft Word ``.docx`` files using *python-docx*."""
 
     def extract_text(self, path: Path) -> str:
@@ -55,7 +32,6 @@ class DocxProcessor(DocumentProcessor):
                 if text:
                     paragraphs.append(text)
 
-            # Also extract text from tables
             for table in doc.tables:
                 for row in table.rows:
                     for cell in row.cells:
@@ -72,45 +48,84 @@ class DocxProcessor(DocumentProcessor):
         except Exception as exc:
             raise DocumentParsingError(str(path), str(exc)) from exc
 
-    def supported_extensions(self) -> tuple[str, ...]:
-        return (".docx",)
+
+class TxtProcessor:
+    """Extract text from plain ``.txt`` files."""
+
+    def extract_text(self, path: Path) -> str:
+        if not path.exists():
+            raise DocumentParsingError(str(path), "File does not exist")
+
+        for encoding in ("utf-8", "utf-8-sig", "cp1252", "latin-1"):
+            try:
+                text = path.read_text(encoding=encoding)
+                logger.info(
+                    "Extracted %d characters from %s (encoding=%s)",
+                    len(text), path.name, encoding,
+                )
+                return text
+            except UnicodeDecodeError:
+                continue
+            except OSError as exc:
+                raise DocumentParsingError(str(path), str(exc)) from exc
+
+        raise DocumentParsingError(str(path), "Could not decode file with any supported encoding")
 
 
-class DocumentProcessorFactory:
-    """Factory that returns the appropriate :class:`DocumentProcessor` for a file.
+class PdfProcessor:
+    """Extract text from ``.pdf`` files using *pypdf*."""
 
-    Extensible: register new processors via :meth:`register`.
+    def extract_text(self, path: Path) -> str:
+        try:
+            from pypdf import PdfReader  # type: ignore[import-untyped]
+        except ImportError as exc:
+            raise DocumentParsingError(
+                str(path), "pypdf is not installed"
+            ) from exc
+
+        if not path.exists():
+            raise DocumentParsingError(str(path), "File does not exist")
+
+        try:
+            reader = PdfReader(str(path))
+            pages: list[str] = []
+            for page in reader.pages:
+                page_text = page.extract_text() or ""
+                page_text = page_text.strip()
+                if page_text:
+                    pages.append(page_text)
+
+            full_text = "\n".join(pages)
+            logger.info(
+                "Extracted %d characters from %s (%d pages)",
+                len(full_text), path.name, len(reader.pages),
+            )
+            return full_text
+        except Exception as exc:
+            raise DocumentParsingError(str(path), str(exc)) from exc
+
+
+_PROCESSORS: dict[str, type[DocxProcessor] | type[TxtProcessor] | type[PdfProcessor]] = {
+    ".docx": DocxProcessor,
+    ".txt": TxtProcessor,
+    ".pdf": PdfProcessor,
+}
+
+
+def get_processor(path: Path) -> DocxProcessor | TxtProcessor | PdfProcessor:
+    """Return a processor for the given file, or raise if unsupported.
+
+    Args:
+        path: Path to the document file.
+
+    Returns:
+        A processor instance for the detected file format.
+
+    Raises:
+        UnsupportedFormatError: If the file extension is not supported.
     """
-
-    _processors: dict[str, DocumentProcessor] = {}
-
-    @classmethod
-    def register(cls, processor: DocumentProcessor) -> None:
-        """Register a processor for its supported extensions."""
-        for ext in processor.supported_extensions():
-            cls._processors[ext.lower()] = processor
-            logger.debug("Registered processor for '%s'", ext)
-
-    @classmethod
-    def create(cls, path: Path) -> DocumentProcessor:
-        """Get a processor for the given file's extension.
-
-        Args:
-            path: Path to the document file.
-
-        Returns:
-            A suitable :class:`DocumentProcessor`.
-
-        Raises:
-            UnsupportedFormatError: If no processor is registered.
-        """
-        ext = path.suffix.lower()
-        processor = cls._processors.get(ext)
-        if processor is None:
-            raise UnsupportedFormatError(str(path), ext)
-        return processor
-
-    @classmethod
-    def register_defaults(cls) -> None:
-        """Register built-in processors."""
-        cls.register(DocxProcessor())
+    suffix = path.suffix.lower()
+    processor_cls = _PROCESSORS.get(suffix)
+    if processor_cls is None:
+        raise UnsupportedFormatError(str(path), suffix)
+    return processor_cls()

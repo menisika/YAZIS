@@ -14,6 +14,7 @@ DEFAULT_CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "defau
 USER_DATA_DIR = Path.home() / ".yazis"
 
 # File filters
+DOCUMENT_FILTER = "Supported Documents (*.docx *.txt *.pdf);;Word Documents (*.docx);;Text Files (*.txt);;PDF Documents (*.pdf);;All Files (*)"
 DOCX_FILTER = "Word Documents (*.docx)"
 DICT_JSON_FILTER = "JSON Dictionary (*.json)"
 DICT_SQLITE_FILTER = "SQLite Dictionary (*.db)"
@@ -39,15 +40,5 @@ VOWELS = frozenset("aeiou")
 CONSONANTS = frozenset("bcdfghjklmnpqrstvwxyz")
 SIBILANTS = frozenset(("s", "x", "z", "ch", "sh"))
 
-# Flashcard / study constants
-STUDY_PROGRESS_PATH = USER_DATA_DIR / "study_progress.json"
-SOUNDS_DIR = USER_DATA_DIR / "sounds"
-MUSIC_DIR = Path(__file__).resolve().parent.parent / "data" / "music"
-DEFAULT_CARDS_PER_SESSION = 20
-FLIP_SPEED_MS = {"slow": 600, "normal": 350, "fast": 150}
-
-DEFINITION_PROMPT_TEMPLATE = (
-    "Provide a clear, concise definition for the English word '{word}' "
-    "used as a {pos}. Only the definition, under 20 words. /no_think"
-)
+# LLM (Groq) constants
 GROQ_MODEL = "qwen/qwen3-32b"

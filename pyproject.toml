@@ -7,11 +7,14 @@ dependencies = [
     "python-dotenv",
     "PyQt6",
     "python-docx",
+    "pypdf",
     "nltk",
     "spacy",
     "pandas",
     "pyyaml",
     "groq",
+    "fpdf2",
+    "markdown>=3.10.2",
 ]
 
 [project.scripts]

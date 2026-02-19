@@ -18,7 +18,8 @@ from models.enums import PartOfSpeech
 
 
 class SearchPanel(QWidget):
-    """Combined search bar and filter controls.
+    """
+    Combined search bar and filter controls.
 
     Signals:
         search_requested: Emitted when the user triggers a search.

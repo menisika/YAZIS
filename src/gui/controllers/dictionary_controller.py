@@ -5,16 +5,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from PyQt6.QtCore import QObject, QThread, pyqtSignal
-from PyQt6.QtWidgets import QFileDialog, QInputDialog, QMessageBox, QProgressDialog
+from PyQt6.QtWidgets import QFileDialog, QInputDialog, QMessageBox
 
-from core.definition_service import DefinitionService
 from core.dictionary_manager import DictionaryManager
 from core.export_service import ExportService
+from core.llm_service import LLMService
 from core.rule_engine import RuleEngine
 from core.search_engine import SearchCriteria, SearchEngine
-from core.sound_manager import SoundManager
-from core.study_manager import StudyManager
 from data.json_adapter import JSONAdapter
 from data.sqlite_adapter import SQLiteAdapter
 from gui.widgets.export_dialog import ExportDialog
@@ -48,18 +45,14 @@ class DictionaryController:
         export_service: ExportService,
         rule_engine: RuleEngine,
         main_window: MainWindow,
-        study_manager: StudyManager | None = None,
-        definition_service: DefinitionService | None = None,
-        sound_manager: SoundManager | None = None,
+        llm_service: LLMService | None = None,
     ) -> None:
         self._manager = manager
         self._search = search_engine
         self._export = export_service
         self._rule_engine = rule_engine
         self._window = main_window
-        self._study = study_manager
-        self._def_service = definition_service
-        self._sound = sound_manager
+        self._llm_service = llm_service
 
         # Current search state
         self._current_criteria = SearchCriteria()
@@ -84,10 +77,11 @@ class DictionaryController:
         # Search panel -> controller
         self._window.search_panel.search_requested.connect(self._on_search_requested)
 
-        # Context menu signals from dictionary view
-        self._window.dictionary_view.context_add_study.connect(self._on_context_add_study)
-        self._window.dictionary_view.context_remove_study.connect(self._on_context_remove_study)
-        self._window.dictionary_view.context_gen_definition.connect(self._on_context_gen_definition)
+        # Dictionary view context menu -> task generator
+        self._window.dictionary_view.generate_task_requested.connect(
+            self._on_generate_task_requested
+        )
+
 
     # --- Dictionary change handlers ---
 
@@ -320,236 +314,50 @@ class DictionaryController:
         dlg = WordFormDialog(entry, self._rule_engine, self._window)
         dlg.exec()
 
-    # --- Study / Flashcard methods ---
+    # --- Task generation ---
 
-    def _on_context_add_study(self, entry: DictionaryEntry) -> None:
-        if self._study:
-            self._study.add_to_study_list(entry.lexeme)
-            self._window.update_status(f"Added '{entry.lexeme}' to study list")
+    def _on_generate_task_requested(self, entries: list) -> None:
+        """Handle the context-menu signal from DictionaryView."""
+        self._open_task_dialog([(e.lexeme, str(e.pos)) for e in entries])
 
-    def _on_context_remove_study(self, entry: DictionaryEntry) -> None:
-        if self._study:
-            self._study.remove_from_study_list(entry.lexeme)
-            self._window.update_status(f"Removed '{entry.lexeme}' from study list")
-
-    def _on_context_gen_definition(self, entry: DictionaryEntry) -> None:
-        self.generate_definition(entry)
-
-    def generate_definition(self, entry: DictionaryEntry) -> None:
-        """Fetch a definition for a single entry via Groq API."""
-        if self._def_service is None or not self._def_service.api_key:
-            QMessageBox.information(
-                self._window, "Definition",
-                "Groq API key is not configured.\nGo to Study > Flashcard Settings.",
-            )
-            return
-        self._window.update_status(f"Fetching definition for '{entry.lexeme}'...")
-        defn = self._def_service.fetch_definition(entry.lexeme, str(entry.pos))
-        if defn:
-            entry.definition = defn
-            try:
-                self._manager.update_entry(entry)
-            except Exception:
-                pass
-            # Refresh the entry editor so the definition is visible immediately
-            self._window.entry_editor.load_entry(entry)
-            self._window.update_status(f"Definition set for '{entry.lexeme}'")
-        else:
-            self._window.update_status(f"Could not fetch definition for '{entry.lexeme}'")
-
-    def start_study_session(self, mode: str | None = None) -> None:
-        """Start a study session, optionally prompting for mode."""
-        from config.settings import SettingsManager
-        from gui.widgets.study_session_dialog import StudySessionDialog
-
-        if self._study is None:
-            QMessageBox.information(self._window, "Study", "Study manager not available.")
-            return
-
-        entries = list(self._manager.dictionary)
+    def show_task_generator(self) -> None:
+        """Open the task generator dialog (Study menu entry point)."""
+        entries = self._window.dictionary_view.selected_entries()
         if not entries:
-            QMessageBox.information(self._window, "Study", "Dictionary is empty.")
-            return
-
-        if mode is None:
-            mode, ok = QInputDialog.getItem(
+            QMessageBox.information(
                 self._window,
-                "Study Mode",
-                "Select study mode:",
-                ["Word -> Definition", "Definition -> Word", "Word Form Practice"],
-                editable=False,
-            )
-            if not ok:
-                return
-            mode_map = {
-                "Word -> Definition": "word_to_def",
-                "Definition -> Word": "def_to_word",
-                "Word Form Practice": "word_form_practice",
-            }
-            mode = mode_map.get(mode, "word_to_def")
-
-        cfg = SettingsManager().settings.flashcard
-        cards = self._study.select_cards(entries, count=cfg.cards_per_session, mode=mode)
-        if not cards:
-            QMessageBox.information(
-                self._window, "Study",
-                "No cards available for this mode. (Entries may need definitions first.)",
+                "Generate Task",
+                "Please select one or more lexemes first.",
             )
             return
+        self._open_task_dialog([(e.lexeme, str(e.pos)) for e in entries])
 
-        sound = self._sound or SoundManager(enabled=cfg.sound_enabled)
-        sound.enabled = cfg.sound_enabled
+    def _open_task_dialog(self, word_pos_pairs: list) -> None:
+        if self._llm_service is None or not self._llm_service.api_key:
+            QMessageBox.warning(
+                self._window,
+                "Generate Task",
+                "Groq API key is not configured.\n"
+                "Please set it via Study → Flashcard Settings.",
+            )
+            return
+        from gui.widgets.task_generator_dialog import TaskGeneratorDialog
 
-        dlg = StudySessionDialog(
-            entries=cards,
-            mode=mode,
-            study_manager=self._study,
-            definition_service=self._def_service,
-            sound_manager=sound,
-            rule_engine=self._rule_engine,
-            flip_speed=cfg.flip_speed,
-            auto_advance=cfg.auto_advance,
-            parent=self._window,
-        )
-
-        if cfg.auto_fetch_definitions and self._def_service and self._def_service.api_key:
-            dlg.prefetch_definitions()
-
+        dlg = TaskGeneratorDialog(word_pos_pairs, self._llm_service, self._window)
         dlg.exec()
 
-    def study_current_view(self) -> None:
-        """Start a study session with the currently filtered entries."""
-        from config.settings import SettingsManager
-        from gui.widgets.study_session_dialog import StudySessionDialog
-
-        if self._study is None:
-            QMessageBox.information(self._window, "Study", "Study manager not available.")
-            return
-
-        if not self._filtered_entries:
-            QMessageBox.information(
-                self._window, "Study", "No entries in current view."
-            )
-            return
-
-        mode, ok = QInputDialog.getItem(
-            self._window,
-            "Study Mode",
-            "Select study mode:",
-            ["Word -> Definition", "Definition -> Word", "Word Form Practice"],
-            editable=False,
-        )
-        if not ok:
-            return
-        mode_map = {
-            "Word -> Definition": "word_to_def",
-            "Definition -> Word": "def_to_word",
-            "Word Form Practice": "word_form_practice",
-        }
-        mode_key = mode_map.get(mode, "word_to_def")
-
-        cfg = SettingsManager().settings.flashcard
-        cards = self._study.select_cards(
-            self._filtered_entries, count=cfg.cards_per_session, mode=mode_key
-        )
-        if not cards:
-            QMessageBox.information(
-                self._window, "Study",
-                "No cards available for this mode.",
-            )
-            return
-
-        sound = self._sound or SoundManager(enabled=cfg.sound_enabled)
-        sound.enabled = cfg.sound_enabled
-
-        dlg = StudySessionDialog(
-            entries=cards,
-            mode=mode_key,
-            study_manager=self._study,
-            definition_service=self._def_service,
-            sound_manager=sound,
-            rule_engine=self._rule_engine,
-            flip_speed=cfg.flip_speed,
-            auto_advance=cfg.auto_advance,
-            parent=self._window,
-        )
-
-        if cfg.auto_fetch_definitions and self._def_service and self._def_service.api_key:
-            dlg.prefetch_definitions()
-
-        dlg.exec()
-
-    def batch_generate_definitions(self) -> None:
-        """Batch-generate definitions for all entries missing one."""
-        if self._def_service is None or not self._def_service.api_key:
-            QMessageBox.information(
-                self._window, "Definitions",
-                "Groq API key is not configured.\nGo to Study > Flashcard Settings.",
-            )
-            return
-
-        entries = [e for e in self._manager.dictionary if not e.definition]
-        if not entries:
-            QMessageBox.information(
-                self._window, "Definitions",
-                "All entries already have definitions.",
-            )
-            return
-
-        reply = QMessageBox.question(
-            self._window,
-            "Batch Generate Definitions",
-            f"Fetch definitions for {len(entries)} entries?\nThis may take a moment.",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-        )
-        if reply != QMessageBox.StandardButton.Yes:
-            return
-
-        progress = QProgressDialog(
-            "Fetching definitions...", "Cancel", 0, len(entries), self._window
-        )
-        progress.setWindowTitle("Batch Definitions")
-        progress.setMinimumDuration(0)
-        progress.setValue(0)
-
-        def on_progress(completed: int, total: int) -> None:
-            progress.setValue(completed)
-
-        results = self._def_service.fetch_definitions_batch(
-            entries, progress_callback=on_progress
-        )
-        progress.close()
-
-        # Apply definitions
-        updated = 0
-        for entry in entries:
-            if entry.lexeme in results:
-                entry.definition = results[entry.lexeme]
-                try:
-                    self._manager.update_entry(entry)
-                    updated += 1
-                except Exception:
-                    pass
-
-        self._window.update_status(f"Generated {updated} definitions")
-        QMessageBox.information(
-            self._window, "Definitions",
-            f"Generated definitions for {updated} / {len(entries)} entries.",
-        )
+    # --- Flashcard / LLM settings ---
 
     def show_flashcard_settings(self) -> None:
-        """Open the flashcard settings dialog."""
+        """Open the flashcard (Groq/LLM) settings dialog."""
         from gui.widgets.flashcard_settings_dialog import FlashcardSettingsDialog
 
         dlg = FlashcardSettingsDialog(
-            definition_service=self._def_service,
+            llm_service=self._llm_service,
             parent=self._window,
         )
         if dlg.exec():
-            # Reload settings into services
             from config.settings import SettingsManager
             cfg = SettingsManager().settings.flashcard
-            if self._def_service:
-                self._def_service.api_key = cfg.groq_api_key
-            if self._sound:
-                self._sound.enabled = cfg.sound_enabled
+            if self._llm_service:
+                self._llm_service.api_key = cfg.groq_api_key

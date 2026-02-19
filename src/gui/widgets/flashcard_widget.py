@@ -5,19 +5,19 @@ from __future__ import annotations
 from PyQt6.QtCore import (
     QEasingCurve,
     QPropertyAnimation,
-    QRect,
     Qt,
     pyqtProperty,
     pyqtSignal,
 )
-from PyQt6.QtGui import QFont, QPainter, QPaintEvent
+from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from utils.constants import FLIP_SPEED_MS
 
 
 class FlashcardWidget(QWidget):
-    """A card widget with animated horizontal flip.
+    """
+    A card widget with animated horizontal flip.
 
     The card displays *front* text and, after :meth:`flip`, displays
     *back* text.  The animation shrinks the card horizontally to its
@@ -44,16 +44,16 @@ class FlashcardWidget(QWidget):
         self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._label.setWordWrap(True)
         font = QFont()
-        font.setPointSize(22)
+        font.setPointSize(27)
         self._label.setFont(font)
         self._label.setStyleSheet(
             "QLabel {"
             "  background-color: white;"
-            "  border: 3px solid #58cc02;"
+            "  border: 3px solid #ec4899;"
             "  border-radius: 18px;"
             "  padding: 32px;"
             "  color: #333;"
-            "}"
+            "}",
         )
 
         layout = QVBoxLayout(self)
@@ -114,10 +114,12 @@ class FlashcardWidget(QWidget):
             self._label.setText(text)
 
     def set_speed(self, speed_key: str) -> None:
-        """Set the flip animation speed.
+        """
+        Set the flip animation speed.
 
         Args:
             speed_key: One of ``slow``, ``normal``, ``fast``.
+
         """
         self._speed_key = speed_key
 
@@ -143,7 +145,10 @@ class FlashcardWidget(QWidget):
         self._label.setText(self._front_text)
         # Restore full geometry
         self._label.setGeometry(
-            16, 16, self.width() - 32, self.height() - 32
+            16,
+            16,
+            self.width() - 32,
+            self.height() - 32,
         )
 
     @property
@@ -164,5 +169,8 @@ class FlashcardWidget(QWidget):
         super().resizeEvent(event)  # type: ignore[arg-type]
         if not self._animation.state() == QPropertyAnimation.State.Running:
             self._label.setGeometry(
-                16, 16, self.width() - 32, self.height() - 32
+                16,
+                16,
+                self.width() - 32,
+                self.height() - 32,
             )

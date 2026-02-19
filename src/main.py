@@ -1,4 +1,5 @@
-"""Application entry point.
+"""
+Application entry point.
 
 Initializes configuration, logging, NLTK data, dependency injection,
 and launches the PyQt6 GUI.
@@ -9,12 +10,13 @@ from __future__ import annotations
 import logging
 import sys
 
-from PyQt6.QtWidgets import QApplication, QMessageBox
+from PyQt6.QtWidgets import QApplication
 
 
 def _ensure_nltk_data() -> None:
     """Download required NLTK data packages if missing."""
     import nltk  # type: ignore[import-untyped]
+
     from utils.constants import NLTK_REQUIRED_DATA
 
     for pkg in NLTK_REQUIRED_DATA:
@@ -28,6 +30,7 @@ def main() -> None:
     """Application main function."""
     # Load .env from project root (cwd when run from repo) so API keys are available
     from dotenv import load_dotenv
+
     load_dotenv()
 
     # --- Qt application ---
@@ -48,6 +51,7 @@ def main() -> None:
     setup_logging(level=log_level)
 
     from utils.logging_config import get_logger
+
     logger = get_logger("main")
     logger.info("YAZIS starting up")
 
@@ -58,23 +62,19 @@ def main() -> None:
         logger.warning("NLTK data download issue: %s", exc)
 
     # --- Core components ---
-    from core.document_processor import DocumentProcessorFactory
+    from core.dictionary_manager import DictionaryManager
+    from core.export_service import ExportService
     from core.lexical_analyzer import LexicalAnalyzer
     from core.morphological_analyzer import (
         MorphologicalAnalyzer,
         NLTKStrategy,
         SpaCyStrategy,
     )
-    from core.stem_extractor import StemExtractor
     from core.rule_engine import RuleEngine
-    from core.dictionary_manager import DictionaryManager
     from core.search_engine import SearchEngine
-    from core.export_service import ExportService
+    from core.stem_extractor import StemExtractor
     from data.json_adapter import JSONAdapter
     from data.sqlite_adapter import SQLiteAdapter
-
-    # Register document processors
-    DocumentProcessorFactory.register_defaults()
 
     # NLP components
     lexical_analyzer = LexicalAnalyzer()
@@ -101,72 +101,67 @@ def main() -> None:
     else:
         repository = JSONAdapter()
 
-    # Dictionary manager (Singleton)
-    DictionaryManager.reset_instance()
-    manager = DictionaryManager.get_instance(repository=repository)
+    manager = DictionaryManager(repository=repository)
 
     # Services
     search_engine = SearchEngine()
     export_service = ExportService()
 
-    # Flashcard-related services
-    from core.definition_service import DefinitionService
-    from core.study_manager import StudyManager
-    from core.sound_manager import SoundManager
-
+    # LLM (Groq) service
     import os
+
+    from core.llm_service import LLMService
+
     groq_key = os.environ.get("GROQ_API_KEY", settings.flashcard.groq_api_key)
-    definition_service = DefinitionService(api_key=groq_key)
-    study_manager = StudyManager()
-    sound_manager = SoundManager(enabled=settings.flashcard.sound_enabled)
+    llm_service = LLMService(api_key=groq_key)
 
     # --- GUI ---
-    from gui.main_window import MainWindow
     from gui.controllers.dictionary_controller import DictionaryController
     from gui.controllers.document_controller import DocumentController
+    from gui.main_window import MainWindow
 
     window = MainWindow()
     window.resize(settings.ui.window_width, settings.ui.window_height)
 
-    # Duolingo-inspired minimalistic stylesheet
+    # Pink / yellow / white theme with larger type
     app.setStyleSheet("""
-        * { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
-        QMainWindow, QDialog { background: #f7f7f7; }
-        QMenuBar { background: #58cc02; color: white; font-weight: 600; padding: 2px; }
-        QMenuBar::item:selected { background: #46a302; border-radius: 4px; }
-        QMenu { background: white; border: 1px solid #e0e0e0; border-radius: 6px; }
-        QMenu::item:selected { background: #e6f9d4; color: #333; }
-        QToolBar { background: #ffffff; border-bottom: 1px solid #e5e5e5; spacing: 6px; padding: 3px; }
+        * { font-family: "Georgia", "Trebuchet MS", serif; font-size: 16px; }
+        QMainWindow, QDialog { background: #fef7f9; }
+        QMenuBar { background: #ec4899; color: white; font-weight: 600; padding: 4px; font-size: 16px; }
+        QMenuBar::item:selected { background: #fbbf24; border-radius: 6px; color: #333; }
+        QMenu { background: white; border: 1px solid #fbcfe8; border-radius: 8px; }
+        QMenu::item:selected { background: #fef3c7; color: #333; }
+        QToolBar { background: #ffffff; border-bottom: 1px solid #fbcfe8; spacing: 8px; padding: 6px; }
         QPushButton {
-            background: #58cc02; color: #ffffff; border: none; border-radius: 8px;
-            padding: 8px 18px; font-size: 14px; font-weight: 700;
+            background: #ec4899; color: #ffffff; border: none; border-radius: 12px;
+            padding: 10px 20px; font-size: 17px; font-weight: 700;
         }
-        QPushButton:hover { background: #46a302; }
-        QPushButton:pressed { background: #3b8c02; }
-        QPushButton:disabled { background: #c8c8c8; color: #999; }
+        QPushButton:hover { background: #fbbf24; color: #333; }
+        QPushButton:pressed { background: #db2777; color: white; }
+        QPushButton:disabled { background: #fbcfe8; color: #9ca3af; }
         QGroupBox {
-            font-weight: 600; border: 1px solid #e0e0e0; border-radius: 10px;
-            margin-top: 10px; padding-top: 14px; background: white;
+            font-weight: 600; border: 1px solid #fbcfe8; border-radius: 10px;
+            margin-top: 12px; padding-top: 16px; background: white; font-size: 16px;
         }
-        QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 4px; color: #4b4b4b; }
+        QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 6px; color: #4b4b4b; }
         QTableView {
-            background: white; alternate-background-color: #f0fce4;
-            gridline-color: #e5e5e5; border: 1px solid #e0e0e0; border-radius: 8px;
-            selection-background-color: #d4f5a8; selection-color: #333;
+            background: white; alternate-background-color: #fffbeb;
+            gridline-color: #fde68a; border: 1px solid #fbcfe8; border-radius: 10px;
+            selection-background-color: #fef3c7; selection-color: #333;
         }
         QHeaderView::section {
-            background: #58cc02; color: white; font-weight: 600;
-            padding: 5px; border: none;
+            background: #ec4899; color: white; font-weight: 600;
+            padding: 8px; border: none; font-size: 16px;
         }
         QLineEdit, QSpinBox, QComboBox, QTextEdit {
-            border: 2px solid #e0e0e0; border-radius: 8px; padding: 4px 8px; background: white;
+            border: 2px solid #fbcfe8; border-radius: 10px; padding: 6px 10px; background: white; font-size: 16px;
         }
         QLineEdit:focus, QSpinBox:focus, QComboBox:focus, QTextEdit:focus {
-            border-color: #58cc02;
+            border-color: #ec4899;
         }
-        QStatusBar { background: #ffffff; border-top: 1px solid #e5e5e5; color: #666; }
-        QProgressBar { border: 1px solid #e0e0e0; border-radius: 6px; text-align: center; }
-        QProgressBar::chunk { background: #58cc02; border-radius: 5px; }
+        QStatusBar { background: #ffffff; border-top: 1px solid #fbcfe8; color: #666; font-size: 15px; }
+        QProgressBar { border: 1px solid #fbcfe8; border-radius: 8px; text-align: center; }
+        QProgressBar::chunk { background: #ec4899; border-radius: 6px; }
     """)
 
     # Controllers
@@ -176,9 +171,7 @@ def main() -> None:
         export_service=export_service,
         rule_engine=rule_engine,
         main_window=window,
-        study_manager=study_manager,
-        definition_service=definition_service,
-        sound_manager=sound_manager,
+        llm_service=llm_service,
     )
     doc_controller = DocumentController(
         manager=manager,

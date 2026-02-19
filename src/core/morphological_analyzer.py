@@ -1,40 +1,17 @@
-"""Morphological analysis with Strategy pattern (NLTK vs spaCy)."""
+"""Morphological analysis (NLTK or spaCy backend)."""
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from typing import Any
 
 from models.enums import PartOfSpeech
-from models.lexeme import DictionaryEntry, MorphologicalFeature, WordForm
+from models.lexeme import MorphologicalFeature, WordForm
 from utils.logging_config import get_logger
 
 logger = get_logger("core.morphological_analyzer")
 
 
-class AnalysisStrategy(ABC):
-    """Abstract strategy for morphological analysis of tokens."""
-
-    @abstractmethod
-    def analyze_tokens(
-        self,
-        tokens: list[str],
-        pos_map: dict[str, PartOfSpeech],
-        forms_map: dict[str, list[str]],
-    ) -> dict[str, list[WordForm]]:
-        """Analyze tokens and return word forms keyed by lemma.
-
-        Args:
-            tokens: Unique lemma strings.
-            pos_map: Lemma-to-POS mapping.
-            forms_map: Lemma-to-observed-forms mapping.
-
-        Returns:
-            ``{lemma: [WordForm, ...]}`` for each lemma.
-        """
-
-
-class NLTKStrategy(AnalysisStrategy):
+class NLTKStrategy:
     """NLTK-based morphological analysis.
 
     Derives morphological features by comparing observed inflected forms
@@ -47,8 +24,6 @@ class NLTKStrategy(AnalysisStrategy):
         pos_map: dict[str, PartOfSpeech],
         forms_map: dict[str, list[str]],
     ) -> dict[str, list[WordForm]]:
-        import nltk  # type: ignore[import-untyped]
-
         results: dict[str, list[WordForm]] = {}
 
         for lemma in lemmas:
@@ -61,7 +36,6 @@ class NLTKStrategy(AnalysisStrategy):
                 ending = self._compute_ending(lemma, form)
                 word_forms.append(WordForm(form=form, ending=ending, features=features))
 
-            # Always include the base form
             if not any(wf.form == lemma for wf in word_forms):
                 word_forms.insert(
                     0,
@@ -84,7 +58,6 @@ class NLTKStrategy(AnalysisStrategy):
     def _infer_features(
         self, lemma: str, form: str, pos: PartOfSpeech
     ) -> MorphologicalFeature:
-        """Heuristic feature inference from form vs lemma."""
         if form == lemma:
             return self._base_features(pos)
 
@@ -136,7 +109,6 @@ class NLTKStrategy(AnalysisStrategy):
         """Compute the suffix that differs between lemma and form."""
         if form == lemma:
             return ""
-        # Find common prefix
         min_len = min(len(lemma), len(form))
         i = 0
         while i < min_len and lemma[i] == form[i]:
@@ -145,7 +117,7 @@ class NLTKStrategy(AnalysisStrategy):
         return f"-{suffix}" if suffix else ""
 
 
-class SpaCyStrategy(AnalysisStrategy):
+class SpaCyStrategy:
     """spaCy-based morphological analysis using spaCy's morphology component."""
 
     def __init__(self, model_name: str = "en_core_web_sm") -> None:
@@ -207,7 +179,6 @@ class SpaCyStrategy(AnalysisStrategy):
 
     @staticmethod
     def _morph_to_features(morph: dict[str, str]) -> MorphologicalFeature:
-        """Convert spaCy morph dict to our MorphologicalFeature."""
         tense_map = {"Past": "past", "Pres": "present"}
         number_map = {"Sing": "singular", "Plur": "plural"}
         person_map = {"1": "1st", "2": "2nd", "3": "3rd"}
@@ -224,21 +195,21 @@ class SpaCyStrategy(AnalysisStrategy):
 
 
 class MorphologicalAnalyzer:
-    """Facade that delegates to a configurable analysis strategy.
+    """Delegates morphological analysis to a configurable backend.
 
     Args:
-        strategy: The analysis strategy to use.
+        strategy: An :class:`NLTKStrategy` or :class:`SpaCyStrategy` instance.
     """
 
-    def __init__(self, strategy: AnalysisStrategy | None = None) -> None:
+    def __init__(self, strategy: NLTKStrategy | SpaCyStrategy | None = None) -> None:
         self._strategy = strategy or NLTKStrategy()
 
     @property
-    def strategy(self) -> AnalysisStrategy:
+    def strategy(self) -> NLTKStrategy | SpaCyStrategy:
         return self._strategy
 
     @strategy.setter
-    def strategy(self, value: AnalysisStrategy) -> None:
+    def strategy(self, value: NLTKStrategy | SpaCyStrategy) -> None:
         self._strategy = value
         logger.info("Morphological strategy changed to %s", type(value).__name__)
 

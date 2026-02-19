@@ -3,43 +3,41 @@
 from __future__ import annotations
 
 from PyQt6.QtWidgets import (
-    QCheckBox,
-    QComboBox,
     QDialog,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QMessageBox,
     QPushButton,
-    QSpinBox,
     QVBoxLayout,
     QWidget,
 )
 
-from config.settings import FlashcardConfig, SettingsManager
-from core.definition_service import DefinitionService
+from config.settings import SettingsManager
+from core.llm_service import LLMService
 from utils.logging_config import get_logger
 
 logger = get_logger("gui.flashcard_settings")
 
 
 class FlashcardSettingsDialog(QDialog):
-    """Settings dialog for flashcard study configuration.
+    """
+    Settings dialog for Groq/LLM API configuration.
 
     Args:
-        definition_service: For testing API connection.
+        llm_service: For testing API connection.
         parent: Parent widget.
+
     """
 
     def __init__(
         self,
-        definition_service: DefinitionService | None = None,
+        llm_service: LLMService | None = None,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
-        self._def_service = definition_service
+        self._llm_service = llm_service
         self.setWindowTitle("Flashcard Settings")
         self.setMinimumWidth(450)
 
@@ -52,30 +50,8 @@ class FlashcardSettingsDialog(QDialog):
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
 
-        # --- Study settings ---
-        study_group = QGroupBox("Study Settings")
-        study_layout = QFormLayout(study_group)
-
-        self._sound_check = QCheckBox("Enable sound effects")
-        study_layout.addRow(self._sound_check)
-
-        self._auto_advance_check = QCheckBox("Auto-advance after selection")
-        study_layout.addRow(self._auto_advance_check)
-
-        self._flip_speed_combo = QComboBox()
-        self._flip_speed_combo.addItem("Slow", "slow")
-        self._flip_speed_combo.addItem("Normal", "normal")
-        self._flip_speed_combo.addItem("Fast", "fast")
-        study_layout.addRow("Card flip speed:", self._flip_speed_combo)
-
-        self._cards_spin = QSpinBox()
-        self._cards_spin.setRange(5, 200)
-        study_layout.addRow("Cards per session:", self._cards_spin)
-
-        layout.addWidget(study_group)
-
         # --- Groq API settings ---
-        api_group = QGroupBox("Definition Generation (Groq API)")
+        api_group = QGroupBox("Groq API (LLM)")
         api_layout = QFormLayout(api_group)
 
         self._api_key_edit = QLineEdit()
@@ -92,9 +68,6 @@ class FlashcardSettingsDialog(QDialog):
         test_row.addStretch()
         api_layout.addRow(test_row)
 
-        self._auto_fetch_check = QCheckBox("Auto-fetch definitions when starting study session")
-        api_layout.addRow(self._auto_fetch_check)
-
         layout.addWidget(api_group)
 
         # --- Buttons ---
@@ -109,17 +82,7 @@ class FlashcardSettingsDialog(QDialog):
         layout.addLayout(btn_layout)
 
     def _load_values(self) -> None:
-        c = self._config
-        self._sound_check.setChecked(c.sound_enabled)
-        self._auto_advance_check.setChecked(c.auto_advance)
-
-        idx = self._flip_speed_combo.findData(c.flip_speed)
-        if idx >= 0:
-            self._flip_speed_combo.setCurrentIndex(idx)
-
-        self._cards_spin.setValue(c.cards_per_session)
-        self._api_key_edit.setText(c.groq_api_key)
-        self._auto_fetch_check.setChecked(c.auto_fetch_definitions)
+        self._api_key_edit.setText(self._config.groq_api_key)
 
     def _on_test_connection(self) -> None:
         key = self._api_key_edit.text().strip()
@@ -130,12 +93,12 @@ class FlashcardSettingsDialog(QDialog):
         self._test_label.setText("Testing...")
         self._btn_test.setEnabled(False)
 
-        if self._def_service is None:
-            self._def_service = DefinitionService(api_key=key)
+        if self._llm_service is None:
+            self._llm_service = LLMService(api_key=key)
         else:
-            self._def_service.api_key = key
+            self._llm_service.api_key = key
 
-        ok = self._def_service.test_connection()
+        ok = self._llm_service.test_connection()
         self._btn_test.setEnabled(True)
 
         if ok:
@@ -144,13 +107,9 @@ class FlashcardSettingsDialog(QDialog):
             self._test_label.setText("Connection failed.")
 
     def _on_save(self) -> None:
-        c = self._settings_mgr.settings.flashcard
-        c.sound_enabled = self._sound_check.isChecked()
-        c.auto_advance = self._auto_advance_check.isChecked()
-        c.flip_speed = self._flip_speed_combo.currentData()
-        c.cards_per_session = self._cards_spin.value()
-        c.groq_api_key = self._api_key_edit.text().strip()
-        c.auto_fetch_definitions = self._auto_fetch_check.isChecked()
+        self._settings_mgr.settings.flashcard.groq_api_key = (
+            self._api_key_edit.text().strip()
+        )
 
         try:
             self._settings_mgr.save()

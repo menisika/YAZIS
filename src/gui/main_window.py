@@ -8,9 +8,7 @@ from typing import TYPE_CHECKING
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction, QKeySequence
 from PyQt6.QtWidgets import (
-    QApplication,
     QFileDialog,
-    QHBoxLayout,
     QMainWindow,
     QMessageBox,
     QSplitter,
@@ -23,7 +21,7 @@ from PyQt6.QtWidgets import (
 from gui.widgets.dictionary_view import DictionaryView
 from gui.widgets.entry_editor import EntryEditor
 from gui.widgets.search_panel import SearchPanel
-from utils.constants import APP_TITLE, DOCX_FILTER, EXPORT_FILTERS
+from utils.constants import APP_TITLE, DOCUMENT_FILTER
 
 if TYPE_CHECKING:
     from gui.controllers.dictionary_controller import DictionaryController
@@ -31,7 +29,8 @@ if TYPE_CHECKING:
 
 
 class MainWindow(QMainWindow):
-    """Application main window.
+    """
+    Application main window.
 
     Layout::
 
@@ -189,23 +188,13 @@ class MainWindow(QMainWindow):
         self.action_generate.triggered.connect(self._on_generate_form)
         tools_menu.addAction(self.action_generate)
 
-        # --- Study menu ---
+        # --- Study menu (LLM/Groq settings) ---
         study_menu = mb.addMenu("&Study")
 
-        self.action_study_session = QAction("&Start Study Session...", self)
-        self.action_study_session.setShortcut(QKeySequence("Ctrl+T"))
-        self.action_study_session.triggered.connect(self._on_start_study)
-        study_menu.addAction(self.action_study_session)
-
-        self.action_study_view = QAction("Study &Current View", self)
-        self.action_study_view.triggered.connect(self._on_study_current_view)
-        study_menu.addAction(self.action_study_view)
-
-        study_menu.addSeparator()
-
-        self.action_batch_defs = QAction("&Batch Generate Definitions", self)
-        self.action_batch_defs.triggered.connect(self._on_batch_definitions)
-        study_menu.addAction(self.action_batch_defs)
+        self.action_generate_task = QAction("&Generate Task...", self)
+        self.action_generate_task.setShortcut(QKeySequence("Ctrl+T"))
+        self.action_generate_task.triggered.connect(self._on_generate_task)
+        study_menu.addAction(self.action_generate_task)
 
         study_menu.addSeparator()
 
@@ -237,8 +226,6 @@ class MainWindow(QMainWindow):
         tb.addAction(self.action_undo)
         tb.addAction(self.action_redo)
         tb.addSeparator()
-        tb.addAction(self.action_study_session)
-        tb.addSeparator()
         tb.addAction(self.action_generate)
 
     def _setup_status_bar(self) -> None:
@@ -256,14 +243,19 @@ class MainWindow(QMainWindow):
 
     def _on_open_document(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
-            self, "Open Document", "", DOCX_FILTER,
+            self,
+            "Open Document",
+            "",
+            DOCUMENT_FILTER,
         )
         if path and self._doc_controller:
             self._doc_controller.load_document(Path(path))
 
     def _on_load_dictionary(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
-            self, "Load Dictionary", "",
+            self,
+            "Load Dictionary",
+            "",
             "Dictionary Files (*.json *.db);;All Files (*)",
         )
         if path and self._dict_controller:
@@ -275,7 +267,9 @@ class MainWindow(QMainWindow):
 
     def _on_save_as(self) -> None:
         path, _ = QFileDialog.getSaveFileName(
-            self, "Save Dictionary As", "",
+            self,
+            "Save Dictionary As",
+            "",
             "JSON Dictionary (*.json);;SQLite Dictionary (*.db)",
         )
         if path and self._dict_controller:
@@ -320,17 +314,9 @@ class MainWindow(QMainWindow):
         if self._dict_controller:
             self._dict_controller.show_generate_form_dialog()
 
-    def _on_start_study(self) -> None:
+    def _on_generate_task(self) -> None:
         if self._dict_controller:
-            self._dict_controller.start_study_session()
-
-    def _on_study_current_view(self) -> None:
-        if self._dict_controller:
-            self._dict_controller.study_current_view()
-
-    def _on_batch_definitions(self) -> None:
-        if self._dict_controller:
-            self._dict_controller.batch_generate_definitions()
+            self._dict_controller.show_task_generator()
 
     def _on_flashcard_settings(self) -> None:
         if self._dict_controller:
@@ -338,6 +324,7 @@ class MainWindow(QMainWindow):
 
     def _on_help(self) -> None:
         from gui.widgets.help_dialog import HelpDialog
+
         dlg = HelpDialog(self)
         dlg.exec()
 

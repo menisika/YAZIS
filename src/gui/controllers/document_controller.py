@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
 from PyQt6.QtWidgets import QMessageBox, QProgressDialog
 
-from core.document_processor import DocumentProcessorFactory
+from core.document_processor import get_processor
 from core.lexical_analyzer import LexicalAnalyzer
 from core.morphological_analyzer import MorphologicalAnalyzer
 from core.rule_engine import RuleEngine
@@ -57,7 +57,7 @@ class AnalysisWorker(QObject):
         try:
             # Step 1: Extract text
             self.progress.emit("Extracting text...", 10)
-            processor = DocumentProcessorFactory.create(self._path)
+            processor = get_processor(self._path)
             text = processor.extract_text(self._path)
 
             # Step 2: Lexical analysis

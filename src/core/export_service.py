@@ -1,12 +1,10 @@
-"""Export service with Strategy pattern for JSON/CSV/TXT formats."""
+"""Export service for JSON/CSV/TXT formats."""
 
 from __future__ import annotations
 
 import csv
 import json
-from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any
 
 from models.lexeme import DictionaryEntry
 from utils.exceptions import ExportError
@@ -15,27 +13,7 @@ from utils.logging_config import get_logger
 logger = get_logger("core.export_service")
 
 
-class ExportStrategy(ABC):
-    """Abstract export strategy."""
-
-    @abstractmethod
-    def export(self, entries: list[DictionaryEntry], path: Path) -> None:
-        """Export entries to the specified path.
-
-        Args:
-            entries: Dictionary entries to export.
-            path: Output file path.
-
-        Raises:
-            ExportError: On write failures.
-        """
-
-    @abstractmethod
-    def file_extension(self) -> str:
-        """Default file extension for this format (e.g. ``'.json'``)."""
-
-
-class JSONExporter(ExportStrategy):
+class JSONExporter:
     """Export dictionary entries as a JSON array."""
 
     def export(self, entries: list[DictionaryEntry], path: Path) -> None:
@@ -52,7 +30,7 @@ class JSONExporter(ExportStrategy):
         return ".json"
 
 
-class CSVExporter(ExportStrategy):
+class CSVExporter:
     """Export dictionary entries as a flat CSV.
 
     Columns: lexeme, stem, pos, frequency, irregular, word_forms (semicolon-separated), notes
@@ -89,7 +67,7 @@ class CSVExporter(ExportStrategy):
         return ".csv"
 
 
-class TXTExporter(ExportStrategy):
+class TXTExporter:
     """Export dictionary entries as human-readable plain text."""
 
     def export(self, entries: list[DictionaryEntry], path: Path) -> None:
@@ -122,25 +100,18 @@ class TXTExporter(ExportStrategy):
 
 
 class ExportService:
-    """Facade that dispatches export to the correct strategy.
-
-    Strategies are registered by format key.
-    """
+    """Dispatches export requests to the correct exporter by format key."""
 
     def __init__(self) -> None:
-        self._strategies: dict[str, ExportStrategy] = {
+        self._exporters: dict[str, JSONExporter | CSVExporter | TXTExporter] = {
             "json": JSONExporter(),
             "csv": CSVExporter(),
             "txt": TXTExporter(),
         }
 
-    def register_strategy(self, key: str, strategy: ExportStrategy) -> None:
-        """Register a custom export strategy."""
-        self._strategies[key.lower()] = strategy
-
     @property
     def available_formats(self) -> list[str]:
-        return list(self._strategies.keys())
+        return list(self._exporters.keys())
 
     def export(
         self,
@@ -158,12 +129,12 @@ class ExportService:
         Raises:
             ExportError: If format is unknown or export fails.
         """
-        strategy = self._strategies.get(fmt.lower())
-        if strategy is None:
+        exporter = self._exporters.get(fmt.lower())
+        if exporter is None:
             raise ExportError(fmt, f"Unknown export format: {fmt}")
-        strategy.export(entries, path)
+        exporter.export(entries, path)
 
     def get_extension(self, fmt: str) -> str:
         """Get the file extension for a format."""
-        strategy = self._strategies.get(fmt.lower())
-        return strategy.file_extension() if strategy else ".txt"
+        exporter = self._exporters.get(fmt.lower())
+        return exporter.file_extension() if exporter else ".txt"

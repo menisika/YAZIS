@@ -11,7 +11,6 @@ from PyQt6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
     QHeaderView,
-    QLabel,
     QLineEdit,
     QMessageBox,
     QPushButton,
@@ -28,14 +27,15 @@ from models.lexeme import DictionaryEntry, MorphologicalFeature, WordForm
 
 
 class EntryEditor(QWidget):
-    """Right-side panel for editing a selected dictionary entry.
+    """
+    Right-side panel for editing a selected dictionary entry.
 
     Signals:
         entry_saved: Emitted with the modified :class:`DictionaryEntry`.
         entry_cancelled: Emitted when the user cancels editing.
     """
 
-    entry_saved = pyqtSignal(object)    # DictionaryEntry
+    entry_saved = pyqtSignal(object)  # DictionaryEntry
     entry_cancelled = pyqtSignal()
 
     def __init__(self, parent: QWidget | None = None) -> None:
@@ -75,7 +75,7 @@ class EntryEditor(QWidget):
         form_layout.addRow("Irregular:", self._irregular_combo)
 
         self._definition_edit = QTextEdit()
-        self._definition_edit.setPlaceholderText("No definition — right-click word to generate")
+        self._definition_edit.setPlaceholderText("No definition")
         self._definition_edit.setMinimumHeight(54)
         self._definition_edit.setMaximumHeight(80)
         form_layout.addRow("Definition:", self._definition_edit)
@@ -91,10 +91,12 @@ class EntryEditor(QWidget):
         self._forms_table.setHorizontalHeaderLabels(["Form", "Ending", "Features"])
         self._forms_table.horizontalHeader().setStretchLastSection(True)
         self._forms_table.horizontalHeader().setSectionResizeMode(
-            0, QHeaderView.ResizeMode.ResizeToContents
+            0,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
         self._forms_table.horizontalHeader().setSectionResizeMode(
-            1, QHeaderView.ResizeMode.ResizeToContents
+            1,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
         forms_layout.addWidget(self._forms_table)
 
@@ -133,27 +135,58 @@ class EntryEditor(QWidget):
 
     def load_entry(self, entry: DictionaryEntry | None) -> None:
         """Populate the editor with an entry."""
-        self._current_entry = deepcopy(entry) if entry else None
+        if entry is not None and not isinstance(entry, DictionaryEntry):
+            self.clear()
+            return
+
         if entry is None:
             self.clear()
             return
 
-        self._lexeme_edit.setText(entry.lexeme)
-        self._stem_edit.setText(entry.stem)
+        try:
+            self._current_entry = deepcopy(entry)
+        except Exception:
+            self._current_entry = entry
 
-        idx = self._pos_combo.findData(entry.pos)
+        self._lexeme_edit.setText(getattr(entry, "lexeme", "") or "")
+        self._stem_edit.setText(getattr(entry, "stem", "") or "")
+
+        pos = getattr(entry, "pos", PartOfSpeech.OTHER)
+        if isinstance(pos, str):
+            try:
+                pos = PartOfSpeech(pos)
+            except ValueError:
+                pos = PartOfSpeech.OTHER
+        idx = self._pos_combo.findData(pos)
         if idx >= 0:
             self._pos_combo.setCurrentIndex(idx)
 
-        self._freq_spin.setValue(entry.frequency)
-        self._irregular_combo.setCurrentIndex(1 if entry.irregular else 0)
-        self._definition_edit.setPlainText(entry.definition)
-        self._notes_edit.setPlainText(entry.notes)
+        self._freq_spin.setValue(getattr(entry, "frequency", 0) or 0)
+        self._irregular_combo.setCurrentIndex(
+            1 if getattr(entry, "irregular", False) else 0
+        )
+        self._definition_edit.setPlainText(
+            getattr(entry, "definition", "") or ""
+        )
+        self._notes_edit.setPlainText(getattr(entry, "notes", "") or "")
 
-        # Populate word forms table
         self._forms_table.setRowCount(0)
-        for wf in entry.word_forms:
-            self._append_form_row(wf.form, wf.ending, wf.features.summary())
+        word_forms = getattr(entry, "word_forms", None) or []
+        for wf in word_forms:
+            form = getattr(wf, "form", None)
+            if form is None and isinstance(wf, dict):
+                form = wf.get("form", "")
+            form = form or ""
+            ending = getattr(wf, "ending", None)
+            if ending is None and isinstance(wf, dict):
+                ending = wf.get("ending", "")
+            ending = ending or ""
+            features = getattr(wf, "features", None)
+            if features is not None and hasattr(features, "summary") and callable(features.summary):
+                features_str = features.summary()
+            else:
+                features_str = str(features) if features is not None else ""
+            self._append_form_row(form, ending, features_str)
 
         self._set_enabled(True)
 
@@ -233,7 +266,9 @@ class EntryEditor(QWidget):
 
             if form_text:
                 features = self._parse_features(feat_text)
-                word_forms.append(WordForm(form=form_text, ending=ending_text, features=features))
+                word_forms.append(
+                    WordForm(form=form_text, ending=ending_text, features=features)
+                )
 
         return DictionaryEntry(
             lexeme=lexeme,

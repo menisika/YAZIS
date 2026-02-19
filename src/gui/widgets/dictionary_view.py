@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from PyQt6.QtCore import QModelIndex, QPoint, Qt, pyqtSignal
-from PyQt6.QtGui import QAction
+from PyQt6.QtCore import QModelIndex, Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QAbstractItemView,
     QHBoxLayout,
@@ -23,16 +22,15 @@ from utils.constants import DEFAULT_PAGE_SIZE
 
 
 class DictionaryView(QWidget):
-    """Table view for browsing dictionary entries with pagination.
+    """
+    Table view for browsing dictionary entries with pagination.
 
     Signals:
         entry_selected: Emitted with the selected :class:`DictionaryEntry`.
     """
 
     entry_selected = pyqtSignal(object)  # DictionaryEntry | None
-    context_add_study = pyqtSignal(object)     # DictionaryEntry
-    context_remove_study = pyqtSignal(object)  # DictionaryEntry
-    context_gen_definition = pyqtSignal(object)  # DictionaryEntry
+    generate_task_requested = pyqtSignal(list)  # list[str] of lexemes
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -51,17 +49,17 @@ class DictionaryView(QWidget):
         self._table = QTableView()
         self._table.setModel(self._proxy_model)
         self._table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        self._table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self._table.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self._table.setSortingEnabled(True)
         self._table.setAlternatingRowColors(True)
         self._table.verticalHeader().setVisible(False)
         self._table.horizontalHeader().setStretchLastSection(True)
         self._table.horizontalHeader().setSectionResizeMode(
-            QHeaderView.ResizeMode.Interactive
+            QHeaderView.ResizeMode.Interactive,
         )
         self._table.selectionModel().currentRowChanged.connect(self._on_row_changed)
         self._table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self._table.customContextMenuRequested.connect(self._show_context_menu)
+        self._table.customContextMenuRequested.connect(self._on_context_menu)
 
         # --- Pagination controls ---
         self._page_label = QLabel("Page 1 / 1")
@@ -113,6 +111,20 @@ class DictionaryView(QWidget):
         source_index = self._proxy_model.mapToSource(index)
         return self._source_model.get_entry(source_index.row())
 
+    def selected_entries(self) -> list[DictionaryEntry]:
+        """Return all currently selected entries (supports multi-select)."""
+        seen_rows: set[int] = set()
+        entries: list[DictionaryEntry] = []
+        for index in self._table.selectionModel().selectedRows():
+            source_index = self._proxy_model.mapToSource(index)
+            row = source_index.row()
+            if row not in seen_rows:
+                seen_rows.add(row)
+                entry = self._source_model.get_entry(row)
+                if entry is not None:
+                    entries.append(entry)
+        return entries
+
     # --- Internal ---
 
     def _refresh(self) -> None:
@@ -149,6 +161,15 @@ class DictionaryView(QWidget):
         self._page = page
         self._refresh()
 
+    def _on_context_menu(self, pos) -> None:  # pos: QPoint
+        entries = self.selected_entries()
+        if not entries:
+            return
+        menu = QMenu(self)
+        action = menu.addAction("Generate Task…")
+        if menu.exec(self._table.viewport().mapToGlobal(pos)) is action:
+            self.generate_task_requested.emit(entries)
+
     def _on_row_changed(self, current: QModelIndex, _previous: QModelIndex) -> None:
         if not current.isValid():
             self.entry_selected.emit(None)
@@ -156,26 +177,3 @@ class DictionaryView(QWidget):
         source_index = self._proxy_model.mapToSource(current)
         entry = self._source_model.get_entry(source_index.row())
         self.entry_selected.emit(entry)
-
-    def _show_context_menu(self, pos: QPoint) -> None:
-        index = self._table.indexAt(pos)
-        if not index.isValid():
-            return
-        source_index = self._proxy_model.mapToSource(index)
-        entry = self._source_model.get_entry(source_index.row())
-        if entry is None:
-            return
-
-        menu = QMenu(self)
-        act_add = menu.addAction("Add to Study List")
-        act_remove = menu.addAction("Remove from Study List")
-        menu.addSeparator()
-        act_def = menu.addAction("Generate Definition")
-
-        action = menu.exec(self._table.viewport().mapToGlobal(pos))
-        if action == act_add:
-            self.context_add_study.emit(entry)
-        elif action == act_remove:
-            self.context_remove_study.emit(entry)
-        elif action == act_def:
-            self.context_gen_definition.emit(entry)

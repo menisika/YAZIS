@@ -43,12 +43,7 @@ class LoggingConfig:
 
 @dataclass
 class FlashcardConfig:
-    sound_enabled: bool = True
-    auto_advance: bool = True
-    flip_speed: str = "normal"  # slow | normal | fast
     groq_api_key: str = ""
-    auto_fetch_definitions: bool = True
-    cards_per_session: int = 20
 
 
 @dataclass
@@ -186,28 +181,12 @@ class SettingsManager:
                     "level", self._settings.logging.level
                 )
 
-        # Flashcard
+        # Flashcard (Groq/LLM)
         if "flashcard" in data:
             fc = data["flashcard"]
             if isinstance(fc, dict):
-                self._settings.flashcard.sound_enabled = fc.get(
-                    "sound_enabled", self._settings.flashcard.sound_enabled
-                )
-                self._settings.flashcard.auto_advance = fc.get(
-                    "auto_advance", self._settings.flashcard.auto_advance
-                )
-                self._settings.flashcard.flip_speed = fc.get(
-                    "flip_speed", self._settings.flashcard.flip_speed
-                )
                 self._settings.flashcard.groq_api_key = fc.get(
                     "groq_api_key", self._settings.flashcard.groq_api_key
-                )
-                self._settings.flashcard.auto_fetch_definitions = fc.get(
-                    "auto_fetch_definitions",
-                    self._settings.flashcard.auto_fetch_definitions,
-                )
-                self._settings.flashcard.cards_per_session = fc.get(
-                    "cards_per_session", self._settings.flashcard.cards_per_session
                 )
 
     def _to_dict(self) -> dict[str, Any]:
@@ -230,11 +209,6 @@ class SettingsManager:
             },
             "logging": {"level": s.logging.level},
             "flashcard": {
-                "sound_enabled": s.flashcard.sound_enabled,
-                "auto_advance": s.flashcard.auto_advance,
-                "flip_speed": s.flashcard.flip_speed,
                 "groq_api_key": s.flashcard.groq_api_key,
-                "auto_fetch_definitions": s.flashcard.auto_fetch_definitions,
-                "cards_per_session": s.flashcard.cards_per_session,
             },
         }

@@ -11,7 +11,6 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-
 _HELP_HTML = """\
 <h2>YAZIS User Guide</h2>
 

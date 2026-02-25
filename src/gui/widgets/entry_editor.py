@@ -1,4 +1,4 @@
-"""Entry editor panel for viewing and editing a single dictionary entry."""
+"""Панель редактора записи: просмотр и редактирование одной записи словаря."""
 
 from __future__ import annotations
 
@@ -28,11 +28,11 @@ from models.lexeme import DictionaryEntry, MorphologicalFeature, WordForm
 
 
 class EntryEditor(QWidget):
-    """Right-side panel for editing a selected dictionary entry.
+    """Правая панель для редактирования выбранной записи словаря.
 
-    Signals:
-        entry_saved: Emitted with the modified :class:`DictionaryEntry`.
-        entry_cancelled: Emitted when the user cancels editing.
+    Сигналы:
+        entry_saved: Изменённая запись DictionaryEntry.
+        entry_cancelled: Пользователь отменил редактирование.
     """
 
     entry_saved = pyqtSignal(object)    # DictionaryEntry
@@ -48,7 +48,7 @@ class EntryEditor(QWidget):
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
 
-        # --- Basic fields ---
+        # Основные поля
         form_group = QGroupBox("Entry Details")
         form_layout = QFormLayout(form_group)
 
@@ -62,7 +62,7 @@ class EntryEditor(QWidget):
 
         self._pos_combo = QComboBox()
         for pos in PartOfSpeech:
-            self._pos_combo.addItem(pos.value, pos)
+            self._pos_combo.addItem(pos.display_name(), pos)
         form_layout.addRow("POS:", self._pos_combo)
 
         self._freq_spin = QSpinBox()
@@ -82,7 +82,7 @@ class EntryEditor(QWidget):
 
         layout.addWidget(form_group)
 
-        # --- Word forms table ---
+        # Таблица словоформ
         forms_group = QGroupBox("Word Forms")
         forms_layout = QVBoxLayout(forms_group)
 
@@ -110,7 +110,7 @@ class EntryEditor(QWidget):
 
         layout.addWidget(forms_group, stretch=1)
 
-        # --- Notes ---
+        # Заметки
         notes_group = QGroupBox("Notes")
         notes_layout = QVBoxLayout(notes_group)
         self._notes_edit = QTextEdit()
@@ -118,7 +118,7 @@ class EntryEditor(QWidget):
         notes_layout.addWidget(self._notes_edit)
         layout.addWidget(notes_group)
 
-        # --- Buttons ---
+        # Кнопки
         buttons = QHBoxLayout()
         self._btn_save = QPushButton("Save")
         self._btn_save.clicked.connect(self._on_save)
@@ -129,10 +129,10 @@ class EntryEditor(QWidget):
         buttons.addWidget(self._btn_cancel)
         layout.addLayout(buttons)
 
-    # --- Public API ---
+    # Публичный API
 
     def load_entry(self, entry: DictionaryEntry | None) -> None:
-        """Populate the editor with an entry."""
+        """Заполнить редактор данными записи."""
         self._current_entry = deepcopy(entry) if entry else None
         if entry is None:
             self.clear()
@@ -150,7 +150,7 @@ class EntryEditor(QWidget):
         self._definition_edit.setPlainText(entry.definition)
         self._notes_edit.setPlainText(entry.notes)
 
-        # Populate word forms table
+        # Заполнить таблицу словоформ
         self._forms_table.setRowCount(0)
         for wf in entry.word_forms:
             self._append_form_row(wf.form, wf.ending, wf.features.summary())
@@ -158,7 +158,7 @@ class EntryEditor(QWidget):
         self._set_enabled(True)
 
     def clear(self) -> None:
-        """Clear all fields."""
+        """Очистить все поля."""
         self._current_entry = None
         self._lexeme_edit.clear()
         self._stem_edit.clear()
@@ -171,13 +171,13 @@ class EntryEditor(QWidget):
         self._set_enabled(False)
 
     def set_new_entry_mode(self, lexeme: str = "") -> None:
-        """Switch to 'create new entry' mode."""
+        """Переключить в режим создания новой записи."""
         self.clear()
         self._lexeme_edit.setReadOnly(False)
         self._lexeme_edit.setText(lexeme)
         self._set_enabled(True)
 
-    # --- Internal ---
+    # Внутренние методы
 
     def _set_enabled(self, enabled: bool) -> None:
         self._stem_edit.setEnabled(enabled)
@@ -208,7 +208,7 @@ class EntryEditor(QWidget):
             self._forms_table.removeRow(row)
 
     def _collect_entry(self) -> DictionaryEntry | None:
-        """Build a DictionaryEntry from current editor state."""
+        """Собрать DictionaryEntry из текущего состояния редактора."""
         lexeme = self._lexeme_edit.text().strip()
         if not lexeme:
             QMessageBox.warning(self, "Validation", "Lexeme cannot be empty.")
@@ -248,7 +248,7 @@ class EntryEditor(QWidget):
 
     @staticmethod
     def _parse_features(text: str) -> MorphologicalFeature:
-        """Parse a 'key=value, key=value' string into MorphologicalFeature."""
+        """Разобрать строку вида key=value, key=value в MorphologicalFeature."""
         feat = MorphologicalFeature()
         if not text:
             return feat

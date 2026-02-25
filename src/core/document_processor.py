@@ -1,4 +1,4 @@
-"""Document processing with Factory pattern for extensibility."""
+"""Обработка документов с паттерном «Фабрика» для расширяемости."""
 
 from __future__ import annotations
 
@@ -12,29 +12,29 @@ logger = get_logger("core.document_processor")
 
 
 class DocumentProcessor(ABC):
-    """Abstract base for document text extraction."""
+    """Абстрактная база для извлечения текста из документов."""
 
     @abstractmethod
     def extract_text(self, path: Path) -> str:
-        """Extract plain text from a document file.
+        """Извлечь обычный текст из файла документа.
 
-        Args:
-            path: Path to the document.
+        Аргументы:
+            path: Путь к документу.
 
-        Returns:
-            Extracted text as a single string.
+        Возвращает:
+            Извлечённый текст одной строкой.
 
-        Raises:
-            DocumentParsingError: If the file cannot be parsed.
+        Исключения:
+            DocumentParsingError: при невозможности разбора файла.
         """
 
     @abstractmethod
     def supported_extensions(self) -> tuple[str, ...]:
-        """Return file extensions this processor handles (e.g. ``('.docx',)``)."""
+        """Расширения файлов, обрабатываемые этим процессором (напр. (.docx,))."""
 
 
 class DocxProcessor(DocumentProcessor):
-    """Extract text from Microsoft Word ``.docx`` files using *python-docx*."""
+    """Извлечение текста из файлов Microsoft Word .docx с помощью python-docx."""
 
     def extract_text(self, path: Path) -> str:
         try:
@@ -55,7 +55,7 @@ class DocxProcessor(DocumentProcessor):
                 if text:
                     paragraphs.append(text)
 
-            # Also extract text from tables
+            # Также извлечь текст из таблиц
             for table in doc.tables:
                 for row in table.rows:
                     for cell in row.cells:
@@ -77,32 +77,32 @@ class DocxProcessor(DocumentProcessor):
 
 
 class DocumentProcessorFactory:
-    """Factory that returns the appropriate :class:`DocumentProcessor` for a file.
+    """Фабрика, возвращающая подходящий DocumentProcessor для файла.
 
-    Extensible: register new processors via :meth:`register`.
+    Расширяемо: новые процессоры регистрируются через register.
     """
 
     _processors: dict[str, DocumentProcessor] = {}
 
     @classmethod
     def register(cls, processor: DocumentProcessor) -> None:
-        """Register a processor for its supported extensions."""
+        """Зарегистрировать процессор для поддерживаемых им расширений."""
         for ext in processor.supported_extensions():
             cls._processors[ext.lower()] = processor
             logger.debug("Registered processor for '%s'", ext)
 
     @classmethod
     def create(cls, path: Path) -> DocumentProcessor:
-        """Get a processor for the given file's extension.
+        """Получить процессор по расширению файла.
 
-        Args:
-            path: Path to the document file.
+        Аргументы:
+            path: Путь к файлу документа.
 
-        Returns:
-            A suitable :class:`DocumentProcessor`.
+        Возвращает:
+            Подходящий DocumentProcessor.
 
-        Raises:
-            UnsupportedFormatError: If no processor is registered.
+        Исключения:
+            UnsupportedFormatError: если процессор не зарегистрирован.
         """
         ext = path.suffix.lower()
         processor = cls._processors.get(ext)
@@ -112,5 +112,5 @@ class DocumentProcessorFactory:
 
     @classmethod
     def register_defaults(cls) -> None:
-        """Register built-in processors."""
+        """Зарегистрировать встроенные процессоры."""
         cls.register(DocxProcessor())

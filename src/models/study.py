@@ -1,4 +1,4 @@
-"""Study progress models for the flashcard system."""
+"""Модели прогресса изучения для системы карточек."""
 
 from __future__ import annotations
 
@@ -15,14 +15,14 @@ logger = get_logger("models.study")
 
 @dataclass
 class StudyRecord:
-    """Tracks study progress for a single lexeme.
+    """Прогресс изучения одной лексемы.
 
-    Attributes:
-        lexeme: The word being studied.
-        known_count: Times the user marked "I know this".
-        practice_count: Times the user marked "Need practice".
-        last_studied: ISO-8601 timestamp of last study.
-        in_study_list: Whether user explicitly added this to study list.
+    Атрибуты:
+        lexeme: Изучаемое слово.
+        known_count: Сколько раз пользователь отметил «Знаю».
+        practice_count: Сколько раз «Нужна практика».
+        last_studied: Время последнего изучения (ISO-8601).
+        in_study_list: Добавлено ли пользователем в список изучения.
     """
 
     lexeme: str
@@ -56,7 +56,7 @@ class StudyRecord:
 
     @property
     def score(self) -> float:
-        """Score between 0.0 (needs practice) and 1.0 (well known)."""
+        """Оценка от 0.0 (нужна практика) до 1.0 (хорошо известно)."""
         if self.total_attempts == 0:
             return 0.0
         return self.known_count / self.total_attempts
@@ -64,16 +64,16 @@ class StudyRecord:
 
 @dataclass
 class StudyProgress:
-    """Aggregation of all study records, with JSON persistence.
+    """Совокупность записей прогресса с сохранением в JSON.
 
-    Attributes:
-        records: Mapping from lowercase lexeme to :class:`StudyRecord`.
+    Атрибуты:
+        records: Словарь: лексема (нижний регистр) -> StudyRecord.
     """
 
     records: dict[str, StudyRecord] = field(default_factory=dict)
 
     def get_or_create(self, lexeme: str) -> StudyRecord:
-        """Get the record for *lexeme*, creating one if absent."""
+        """Получить запись для лексемы, создав при отсутствии."""
         key = lexeme.lower()
         if key not in self.records:
             self.records[key] = StudyRecord(lexeme=lexeme)
@@ -92,7 +92,7 @@ class StudyProgress:
         return cls(records=records)
 
     def save(self, path: Path) -> None:
-        """Persist to a JSON file."""
+        """Сохранить в JSON-файл."""
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
             with open(path, "w", encoding="utf-8") as fh:
@@ -103,7 +103,7 @@ class StudyProgress:
 
     @classmethod
     def load(cls, path: Path) -> StudyProgress:
-        """Load from a JSON file, returning empty progress if missing."""
+        """Загрузить из JSON; при отсутствии файла вернуть пустой прогресс."""
         if not path.exists():
             return cls()
         try:

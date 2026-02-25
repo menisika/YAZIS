@@ -1,4 +1,4 @@
-"""Lexical analysis: tokenization, lemmatization, and frequency counting."""
+"""Лексический анализ: токенизация, лемматизация и подсчёт частот."""
 
 from __future__ import annotations
 
@@ -16,12 +16,12 @@ from utils.logging_config import get_logger
 
 logger = get_logger("core.lexical_analyzer")
 
-# Lazy-initialized mapping from Penn Treebank POS to WordNet POS
+# Отложенная инициализация: соответствие Penn Treebank POS -> WordNet POS
 _WN_POS_MAP: dict[str, str] | None = None
 
 
 def _get_wn_pos_map() -> dict[str, str]:
-    """Lazily build the Penn-to-WordNet POS mapping."""
+    """Построить при первом обращении соответствие Penn -> WordNet POS."""
     global _WN_POS_MAP
     if _WN_POS_MAP is None:
         from nltk.corpus import wordnet  # type: ignore[import-untyped]
@@ -33,28 +33,27 @@ def _get_wn_pos_map() -> dict[str, str]:
         }
     return _WN_POS_MAP
 
-# Tokens to ignore (punctuation, numbers-only, single chars)
+# Токены для игнорирования (пунктуация, только цифры, один символ)
 _SKIP_PATTERN = re.compile(r"^[\W\d_]+$|^.$")
 
 
 class LexicalAnalyzer:
-    """Tokenize text, extract unique lemmas, and count frequencies.
+    """Токенизация текста, извлечение уникальных лемм и подсчёт частот.
 
-    Uses NLTK ``word_tokenize`` for tokenization and ``WordNetLemmatizer``
-    for lemmatization.
+    Использует NLTK word_tokenize для токенизации и WordNetLemmatizer для лемматизации.
     """
 
     def __init__(self) -> None:
         self._lemmatizer = WordNetLemmatizer()
 
     def tokenize(self, text: str) -> list[str]:
-        """Tokenize raw text into lowercase word tokens.
+        """Разбить текст на токены в нижнем регистре.
 
-        Args:
-            text: Input text.
+        Аргументы:
+            text: Входной текст.
 
-        Returns:
-            List of lowercased word tokens with punctuation stripped.
+        Возвращает:
+            Список токенов в нижнем регистре без пунктуации.
         """
         text = normalize_text(text)
         raw_tokens = word_tokenize(text)
@@ -67,26 +66,26 @@ class LexicalAnalyzer:
         return tokens
 
     def pos_tag(self, tokens: list[str]) -> list[tuple[str, str]]:
-        """POS-tag a list of tokens using NLTK's averaged perceptron tagger.
+        """Присвоить частеречные теги списку токенов (NLTK averaged perceptron).
 
-        Args:
-            tokens: List of word tokens.
+        Аргументы:
+            tokens: Список токенов.
 
-        Returns:
-            List of ``(token, POS_tag)`` tuples.
+        Возвращает:
+            Список пар (токен, POS_тег).
         """
         return nltk.pos_tag(tokens)
 
     @lru_cache(maxsize=10_000)
     def lemmatize(self, word: str, penn_tag: str = "NN") -> str:
-        """Lemmatize a single word given its Penn Treebank POS tag.
+        """Лемматизировать слово по тегу Penn Treebank.
 
-        Args:
-            word: Lowercased word.
-            penn_tag: Penn Treebank POS tag.
+        Аргументы:
+            word: Слово в нижнем регистре.
+            penn_tag: POS-тег Penn Treebank.
 
-        Returns:
-            The lemma (base form).
+        Возвращает:
+            Лемма (базовая форма).
         """
         pos_map = _get_wn_pos_map()
         wn_pos = pos_map.get(penn_tag[0], "n")
@@ -95,17 +94,14 @@ class LexicalAnalyzer:
     def extract_lexemes(
         self, text: str
     ) -> tuple[dict[str, int], dict[str, PartOfSpeech], dict[str, list[str]]]:
-        """Full lexeme extraction pipeline.
+        """Полный пайплайн извлечения лексем.
 
-        Args:
-            text: Raw document text.
+        Аргументы:
+            text: Исходный текст документа.
 
-        Returns:
-            A tuple of:
-            - ``freq``: ``{lemma: count}`` frequency map.
-            - ``pos_map``: ``{lemma: PartOfSpeech}`` most-common POS per lemma.
-            - ``forms_map``: ``{lemma: [original_tokens]}`` mapping lemma to
-              all original token forms seen in the text.
+        Возвращает:
+            Кортеж: (freq — {лемма: частота}, pos_map — {лемма: PartOfSpeech},
+            forms_map — {лемма: [исходные_токены]}).
         """
         tokens = self.tokenize(text)
         tagged = self.pos_tag(tokens)
@@ -122,7 +118,7 @@ class LexicalAnalyzer:
             pos_counter.setdefault(lemma, Counter())[pos] += 1
             forms_map.setdefault(lemma, set()).add(token)
 
-        # Pick most common POS for each lemma
+        # Выбрать наиболее частую часть речи для каждой леммы
         pos_map: dict[str, PartOfSpeech] = {}
         for lemma, counter in pos_counter.items():
             pos_map[lemma] = counter.most_common(1)[0][0]

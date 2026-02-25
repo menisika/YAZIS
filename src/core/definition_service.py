@@ -1,4 +1,4 @@
-"""Groq API integration for automatic definition generation."""
+"""Интеграция с Groq API для автоматической генерации определений."""
 
 from __future__ import annotations
 
@@ -14,13 +14,13 @@ logger = get_logger("core.definition_service")
 
 
 class DefinitionService:
-    """Fetches word definitions via the Groq API.
+    """Получает определения слов через Groq API.
 
-    Uses the ``groq`` Python client with the qwen/qwen3-32b model.
-    Supports single-word and batch (threaded) fetching.
+    Использует клиент groq и модель qwen/qwen3-32b.
+    Поддерживает одиночный и пакетный (многопоточный) запрос.
 
-    Args:
-        api_key: Groq API key.
+    Аргументы:
+        api_key: Ключ Groq API.
     """
 
     def __init__(self, api_key: str = "") -> None:
@@ -37,7 +37,7 @@ class DefinitionService:
         self._client = None  # force re-creation
 
     def _get_client(self) -> Any:
-        """Lazy-create the Groq client."""
+        """Создать клиент Groq при первом обращении."""
         if self._client is None:
             if not self._api_key:
                 raise RuntimeError("Groq API key is not configured")
@@ -46,10 +46,10 @@ class DefinitionService:
         return self._client
 
     def test_connection(self) -> bool:
-        """Validate the API key by making a minimal request.
+        """Проверить ключ API минимальным запросом.
 
-        Returns:
-            ``True`` if the API responds successfully.
+        Возвращает:
+            True при успешном ответе API.
         """
         try:
             client = self._get_client()
@@ -64,14 +64,14 @@ class DefinitionService:
             return False
 
     def fetch_definition(self, word: str, pos: str) -> str:
-        """Fetch a definition for a single word.
+        """Получить определение для одного слова.
 
-        Args:
-            word: The English word.
-            pos: Part of speech label (e.g. ``NOUN``, ``VERB``).
+        Аргументы:
+            word: Слово (англ.).
+            pos: Метка части речи (напр. NOUN, VERB).
 
-        Returns:
-            The definition string, or an empty string on failure.
+        Возвращает:
+            Строка определения или пустая строка при ошибке.
         """
         prompt = DEFINITION_PROMPT_TEMPLATE.format(word=word, pos=pos)
         try:
@@ -93,7 +93,7 @@ class DefinitionService:
                 temperature=0.3,
             )
             content = completion.choices[0].message.content or ""
-            # Strip thinking tags if present (qwen3 sometimes wraps in <think>)
+            # Убрать теги размышлений, если есть (qwen3 иногда оборачивает в <think>)
             definition = self._clean_definition(content, word)
             logger.debug("Definition for '%s' (%s): %s", word, pos, definition)
             return definition
@@ -108,16 +108,16 @@ class DefinitionService:
         delay: float = 0.15,
         progress_callback: Any | None = None,
     ) -> dict[str, str]:
-        """Fetch definitions for multiple entries in parallel.
+        """Получить определения для нескольких записей параллельно.
 
-        Args:
-            entries: Entries that need definitions.
-            max_workers: Thread pool size.
-            delay: Delay between requests (seconds) to respect rate limits.
-            progress_callback: Optional ``(completed, total)`` callable.
+        Аргументы:
+            entries: Записи, для которых нужны определения.
+            max_workers: Размер пула потоков.
+            delay: Задержка между запросами (сек) для лимитов.
+            progress_callback: Опционально (completed, total).
 
-        Returns:
-            ``{lexeme: definition}`` mapping for successfully fetched words.
+        Возвращает:
+            Словарь {лексема: определение} для успешно полученных слов.
         """
         results: dict[str, str] = {}
         total = len(entries)
@@ -126,7 +126,7 @@ class DefinitionService:
         def _fetch_one(entry: DictionaryEntry) -> tuple[str, str]:
             nonlocal completed
             time.sleep(delay)  # simple rate limiting
-            defn = self.fetch_definition(entry.lexeme, str(entry.pos))
+            defn = self.fetch_definition(entry.lexeme, entry.pos.display_name())
             return entry.lexeme, defn
 
         with ThreadPoolExecutor(max_workers=max_workers) as pool:
@@ -151,23 +151,23 @@ class DefinitionService:
 
     @staticmethod
     def _clean_definition(text: str, word: str) -> str:
-        """Clean model output to extract only the definition text.
+        """Очистить вывод модели до текста определения.
 
-        Strips ``<think>`` blocks, removes label prefixes like
-        ``Definition:`` or ``word (noun):``, and normalises punctuation.
+        Удаляет блоки <think>, префиксы вроде «Definition:» или «word (noun):»,
+        нормализует пунктуацию.
         """
         import re
 
-        # Remove <think>...</think> blocks (greedy within single block)
+        # Удалить блоки <think>...</think>
         cleaned = re.sub(r"<think>[\s\S]*?</think>", "", text)
 
-        # If there's an unclosed <think> block, drop everything before it ends
+        # При незакрытом блоке <think> отбросить всё до конца
         if "<think>" in cleaned:
             cleaned = cleaned.split("</think>")[-1]
 
         cleaned = cleaned.strip()
 
-        # Remove common label prefixes the model might add
+        # Убрать типичные префиксы, которые может добавить модель
         cleaned = re.sub(
             r"^(?:definition\s*:\s*|" + re.escape(word) + r"\s*(?:\([^)]*\)\s*)?[:\-–]\s*)",
             "",
@@ -175,7 +175,7 @@ class DefinitionService:
             flags=re.IGNORECASE,
         )
 
-        # Remove surrounding quotes
+        # Убрать обрамляющие кавычки
         if len(cleaned) > 2 and cleaned[0] in ('"', "'") and cleaned[-1] == cleaned[0]:
             cleaned = cleaned[1:-1]
 

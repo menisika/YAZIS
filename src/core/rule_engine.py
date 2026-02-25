@@ -1,4 +1,4 @@
-"""Rule engine for word form generation from stem + morphological rules."""
+"""Движок правил генерации словоформ по основе и морфологическим правилам."""
 
 from __future__ import annotations
 
@@ -24,10 +24,10 @@ logger = get_logger("core.rule_engine")
 
 
 class RuleEngine:
-    """Generate inflected word forms from a lexeme and desired features.
+    """Генерация словоизменительных форм по лексеме и заданным признакам.
 
-    Loads irregular form dictionaries on first use and applies
-    regular English morphological rules with spelling adjustments.
+    При первом обращении загружает словари неправильных форм и применяет
+    регулярные английские морфологические правила с учётом орфографии.
     """
 
     def __init__(self) -> None:
@@ -37,7 +37,7 @@ class RuleEngine:
         self._loaded = False
 
     def _ensure_loaded(self) -> None:
-        """Lazy-load irregular form dictionaries."""
+        """Отложенная загрузка словарей неправильных форм."""
         if self._loaded:
             return
         self._irregular_verbs = self._load_json(RESOURCES_DIR / "irregular_verbs.json")
@@ -59,20 +59,20 @@ class RuleEngine:
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
 
-    # --- Public API ---
+    # Публичный API
 
     def generate_form(
         self, lexeme: str, pos: PartOfSpeech, features: MorphologicalFeature
     ) -> WordForm:
-        """Generate a single word form.
+        """Сгенерировать одну словоформу.
 
-        Args:
-            lexeme: Base form (lemma).
-            pos: Part of speech.
-            features: Desired morphological features.
+        Аргументы:
+            lexeme: Базовая форма (лемма).
+            pos: Часть речи.
+            features: Желаемые морфологические признаки.
 
-        Returns:
-            Generated :class:`WordForm`.
+        Возвращает:
+            Сгенерированная WordForm.
         """
         self._ensure_loaded()
 
@@ -93,14 +93,14 @@ class RuleEngine:
     def generate_all_forms(
         self, lexeme: str, pos: PartOfSpeech
     ) -> list[WordForm]:
-        """Generate all standard inflected forms for a lexeme.
+        """Сгенерировать все стандартные словоформы для лексемы.
 
-        Args:
-            lexeme: Base form.
-            pos: Part of speech.
+        Аргументы:
+            lexeme: Базовая форма.
+            pos: Часть речи.
 
-        Returns:
-            List of generated :class:`WordForm` objects.
+        Возвращает:
+            Список сгенерированных WordForm.
         """
         self._ensure_loaded()
 
@@ -116,7 +116,7 @@ class RuleEngine:
             return [WordForm(form=lexeme, ending="", features=MorphologicalFeature())]
 
     def is_irregular(self, lexeme: str, pos: PartOfSpeech) -> bool:
-        """Check whether a lexeme has irregular forms."""
+        """Проверить, есть ли у лексемы неправильные формы."""
         self._ensure_loaded()
         if pos == PartOfSpeech.VERB:
             return lexeme.lower() in self._irregular_verbs
@@ -126,7 +126,7 @@ class RuleEngine:
             return lexeme.lower() in self._irregular_adjectives
         return False
 
-    # --- Verb generation ---
+    # Генерация глаголов
 
     def _generate_verb_form(self, lemma: str, feat: MorphologicalFeature) -> str:
         irr = self._irregular_verbs.get(lemma.lower(), {})
@@ -185,7 +185,7 @@ class RuleEngine:
             forms.append(wf)
         return forms
 
-    # --- Noun generation ---
+    # Генерация существительных
 
     def _generate_noun_form(self, lemma: str, feat: MorphologicalFeature) -> str:
         if feat.number == "plural":
@@ -215,7 +215,7 @@ class RuleEngine:
             self.generate_form(lemma, PartOfSpeech.NOUN, MorphologicalFeature(case="possessive")),
         ]
 
-    # --- Adjective generation ---
+    # Генерация прилагательных
 
     def _generate_adjective_form(self, lemma: str, feat: MorphologicalFeature) -> str:
         irr = self._irregular_adjectives.get(lemma.lower(), {})
@@ -276,7 +276,7 @@ class RuleEngine:
             self.generate_form(lemma, PartOfSpeech.ADJECTIVE, MorphologicalFeature(degree="superlative")),
         ]
 
-    # --- Adverb generation ---
+    # Генерация наречий
 
     def _generate_adverb_form(self, lemma: str, feat: MorphologicalFeature) -> str:
         if feat.degree == "comparative":
@@ -292,7 +292,7 @@ class RuleEngine:
             self.generate_form(lemma, PartOfSpeech.ADVERB, MorphologicalFeature(degree="superlative")),
         ]
 
-    # --- Helpers ---
+    # Вспомогательные методы
 
     @staticmethod
     def _compute_ending(lemma: str, form: str) -> str:

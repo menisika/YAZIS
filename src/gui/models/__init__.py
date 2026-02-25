@@ -1,1 +1,1 @@
-"""Qt data models for GUI views."""
+"""Модели данных Qt для представлений GUI."""

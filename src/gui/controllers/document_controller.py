@@ -1,4 +1,4 @@
-"""Controller for document loading and analysis (runs in QThread)."""
+"""Контроллер загрузки и анализа документов (выполняется в QThread)."""
 
 from __future__ import annotations
 
@@ -26,12 +26,12 @@ logger = get_logger("gui.document_controller")
 
 
 class AnalysisWorker(QObject):
-    """Background worker that runs the full NLP pipeline on a document.
+    """Фоновый воркер: запускает полный NLP-пайплайн по документу.
 
-    Signals:
-        progress: ``(step_name, percentage)``
-        finished: ``(list[DictionaryEntry], source_filename)``
-        error: ``(error_message,)``
+    Сигналы:
+        progress: (название_шага, процент)
+        finished: (list[DictionaryEntry], имя_файла)
+        error: (сообщение_об_ошибке,)
     """
 
     progress = pyqtSignal(str, int)
@@ -55,25 +55,25 @@ class AnalysisWorker(QObject):
 
     def run(self) -> None:
         try:
-            # Step 1: Extract text
+            # Шаг 1: извлечение текста
             self.progress.emit("Extracting text...", 10)
             processor = DocumentProcessorFactory.create(self._path)
             text = processor.extract_text(self._path)
 
-            # Step 2: Lexical analysis
+            # Шаг 2: лексический анализ
             self.progress.emit("Tokenizing and extracting lexemes...", 30)
             freq_map, pos_map, forms_map = self._lexical.extract_lexemes(text)
 
-            # Step 3: Stem extraction
+            # Шаг 3: извлечение основ
             self.progress.emit("Extracting stems...", 50)
             stem_map = self._stem.extract_batch(list(freq_map.keys()))
 
-            # Step 4: Morphological analysis
+            # Шаг 4: морфологический анализ
             self.progress.emit("Analyzing morphology...", 70)
             lemmas = list(freq_map.keys())
             word_forms_map = self._morph.analyze(lemmas, pos_map, forms_map)
 
-            # Step 5: Build entries
+            # Шаг 5: построение записей словаря
             self.progress.emit("Building dictionary entries...", 90)
             entries: list[DictionaryEntry] = []
             for lemma in lemmas:
@@ -83,7 +83,7 @@ class AnalysisWorker(QObject):
                 wf_list = word_forms_map.get(lemma, [])
                 irregular = self._rule.is_irregular(lemma, pos)
 
-                # Supplement with rule-generated forms
+                # Дополнение формами по правилам
                 try:
                     generated = self._rule.generate_all_forms(lemma, pos)
                     seen = {wf.form for wf in wf_list}
@@ -92,7 +92,7 @@ class AnalysisWorker(QObject):
                             wf_list.append(gf)
                             seen.add(gf.form)
                 except Exception:
-                    pass  # Non-critical; keep observed forms
+                    pass  # Некритично; оставляем наблюдаемые формы
 
                 entry = DictionaryEntry(
                     lexeme=lemma,
@@ -115,15 +115,15 @@ class AnalysisWorker(QObject):
 
 
 class DocumentController:
-    """Orchestrates document loading and analysis in a background thread.
+    """Оркестрирует загрузку и анализ документа в фоновом потоке.
 
-    Args:
-        manager: The dictionary manager to populate.
-        lexical_analyzer: Lexical analysis component.
-        morphological_analyzer: Morphological analysis component.
-        stem_extractor: Stem extraction component.
-        rule_engine: Rule engine for form generation.
-        main_window: The main application window.
+    Аргументы:
+        manager: Менеджер словаря для заполнения.
+        lexical_analyzer: Компонент лексического анализа.
+        morphological_analyzer: Компонент морфологического анализа.
+        stem_extractor: Компонент извлечения основ.
+        rule_engine: Движок правил для генерации форм.
+        main_window: Главное окно приложения.
     """
 
     def __init__(
@@ -145,10 +145,10 @@ class DocumentController:
         self._worker: AnalysisWorker | None = None
 
     def load_document(self, path: Path) -> None:
-        """Start document loading and analysis in a background thread.
+        """Запустить загрузку и анализ документа в фоновом потоке.
 
-        Args:
-            path: Path to the ``.docx`` file.
+        Аргументы:
+            path: Путь к файлу .docx.
         """
         if self._thread is not None and self._thread.isRunning():
             QMessageBox.warning(
@@ -160,7 +160,7 @@ class DocumentController:
 
         self._window.update_status(f"Loading {path.name}...")
 
-        # Progress dialog
+        # Диалог прогресса
         self._progress = QProgressDialog(
             "Analyzing document...", "Cancel", 0, 100, self._window
         )
@@ -168,14 +168,14 @@ class DocumentController:
         self._progress.setMinimumDuration(0)
         self._progress.setValue(0)
 
-        # Worker + thread
+        # Воркер и поток
         self._thread = QThread()
         self._worker = AnalysisWorker(
             path, self._lexical, self._morph, self._stem, self._rule
         )
         self._worker.moveToThread(self._thread)
 
-        # Connect signals
+        # Подключение сигналов
         self._thread.started.connect(self._worker.run)
         self._worker.progress.connect(self._on_progress)
         self._worker.finished.connect(self._on_finished)
@@ -196,7 +196,7 @@ class DocumentController:
     def _on_finished(self, entries: list[DictionaryEntry], filename: str) -> None:
         self._progress.close()
         self._manager.bulk_add(entries)
-        # Record source document
+        # Записать исходный документ
         if filename not in self._manager.dictionary.metadata.source_documents:
             self._manager.dictionary.metadata.source_documents.append(filename)
         self._window.update_status(

@@ -1,4 +1,4 @@
-"""Full study session dialog with flashcard display and controls."""
+"""Диалог сессии изучения с отображением карточек и управлением."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 
 class _DefinitionFetchWorker(QObject):
-    """Background worker to batch-fetch definitions."""
+    """Фоновый воркер для пакетной загрузки определений."""
 
     progress = pyqtSignal(int, int)  # (completed, total)
     finished = pyqtSignal(dict)       # {lexeme: definition}
@@ -52,21 +52,20 @@ class _DefinitionFetchWorker(QObject):
 
 
 class StudySessionDialog(QDialog):
-    """Main study session dialog.
+    """Главный диалог сессии изучения.
 
-    Displays flashcards one by one with flip animation, and records
-    user responses.
+    Показывает карточки по одной с анимацией переворота и записывает ответы пользователя.
 
-    Args:
-        entries: The entries to study.
-        mode: One of ``word_to_def``, ``def_to_word``, ``word_form_practice``.
-        study_manager: For recording results.
-        definition_service: For pre-fetching definitions.
-        sound_manager: For audio feedback.
-        rule_engine: For word form practice mode.
-        flip_speed: Animation speed key.
-        auto_advance: Auto-advance after response.
-        parent: Parent widget.
+    Аргументы:
+        entries: Записи для изучения.
+        mode: Один из: word_to_def, def_to_word, word_form_practice.
+        study_manager: Для записи результатов.
+        definition_service: Для предзагрузки определений.
+        sound_manager: Для звуковой обратной связи.
+        rule_engine: Для режима практики словоформ.
+        flip_speed: Ключ скорости анимации.
+        auto_advance: Автопереход после ответа.
+        parent: Родительский виджет.
     """
 
     def __init__(
@@ -93,7 +92,7 @@ class StudySessionDialog(QDialog):
         self._known_count = 0
         self._answered = False
 
-        # For word_form_practice: store the target form for current card
+        # Для word_form_practice: целевая форма текущей карточки
         self._current_target_form = ""
 
         self.setWindowTitle("Study Session")
@@ -109,7 +108,7 @@ class StudySessionDialog(QDialog):
     def _setup_ui(self, flip_speed: str) -> None:
         layout = QVBoxLayout(self)
 
-        # Header
+        # Заголовок
         header = QHBoxLayout()
         mode_labels = {
             "word_to_def": "Word -> Definition",
@@ -123,19 +122,19 @@ class StudySessionDialog(QDialog):
         header.addWidget(self._progress_label)
         layout.addLayout(header)
 
-        # Flashcard
+        # Карточка
         self._card = FlashcardWidget()
         self._card.set_speed(flip_speed)
         self._card.flipped.connect(self._on_flipped)
         layout.addWidget(self._card, stretch=1)
 
-        # Flip button
+        # Кнопка переворота
         self._btn_flip = QPushButton("Flip Card  (Space)")
         self._btn_flip.setFixedHeight(36)
         self._btn_flip.clicked.connect(self._on_flip)
         layout.addWidget(self._btn_flip)
 
-        # Response buttons (hidden until flipped)
+        # Кнопки ответа (скрыты до переворота)
         resp_layout = QHBoxLayout()
         self._btn_know = QPushButton("I Know This  (K)")
         self._btn_know.setFixedHeight(36)
@@ -148,7 +147,7 @@ class StudySessionDialog(QDialog):
         resp_layout.addWidget(self._btn_practice)
         layout.addLayout(resp_layout)
 
-        # Skip / Exit
+        # Пропуск / Выход
         bottom = QHBoxLayout()
         self._btn_skip = QPushButton("Skip  (S)")
         self._btn_skip.clicked.connect(self._on_skip)
@@ -167,10 +166,10 @@ class StudySessionDialog(QDialog):
         QShortcut(QKeySequence(Qt.Key.Key_N), self).activated.connect(self._on_practice)
         QShortcut(QKeySequence(Qt.Key.Key_S), self).activated.connect(self._on_skip)
 
-    # --- Pre-fetch definitions ---
+    # Предзагрузка определений
 
     def prefetch_definitions(self) -> None:
-        """Check for missing definitions and fetch them before starting."""
+        """Проверить отсутствующие определения и загрузить их до начала."""
         if self._def_service is None or not self._def_service.api_key:
             return
         if self._mode == "word_form_practice":
@@ -202,7 +201,7 @@ class StudySessionDialog(QDialog):
                     entry.definition = results[entry.lexeme]
             progress.close()
             self._fetch_thread.quit()
-            # Reload current card in case definition was just fetched
+            # Перезагрузить текущую карточку, если определение только что подгрузилось
             if self._entries:
                 self._load_card(self._index)
 
@@ -218,10 +217,10 @@ class StudySessionDialog(QDialog):
 
         self._fetch_thread.start()
 
-    # --- Card loading ---
+    # Загрузка карточки
 
     def _load_card(self, index: int) -> None:
-        """Load a card by index."""
+        """Загрузить карточку по индексу."""
         self._index = index
         self._answered = False
         total = len(self._entries)
@@ -235,15 +234,15 @@ class StudySessionDialog(QDialog):
 
         if self._mode == "word_to_def":
             front = entry.lexeme
-            back = entry.definition or f"({entry.pos.value}) — no definition available"
+            back = entry.definition or f"({entry.pos.display_name()}) — no definition available"
         elif self._mode == "def_to_word":
-            front = entry.definition or f"(No definition for this {entry.pos.value})"
+            front = entry.definition or f"(No definition for this {entry.pos.display_name()})"
             back = entry.lexeme
         elif self._mode == "word_form_practice":
             front, back = self._prepare_word_form_card(entry)
         else:
             front = entry.lexeme
-            back = entry.definition or entry.notes or str(entry.pos)
+            back = entry.definition or entry.notes or entry.pos.display_name()
 
         self._card.set_front(front)
         self._card.set_back(back)
@@ -252,11 +251,11 @@ class StudySessionDialog(QDialog):
         self._btn_flip.setEnabled(True)
 
     def _prepare_word_form_card(self, entry: DictionaryEntry) -> tuple[str, str]:
-        """Prepare front/back text for word form practice mode."""
+        """Подготовить текст лицевой/оборотной стороны для режима практики словоформ."""
         if not entry.word_forms:
             return entry.lexeme, entry.lexeme
 
-        # Pick a random word form that differs from the base
+        # Выбрать случайную словоформу, отличную от базовой
         candidates = [wf for wf in entry.word_forms if wf.form != entry.lexeme]
         if not candidates:
             candidates = entry.word_forms
@@ -268,7 +267,7 @@ class StudySessionDialog(QDialog):
         back = target.form
         return front, back
 
-    # --- User actions ---
+    # Действия пользователя
 
     def _on_flip(self) -> None:
         if not self._card.is_animating and not self._card.is_flipped:
@@ -304,7 +303,7 @@ class StudySessionDialog(QDialog):
         self._advance()
 
     def _advance(self) -> None:
-        """Move to the next card."""
+        """Перейти к следующей карточке."""
         next_idx = self._index + 1
         if next_idx >= len(self._entries):
             self._on_session_complete()
@@ -328,7 +327,7 @@ class StudySessionDialog(QDialog):
         )
         self.accept()
 
-    # --- Helpers ---
+    # Вспомогательные методы
 
     def _set_response_visible(self, visible: bool) -> None:
         self._btn_know.setVisible(visible)

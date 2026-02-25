@@ -1,4 +1,4 @@
-"""Dictionary aggregate root holding metadata and entries."""
+"""Агрегат словаря: метаданные и записи."""
 
 from __future__ import annotations
 
@@ -11,14 +11,14 @@ from models.lexeme import DictionaryEntry
 
 @dataclass(slots=True)
 class DictionaryMetadata:
-    """Metadata for a persisted dictionary.
+    """Метаданные сохранённого словаря.
 
-    Attributes:
-        created: ISO-8601 creation timestamp.
-        modified: ISO-8601 last-modified timestamp.
-        language: Language of the dictionary.
-        total_lexemes: Number of entries (cached count).
-        source_documents: List of source document filenames.
+    Атрибуты:
+        created: Время создания (ISO-8601).
+        modified: Время последнего изменения (ISO-8601).
+        language: Язык словаря.
+        total_lexemes: Количество записей (кэш).
+        source_documents: Список имён исходных документов.
     """
 
     created: str = ""
@@ -28,7 +28,7 @@ class DictionaryMetadata:
     source_documents: list[str] = field(default_factory=list)
 
     def touch(self) -> None:
-        """Update the modified timestamp to now."""
+        """Обновить время последнего изменения на текущее."""
         self.modified = datetime.now(timezone.utc).isoformat()
 
     def to_dict(self) -> dict[str, Any]:
@@ -53,23 +53,23 @@ class DictionaryMetadata:
 
 @dataclass
 class Dictionary:
-    """The top-level dictionary aggregate.
+    """Корневой агрегат словаря.
 
-    Holds an indexed collection of :class:`DictionaryEntry` objects.
-    Provides O(1) lookup by lexeme through an internal hash map.
+    Хранит индексированную коллекцию DictionaryEntry.
+    Поиск по лексеме за O(1) через внутренний словарь.
 
-    Attributes:
-        metadata: Dictionary-level metadata.
-        _entries: Internal dict keyed by lowercase lexeme.
+    Атрибуты:
+        metadata: Метаданные словаря.
+        _entries: Внутренний словарь: лексема (нижний регистр) -> запись.
     """
 
     metadata: DictionaryMetadata = field(default_factory=DictionaryMetadata)
     _entries: dict[str, DictionaryEntry] = field(default_factory=dict)
 
-    # --- CRUD operations ---
+    # CRUD
 
     def add_entry(self, entry: DictionaryEntry) -> None:
-        """Add or merge an entry. Merges word forms if entry already exists."""
+        """Добавить или слить запись. При существовании объединяет словоформы."""
         key = entry.lexeme.lower()
         if key in self._entries:
             existing = self._entries[key]
@@ -81,29 +81,29 @@ class Dictionary:
         self._sync_count()
 
     def get_entry(self, lexeme: str) -> DictionaryEntry | None:
-        """O(1) lookup by lexeme."""
+        """Поиск по лексеме за O(1)."""
         return self._entries.get(lexeme.lower())
 
     def remove_entry(self, lexeme: str) -> DictionaryEntry | None:
-        """Remove and return an entry, or ``None`` if not found."""
+        """Удалить и вернуть запись или None, если не найдена."""
         entry = self._entries.pop(lexeme.lower(), None)
         if entry is not None:
             self._sync_count()
         return entry
 
     def update_entry(self, entry: DictionaryEntry) -> None:
-        """Replace an existing entry wholesale."""
+        """Заменить существующую запись целиком."""
         self._entries[entry.lexeme.lower()] = entry
         self._sync_count()
 
     def has_entry(self, lexeme: str) -> bool:
         return lexeme.lower() in self._entries
 
-    # --- Iteration / bulk ---
+    # Итерация и массовые операции
 
     @property
     def entries(self) -> list[DictionaryEntry]:
-        """All entries sorted alphabetically."""
+        """Все записи, отсортированные по алфавиту."""
         return sorted(self._entries.values(), key=lambda e: e.lexeme.lower())
 
     def __len__(self) -> int:
@@ -113,11 +113,11 @@ class Dictionary:
         return iter(self.entries)
 
     def clear(self) -> None:
-        """Remove all entries."""
+        """Удалить все записи."""
         self._entries.clear()
         self._sync_count()
 
-    # --- Serialization ---
+    # Сериализация
 
     def to_dict(self) -> dict[str, Any]:
         self._sync_count()
@@ -136,7 +136,7 @@ class Dictionary:
         d._sync_count()
         return d
 
-    # --- Internal ---
+    # Внутренние методы
 
     def _sync_count(self) -> None:
         self.metadata.total_lexemes = len(self._entries)

@@ -1,4 +1,4 @@
-"""Export service with Strategy pattern for JSON/CSV/TXT formats."""
+"""Сервис экспорта с паттерном «Стратегия» для форматов JSON/CSV/TXT."""
 
 from __future__ import annotations
 
@@ -16,27 +16,27 @@ logger = get_logger("core.export_service")
 
 
 class ExportStrategy(ABC):
-    """Abstract export strategy."""
+    """Абстрактная стратегия экспорта."""
 
     @abstractmethod
     def export(self, entries: list[DictionaryEntry], path: Path) -> None:
-        """Export entries to the specified path.
+        """Экспортировать записи по указанному пути.
 
-        Args:
-            entries: Dictionary entries to export.
-            path: Output file path.
+        Аргументы:
+            entries: Записи словаря для экспорта.
+            path: Путь к выходному файлу.
 
-        Raises:
-            ExportError: On write failures.
+        Исключения:
+            ExportError: при ошибках записи.
         """
 
     @abstractmethod
     def file_extension(self) -> str:
-        """Default file extension for this format (e.g. ``'.json'``)."""
+        """Расширение по умолчанию для формата (напр. .json)."""
 
 
 class JSONExporter(ExportStrategy):
-    """Export dictionary entries as a JSON array."""
+    """Экспорт записей словаря в виде JSON-массива."""
 
     def export(self, entries: list[DictionaryEntry], path: Path) -> None:
         try:
@@ -53,9 +53,9 @@ class JSONExporter(ExportStrategy):
 
 
 class CSVExporter(ExportStrategy):
-    """Export dictionary entries as a flat CSV.
+    """Экспорт записей словаря в плоский CSV.
 
-    Columns: lexeme, stem, pos, frequency, irregular, word_forms (semicolon-separated), notes
+    Колонки: lexeme, stem, pos, frequency, irregular, word_forms (через точку с запятой), notes, definition.
     """
 
     def export(self, entries: list[DictionaryEntry], path: Path) -> None:
@@ -65,7 +65,7 @@ class CSVExporter(ExportStrategy):
                 writer = csv.writer(fh)
                 writer.writerow([
                     "lexeme", "stem", "pos", "frequency", "irregular",
-                    "word_forms", "notes",
+                    "word_forms", "notes", "definition",
                 ])
                 for entry in entries:
                     forms_str = "; ".join(
@@ -75,11 +75,12 @@ class CSVExporter(ExportStrategy):
                     writer.writerow([
                         entry.lexeme,
                         entry.stem,
-                        str(entry.pos),
+                        entry.pos.display_name(),
                         entry.frequency,
                         entry.irregular,
                         forms_str,
                         entry.notes,
+                        entry.definition,
                     ])
             logger.info("Exported %d entries to CSV: %s", len(entries), path)
         except OSError as exc:
@@ -90,7 +91,7 @@ class CSVExporter(ExportStrategy):
 
 
 class TXTExporter(ExportStrategy):
-    """Export dictionary entries as human-readable plain text."""
+    """Экспорт записей словаря в читаемый текстовый формат."""
 
     def export(self, entries: list[DictionaryEntry], path: Path) -> None:
         try:
@@ -101,10 +102,12 @@ class TXTExporter(ExportStrategy):
 
                 for entry in entries:
                     fh.write(f"--- {entry.lexeme} ---\n")
-                    fh.write(f"  POS:       {entry.pos}\n")
-                    fh.write(f"  Stem:      {entry.stem}\n")
-                    fh.write(f"  Frequency: {entry.frequency}\n")
-                    fh.write(f"  Irregular: {'Yes' if entry.irregular else 'No'}\n")
+                    fh.write(f"  POS:        {entry.pos.display_name()}\n")
+                    fh.write(f"  Stem:       {entry.stem}\n")
+                    fh.write(f"  Frequency:  {entry.frequency}\n")
+                    fh.write(f"  Irregular:  {'Yes' if entry.irregular else 'No'}\n")
+                    if entry.definition:
+                        fh.write(f"  Definition: {entry.definition}\n")
                     if entry.word_forms:
                         fh.write("  Forms:\n")
                         for wf in entry.word_forms:
@@ -122,9 +125,9 @@ class TXTExporter(ExportStrategy):
 
 
 class ExportService:
-    """Facade that dispatches export to the correct strategy.
+    """Фасад: направляет экспорт в нужную стратегию.
 
-    Strategies are registered by format key.
+    Стратегии регистрируются по ключу формата.
     """
 
     def __init__(self) -> None:
@@ -135,7 +138,7 @@ class ExportService:
         }
 
     def register_strategy(self, key: str, strategy: ExportStrategy) -> None:
-        """Register a custom export strategy."""
+        """Зарегистрировать пользовательскую стратегию экспорта."""
         self._strategies[key.lower()] = strategy
 
     @property
@@ -148,15 +151,15 @@ class ExportService:
         path: Path,
         fmt: str = "json",
     ) -> None:
-        """Export entries to the given format and path.
+        """Экспортировать записи в заданном формате по пути.
 
-        Args:
-            entries: Entries to export.
-            path: Output file path.
-            fmt: Format key (``json``, ``csv``, ``txt``).
+        Аргументы:
+            entries: Записи для экспорта.
+            path: Путь к выходному файлу.
+            fmt: Ключ формата (json, csv, txt).
 
-        Raises:
-            ExportError: If format is unknown or export fails.
+        Исключения:
+            ExportError: при неизвестном формате или ошибке экспорта.
         """
         strategy = self._strategies.get(fmt.lower())
         if strategy is None:
@@ -164,6 +167,6 @@ class ExportService:
         strategy.export(entries, path)
 
     def get_extension(self, fmt: str) -> str:
-        """Get the file extension for a format."""
+        """Получить расширение файла для формата."""
         strategy = self._strategies.get(fmt.lower())
         return strategy.file_extension() if strategy else ".txt"

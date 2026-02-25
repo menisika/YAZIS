@@ -1,4 +1,4 @@
-"""Domain models for the dictionary system."""
+"""Доменные модели системы словаря."""
 
 from models.enums import PartOfSpeech
 from models.lexeme import DictionaryEntry, MorphologicalFeature, WordForm

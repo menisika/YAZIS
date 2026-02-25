@@ -1,4 +1,4 @@
-"""Animated flip-card widget for flashcard study."""
+"""Виджет анимированной переворачивающейся карточки для изучения."""
 
 from __future__ import annotations
 
@@ -17,14 +17,13 @@ from utils.constants import FLIP_SPEED_MS
 
 
 class FlashcardWidget(QWidget):
-    """A card widget with animated horizontal flip.
+    """Виджет карточки с анимацией горизонтального переворота.
 
-    The card displays *front* text and, after :meth:`flip`, displays
-    *back* text.  The animation shrinks the card horizontally to its
-    midpoint, swaps content, then expands back.
+    На карточке показывается текст лицевой стороны, после flip — оборотной.
+    Анимация сжимает карточку по горизонтали до середины, меняет контент, затем разворачивает.
 
-    Signals:
-        flipped: Emitted after the flip animation completes.
+    Сигналы:
+        flipped: По завершении анимации переворота.
     """
 
     flipped = pyqtSignal()
@@ -39,7 +38,7 @@ class FlashcardWidget(QWidget):
 
         self.setMinimumSize(400, 250)
 
-        # Central label
+        # Центральная подпись
         self._label = QLabel()
         self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._label.setWordWrap(True)
@@ -60,25 +59,25 @@ class FlashcardWidget(QWidget):
         layout.setContentsMargins(16, 16, 16, 16)
         layout.addWidget(self._label)
 
-        # Flip animation
+        # Анимация переворота
         self._animation = QPropertyAnimation(self, b"flipProgress")
         self._animation.setEasingCurve(QEasingCurve.Type.InOutQuad)
         self._animation.finished.connect(self._on_animation_finished)
 
-    # --- Qt property for animation ---
+    # Свойство Qt для анимации
 
     def _get_flip_progress(self) -> float:
         return self._flip_progress
 
     def _set_flip_progress(self, value: float) -> None:
         self._flip_progress = value
-        # Scale the label horizontally based on progress
+        # Масштабировать подпись по горизонтали в зависимости от прогресса
         if value <= 0.5:
             scale = 1.0 - 2.0 * value  # 1.0 -> 0.0
         else:
             scale = 2.0 * (value - 0.5)  # 0.0 -> 1.0
 
-        # Swap content at the midpoint
+        # Поменять контент в середине
         if value >= 0.5 and not self._is_flipped:
             self._is_flipped = True
             self._label.setText(self._back_text)
@@ -86,7 +85,7 @@ class FlashcardWidget(QWidget):
             self._is_flipped = False
             self._label.setText(self._front_text)
 
-        # Apply horizontal scaling via geometry transform
+        # Применить горизонтальное масштабирование через геометрию
         full_width = self.width() - 32  # account for margins
         scaled_width = max(1, int(full_width * scale))
         x_offset = (full_width - scaled_width) // 2 + 16
@@ -99,30 +98,30 @@ class FlashcardWidget(QWidget):
 
     flipProgress = pyqtProperty(float, _get_flip_progress, _set_flip_progress)
 
-    # --- Public API ---
+    # Публичный API
 
     def set_front(self, text: str) -> None:
-        """Set the front-of-card text."""
+        """Установить текст лицевой стороны карточки."""
         self._front_text = text
         if not self._is_flipped:
             self._label.setText(text)
 
     def set_back(self, text: str) -> None:
-        """Set the back-of-card text."""
+        """Установить текст оборотной стороны карточки."""
         self._back_text = text
         if self._is_flipped:
             self._label.setText(text)
 
     def set_speed(self, speed_key: str) -> None:
-        """Set the flip animation speed.
+        """Задать скорость анимации переворота.
 
-        Args:
-            speed_key: One of ``slow``, ``normal``, ``fast``.
+        Аргументы:
+            speed_key: Одно из: slow, normal, fast.
         """
         self._speed_key = speed_key
 
     def flip(self) -> None:
-        """Start the flip animation."""
+        """Запустить анимацию переворота."""
         if self._animation.state() == QPropertyAnimation.State.Running:
             return
         duration = FLIP_SPEED_MS.get(self._speed_key, 350)
@@ -136,12 +135,12 @@ class FlashcardWidget(QWidget):
         self._animation.start()
 
     def reset(self) -> None:
-        """Reset the card to show the front without animation."""
+        """Вернуть карточку на лицевую сторону без анимации."""
         self._animation.stop()
         self._is_flipped = False
         self._flip_progress = 0.0
         self._label.setText(self._front_text)
-        # Restore full geometry
+        # Восстановить полную геометрию
         self._label.setGeometry(
             16, 16, self.width() - 32, self.height() - 32
         )
@@ -154,13 +153,13 @@ class FlashcardWidget(QWidget):
     def is_animating(self) -> bool:
         return self._animation.state() == QPropertyAnimation.State.Running
 
-    # --- Internal ---
+    # Внутренние методы
 
     def _on_animation_finished(self) -> None:
         self.flipped.emit()
 
     def resizeEvent(self, event: object) -> None:  # noqa: N802
-        """Keep the label sized correctly after resize."""
+        """Поддерживать корректный размер подписи после изменения размера."""
         super().resizeEvent(event)  # type: ignore[arg-type]
         if not self._animation.state() == QPropertyAnimation.State.Running:
             self._label.setGeometry(

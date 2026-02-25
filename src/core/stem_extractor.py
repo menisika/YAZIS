@@ -1,4 +1,4 @@
-"""Stem extraction wrappers (Porter / Snowball)."""
+"""Обёртки извлечения основ (Porter / Snowball)."""
 
 from __future__ import annotations
 
@@ -11,15 +11,15 @@ logger = get_logger("core.stem_extractor")
 
 
 class Stemmer(ABC):
-    """Abstract stemmer interface."""
+    """Абстрактный интерфейс стеммера."""
 
     @abstractmethod
     def stem(self, word: str) -> str:
-        """Return the stem of *word*."""
+        """Вернуть основу слова."""
 
 
 class PorterStemmer(Stemmer):
-    """Wrapper around NLTK's Porter stemmer."""
+    """Обёртка над стеммером Porter из NLTK."""
 
     def __init__(self) -> None:
         from nltk.stem import PorterStemmer as _PorterStemmer  # type: ignore[import-untyped]
@@ -31,7 +31,7 @@ class PorterStemmer(Stemmer):
 
 
 class SnowballStemmer(Stemmer):
-    """Wrapper around NLTK's Snowball stemmer for English."""
+    """Обёртка над стеммером Snowball (английский) из NLTK."""
 
     def __init__(self) -> None:
         from nltk.stem import SnowballStemmer as _SnowballStemmer  # type: ignore[import-untyped]
@@ -43,10 +43,10 @@ class SnowballStemmer(Stemmer):
 
 
 class StemExtractor:
-    """High-level API for stem extraction.
+    """Высокоуровневый API извлечения основ.
 
-    Args:
-        algorithm: ``'porter'`` or ``'snowball'`` (default).
+    Аргументы:
+        algorithm: 'porter' или 'snowball' (по умолчанию).
     """
 
     def __init__(self, algorithm: str = "snowball") -> None:
@@ -59,24 +59,24 @@ class StemExtractor:
         logger.debug("StemExtractor initialized with %s algorithm", algorithm)
 
     def extract(self, word: str) -> str:
-        """Extract the stem of a word.
+        """Извлечь основу слова.
 
-        Args:
-            word: Lowercased word.
+        Аргументы:
+            word: Слово в нижнем регистре.
 
-        Returns:
-            The stemmed form.
+        Возвращает:
+            Стеммированная форма.
         """
         return self._stemmer.stem(word.lower())
 
     def extract_batch(self, words: list[str]) -> dict[str, str]:
-        """Extract stems for a batch of words.
+        """Извлечь основы для списка слов.
 
-        Args:
-            words: List of words.
+        Аргументы:
+            words: Список слов.
 
-        Returns:
-            ``{word: stem}`` mapping.
+        Возвращает:
+            Словарь {слово: основа}.
         """
         return {w: self.extract(w) for w in words}
 

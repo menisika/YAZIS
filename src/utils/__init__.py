@@ -1,1 +1,1 @@
-"""Utility modules: constants, exceptions, helpers."""
+"""Вспомогательные модули: константы, исключения, хелперы."""

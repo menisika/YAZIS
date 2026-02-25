@@ -1,4 +1,4 @@
-"""Sound manager: plays random music from data/music folder."""
+"""Менеджер звука: воспроизведение случайной музыки из папки data/music."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ _AUDIO_EXTENSIONS = {".mp3", ".wav", ".ogg", ".m4a", ".flac"}
 
 
 def _get_music_files() -> list[Path]:
-    """Collect all audio files from the music directory."""
+    """Собрать все аудиофайлы из каталога музыки."""
     if not MUSIC_DIR.exists():
         return []
     return [
@@ -32,14 +32,12 @@ def _get_music_files() -> list[Path]:
 
 
 class SoundManager:
-    """
-    Manages sound playback using QMediaPlayer.
+    """Управление воспроизведением звука через QMediaPlayer.
 
-    Plays a random song from src/data/music on each play() call.
+    При каждом вызове play() воспроизводит случайный трек из src/data/music.
 
-    Args:
-        enabled: Whether sounds are enabled initially.
-
+    Аргументы:
+        enabled: Включён ли звук изначально.
     """
 
     def __init__(self, *, enabled: bool = True) -> None:
@@ -56,7 +54,7 @@ class SoundManager:
         self._enabled = value
 
     def _ensure_player(self) -> bool:
-        """Lazy-init QMediaPlayer and QAudioOutput. Returns False if unavailable."""
+        """Отложенная инициализация QMediaPlayer и QAudioOutput. Возвращает False при недоступности."""
         if self._player is not None:
             return True
         if QMediaPlayer is None or QAudioOutput is None or QUrl is None:
@@ -72,13 +70,10 @@ class SoundManager:
             return False
 
     def play(self, _name: str = "") -> None:
-        """
-        Play a random song from the music folder (non-blocking).
+        """Воспроизвести случайный трек из папки музыки (неблокирующе).
 
-        Args:
-            name: Ignored; kept for API compatibility with callers
-                  that pass ``ding``, ``whoosh``, ``tada``.
-
+        Аргументы:
+            name: Игнорируется; оставлен для совместимости API (ding, whoosh, tada).
         """
         if not self._enabled:
             return

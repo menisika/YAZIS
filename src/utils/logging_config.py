@@ -1,4 +1,4 @@
-"""Logging configuration for the application."""
+"""Настройка логирования приложения."""
 
 from __future__ import annotations
 
@@ -10,11 +10,11 @@ from utils.constants import APP_NAME, USER_DATA_DIR
 
 
 def setup_logging(level: int = logging.INFO, log_dir: Path | None = None) -> None:
-    """Configure application-wide logging.
+    """Настроить логирование для всего приложения.
 
-    Args:
-        level: Root log level.
-        log_dir: Directory for log files. Defaults to ~/.yazis/logs.
+    Аргументы:
+        level: Корневой уровень логирования.
+        log_dir: Каталог для лог-файлов. По умолчанию ~/.yazis/logs.
     """
     log_dir = log_dir or (USER_DATA_DIR / "logs")
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -23,7 +23,7 @@ def setup_logging(level: int = logging.INFO, log_dir: Path | None = None) -> Non
     root_logger = logging.getLogger(APP_NAME)
     root_logger.setLevel(level)
 
-    # Avoid adding duplicate handlers on repeated calls
+    # Не добавлять дубликаты обработчиков при повторных вызовах
     if root_logger.handlers:
         return
 
@@ -32,13 +32,13 @@ def setup_logging(level: int = logging.INFO, log_dir: Path | None = None) -> Non
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    # Console handler
+    # Обработчик консоли
     console = logging.StreamHandler()
     console.setLevel(level)
     console.setFormatter(fmt)
     root_logger.addHandler(console)
 
-    # Rotating file handler (5 MB, keep 3 backups)
+    # Ротируемый файловый обработчик (5 МБ, 3 резервные копии)
     file_handler = logging.handlers.RotatingFileHandler(
         log_file,
         maxBytes=5 * 1024 * 1024,
@@ -51,5 +51,5 @@ def setup_logging(level: int = logging.INFO, log_dir: Path | None = None) -> Non
 
 
 def get_logger(name: str) -> logging.Logger:
-    """Get a child logger under the application namespace."""
+    """Получить дочерний логгер в пространстве имён приложения."""
     return logging.getLogger(f"{APP_NAME}.{name}")

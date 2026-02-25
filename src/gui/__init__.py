@@ -1,1 +1,1 @@
-"""GUI presentation layer using PyQt6."""
+"""Слой представления GUI на PyQt6."""

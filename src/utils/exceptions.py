@@ -1,18 +1,18 @@
-"""Custom exception hierarchy for the application."""
+"""Иерархия пользовательских исключений приложения."""
 
 
 class YazisError(Exception):
-    """Base exception for all YAZIS errors."""
+    """Базовое исключение для всех ошибок YAZIS."""
 
 
-# --- Document Processing Errors ---
+# Ошибки обработки документов
 
 class DocumentError(YazisError):
-    """Base for document processing errors."""
+    """Базовый класс ошибок обработки документов."""
 
 
 class UnsupportedFormatError(DocumentError):
-    """Raised when a file format is not supported."""
+    """Вызывается при неподдерживаемом формате файла."""
 
     def __init__(self, path: str, fmt: str | None = None) -> None:
         self.path = path
@@ -22,7 +22,7 @@ class UnsupportedFormatError(DocumentError):
 
 
 class DocumentParsingError(DocumentError):
-    """Raised when a document cannot be parsed."""
+    """Вызывается при невозможности разобрать документ."""
 
     def __init__(self, path: str, reason: str = "") -> None:
         self.path = path
@@ -32,28 +32,28 @@ class DocumentParsingError(DocumentError):
         super().__init__(msg)
 
 
-# --- Analysis Errors ---
+# Ошибки анализа
 
 class AnalysisError(YazisError):
-    """Base for NLP analysis errors."""
+    """Базовый класс ошибок NLP-анализа."""
 
 
 class TokenizationError(AnalysisError):
-    """Raised when tokenization fails."""
+    """Вызывается при сбое токенизации."""
 
 
 class MorphologyError(AnalysisError):
-    """Raised when morphological analysis fails."""
+    """Вызывается при сбое морфологического анализа."""
 
 
-# --- Dictionary Errors ---
+# Ошибки словаря
 
 class DictionaryError(YazisError):
-    """Base for dictionary management errors."""
+    """Базовый класс ошибок управления словарём."""
 
 
 class EntryNotFoundError(DictionaryError):
-    """Raised when a dictionary entry is not found."""
+    """Вызывается, когда запись словаря не найдена."""
 
     def __init__(self, lexeme: str) -> None:
         self.lexeme = lexeme
@@ -61,37 +61,37 @@ class EntryNotFoundError(DictionaryError):
 
 
 class DuplicateEntryError(DictionaryError):
-    """Raised when attempting to add a duplicate entry."""
+    """Вызывается при попытке добавить дубликат записи."""
 
     def __init__(self, lexeme: str) -> None:
         self.lexeme = lexeme
         super().__init__(f"Entry already exists: '{lexeme}'")
 
 
-# --- Persistence Errors ---
+# Ошибки сохранения
 
 class PersistenceError(YazisError):
-    """Base for data persistence errors."""
+    """Базовый класс ошибок сохранения данных."""
 
 
 class SerializationError(PersistenceError):
-    """Raised when serialization/deserialization fails."""
+    """Вызывается при сбое сериализации/десериализации."""
 
 
 class StorageError(PersistenceError):
-    """Raised for file I/O or database errors."""
+    """Вызывается при ошибках файлового ввода-вывода или БД."""
 
 
-# --- Configuration Errors ---
+# Ошибки конфигурации
 
 class ConfigurationError(YazisError):
-    """Raised for configuration loading/validation errors."""
+    """Вызывается при ошибках загрузки или проверки конфигурации."""
 
 
-# --- Export Errors ---
+# Ошибки экспорта
 
 class ExportError(YazisError):
-    """Raised when export fails."""
+    """Вызывается при сбое экспорта."""
 
     def __init__(self, fmt: str, reason: str = "") -> None:
         self.fmt = fmt

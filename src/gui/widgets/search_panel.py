@@ -1,4 +1,4 @@
-"""Search and filter panel widget."""
+"""Виджет панели поиска и фильтров."""
 
 from __future__ import annotations
 
@@ -18,11 +18,10 @@ from models.enums import PartOfSpeech
 
 
 class SearchPanel(QWidget):
-    """Combined search bar and filter controls.
+    """Объединённая строка поиска и элементы фильтрации.
 
-    Signals:
-        search_requested: Emitted when the user triggers a search.
-            Carries ``(query, pos_filter, min_freq, max_freq, use_regex)``.
+    Сигналы:
+        search_requested: При запуске поиска. Параметры: (query, pos_filter, min_freq, max_freq, use_regex).
     """
 
     search_requested = pyqtSignal(str, object, int, int, bool)
@@ -36,27 +35,27 @@ class SearchPanel(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 2, 0, 2)
 
-        # Search field
+        # Поле поиска
         layout.addWidget(QLabel("Search:"))
         self._query_edit = QLineEdit()
         self._query_edit.setPlaceholderText("Enter search query (wildcards: * ?)")
         self._query_edit.returnPressed.connect(self._emit_search)
         layout.addWidget(self._query_edit, stretch=2)
 
-        # Regex toggle
+        # Переключатель Regex
         self._regex_check = QCheckBox("Regex")
         layout.addWidget(self._regex_check)
 
-        # POS filter
+        # Фильтр по части речи
         layout.addWidget(QLabel("POS:"))
         self._pos_combo = QComboBox()
         self._pos_combo.addItem("All", None)
         for pos in PartOfSpeech:
-            self._pos_combo.addItem(pos.value, pos)
+            self._pos_combo.addItem(pos.display_name(), pos)
         self._pos_combo.currentIndexChanged.connect(self._emit_search)
         layout.addWidget(self._pos_combo)
 
-        # Frequency range
+        # Диапазон частоты
         layout.addWidget(QLabel("Freq:"))
         self._min_freq = QSpinBox()
         self._min_freq.setRange(0, 999_999)
@@ -69,12 +68,12 @@ class SearchPanel(QWidget):
         self._max_freq.setSpecialValueText("Max")
         layout.addWidget(self._max_freq)
 
-        # Search button
+        # Кнопка поиска
         self._btn_search = QPushButton("Search")
         self._btn_search.clicked.connect(self._emit_search)
         layout.addWidget(self._btn_search)
 
-        # Clear button
+        # Кнопка очистки
         self._btn_clear = QPushButton("Clear")
         self._btn_clear.clicked.connect(self._clear_and_search)
         layout.addWidget(self._btn_clear)

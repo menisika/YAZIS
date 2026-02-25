@@ -1,4 +1,4 @@
-"""Contextual help dialog with user guide content."""
+"""Контекстный диалог справки с содержимым руководства пользователя."""
 
 from __future__ import annotations
 
@@ -95,7 +95,7 @@ to reverse or re-apply dictionary edits.</p>
 
 
 class HelpDialog(QDialog):
-    """Scrollable HTML help dialog."""
+    """Прокручиваемый HTML-диалог справки."""
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)

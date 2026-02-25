@@ -1,4 +1,4 @@
-"""Main application window with menu bar, toolbar, status bar, and splitter layout."""
+"""Главное окно приложения: меню, панель инструментов, строка состояния и разметка со сплиттером."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
     QApplication,
     QFileDialog,
     QHBoxLayout,
+    QLabel,
     QMainWindow,
     QMessageBox,
     QSplitter,
@@ -31,19 +32,19 @@ if TYPE_CHECKING:
 
 
 class MainWindow(QMainWindow):
-    """Application main window.
+    """Главное окно приложения.
 
-    Layout::
+    Разметка::
 
         ┌──────────────────────────────────────────────────┐
-        │ Menu bar                                         │
-        │ Toolbar                                          │
+        │ Меню                                             │
+        │ Панель инструментов                               │
         ├──────────────────────┬───────────────────────────┤
-        │ Search Panel         │                           │
-        │ Dictionary View      │  Entry Editor             │
-        │  (table, sortable)   │  (edit selected entry)    │
+        │ Панель поиска        │                           │
+        │ Таблица словаря      │  Редактор записи          │
+        │  (таблица, сортировка)│  (редактирование выбранной)│
         ├──────────────────────┴───────────────────────────┤
-        │ Status bar                                       │
+        │ Строка состояния                                 │
         └──────────────────────────────────────────────────┘
     """
 
@@ -55,42 +56,42 @@ class MainWindow(QMainWindow):
         self._dict_controller: DictionaryController | None = None
         self._doc_controller: DocumentController | None = None
 
-        # --- Widgets ---
+        # Виджеты
         self.search_panel = SearchPanel()
         self.dictionary_view = DictionaryView()
         self.entry_editor = EntryEditor()
 
-        # --- Layout ---
+        # Разметка
         self._setup_central_widget()
         self._setup_menu_bar()
         self._setup_toolbar()
         self._setup_status_bar()
 
-    # --- Controller injection ---
+    # Внедрение контроллеров
 
     def set_controllers(
         self,
         dict_ctrl: DictionaryController,
         doc_ctrl: DocumentController,
     ) -> None:
-        """Inject controllers after construction (avoids circular deps)."""
+        """Подключить контроллеры после создания окна (избегает циклических зависимостей)."""
         self._dict_controller = dict_ctrl
         self._doc_controller = doc_ctrl
 
-    # --- Layout setup ---
+    # Настройка разметки
 
     def _setup_central_widget(self) -> None:
         central = QWidget()
         self.setCentralWidget(central)
 
-        # Left panel: search + dictionary view
+        # Левая панель: поиск и таблица словаря
         left_widget = QWidget()
         left_layout = QVBoxLayout(left_widget)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.addWidget(self.search_panel)
         left_layout.addWidget(self.dictionary_view, stretch=1)
 
-        # Splitter: left (dict) | right (editor)
+        # Сплиттер: слева словарь, справа редактор
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(left_widget)
         splitter.addWidget(self.entry_editor)
@@ -104,7 +105,7 @@ class MainWindow(QMainWindow):
     def _setup_menu_bar(self) -> None:
         mb = self.menuBar()
 
-        # --- File menu ---
+        # Меню «Файл»
         file_menu = mb.addMenu("&File")
 
         self.action_open = QAction("&Open Document...", self)
@@ -143,7 +144,7 @@ class MainWindow(QMainWindow):
         action_quit.triggered.connect(self.close)
         file_menu.addAction(action_quit)
 
-        # --- Edit menu ---
+        # Меню «Правка»
         edit_menu = mb.addMenu("&Edit")
 
         self.action_undo = QAction("&Undo", self)
@@ -167,7 +168,7 @@ class MainWindow(QMainWindow):
         self.action_delete_entry.triggered.connect(self._on_delete_entry)
         edit_menu.addAction(self.action_delete_entry)
 
-        # --- Dictionary menu ---
+        # Меню «Словарь»
         dict_menu = mb.addMenu("&Dictionary")
 
         self.action_new_dict = QAction("&New Dictionary", self)
@@ -181,7 +182,7 @@ class MainWindow(QMainWindow):
         self.action_stats.triggered.connect(self._on_show_stats)
         dict_menu.addAction(self.action_stats)
 
-        # --- Tools menu ---
+        # Меню «Инструменты»
         tools_menu = mb.addMenu("&Tools")
 
         self.action_generate = QAction("&Generate Word Form...", self)
@@ -189,7 +190,7 @@ class MainWindow(QMainWindow):
         self.action_generate.triggered.connect(self._on_generate_form)
         tools_menu.addAction(self.action_generate)
 
-        # --- Study menu ---
+        # Меню «Изучение»
         study_menu = mb.addMenu("&Study")
 
         self.action_study_session = QAction("&Start Study Session...", self)
@@ -197,15 +198,9 @@ class MainWindow(QMainWindow):
         self.action_study_session.triggered.connect(self._on_start_study)
         study_menu.addAction(self.action_study_session)
 
-        self.action_study_view = QAction("Study &Current View", self)
-        self.action_study_view.triggered.connect(self._on_study_current_view)
-        study_menu.addAction(self.action_study_view)
-
-        study_menu.addSeparator()
-
-        self.action_batch_defs = QAction("&Batch Generate Definitions", self)
-        self.action_batch_defs.triggered.connect(self._on_batch_definitions)
-        study_menu.addAction(self.action_batch_defs)
+        self.action_edit_study_list = QAction("Edit &Study List...", self)
+        self.action_edit_study_list.triggered.connect(self._on_edit_study_list)
+        study_menu.addAction(self.action_edit_study_list)
 
         study_menu.addSeparator()
 
@@ -213,7 +208,7 @@ class MainWindow(QMainWindow):
         self.action_flashcard_settings.triggered.connect(self._on_flashcard_settings)
         study_menu.addAction(self.action_flashcard_settings)
 
-        # --- Help menu ---
+        # Меню «Справка»
         help_menu = mb.addMenu("&Help")
 
         self.action_help = QAction("&User Guide", self)
@@ -244,15 +239,23 @@ class MainWindow(QMainWindow):
     def _setup_status_bar(self) -> None:
         self._status_bar = QStatusBar()
         self.setStatusBar(self._status_bar)
+        self._counts_label = QLabel("Лексем: 0  |  В списке изучения: 0")
+        self._status_bar.addPermanentWidget(self._counts_label)
         self.update_status("Ready")
 
-    # --- Public helpers ---
+    # Публичные вспомогательные методы
+
+    def update_counts(self, lexeme_count: int, study_list_count: int) -> None:
+        """Обновить счётчики лексем и списка изучения в строке состояния."""
+        self._counts_label.setText(
+            f"Лексем: {lexeme_count}  |  В списке изучения: {study_list_count}"
+        )
 
     def update_status(self, message: str) -> None:
-        """Update the status bar text."""
+        """Обновить текст в строке состояния."""
         self._status_bar.showMessage(message)
 
-    # --- Menu action handlers (delegate to controllers) ---
+    # Обработчики пунктов меню (делегирование контроллерам)
 
     def _on_open_document(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
@@ -324,13 +327,9 @@ class MainWindow(QMainWindow):
         if self._dict_controller:
             self._dict_controller.start_study_session()
 
-    def _on_study_current_view(self) -> None:
+    def _on_edit_study_list(self) -> None:
         if self._dict_controller:
-            self._dict_controller.study_current_view()
-
-    def _on_batch_definitions(self) -> None:
-        if self._dict_controller:
-            self._dict_controller.batch_generate_definitions()
+            self._dict_controller.show_edit_study_list()
 
     def _on_flashcard_settings(self) -> None:
         if self._dict_controller:

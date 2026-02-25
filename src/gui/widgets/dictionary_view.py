@@ -1,4 +1,4 @@
-"""Dictionary table view widget with sorting and pagination."""
+"""Виджет таблицы словаря с сортировкой и постраничным выводом."""
 
 from __future__ import annotations
 
@@ -23,10 +23,10 @@ from utils.constants import DEFAULT_PAGE_SIZE
 
 
 class DictionaryView(QWidget):
-    """Table view for browsing dictionary entries with pagination.
+    """Табличное представление записей словаря с постраничным выводом.
 
-    Signals:
-        entry_selected: Emitted with the selected :class:`DictionaryEntry`.
+    Сигналы:
+        entry_selected: Выбранная запись DictionaryEntry.
     """
 
     entry_selected = pyqtSignal(object)  # DictionaryEntry | None
@@ -42,12 +42,12 @@ class DictionaryView(QWidget):
         self._page_size = DEFAULT_PAGE_SIZE
         self._total_pages = 1
 
-        # --- Model ---
+        # Модель
         self._source_model = DictionaryTableModel(self)
         self._proxy_model = SortableProxyModel(self)
         self._proxy_model.setSourceModel(self._source_model)
 
-        # --- Table ---
+        # Таблица
         self._table = QTableView()
         self._table.setModel(self._proxy_model)
         self._table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
@@ -63,7 +63,7 @@ class DictionaryView(QWidget):
         self._table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._table.customContextMenuRequested.connect(self._show_context_menu)
 
-        # --- Pagination controls ---
+        # Элементы постраничной навигации
         self._page_label = QLabel("Page 1 / 1")
         self._total_label = QLabel("0 entries")
         self._btn_prev = QPushButton("<")
@@ -86,19 +86,25 @@ class DictionaryView(QWidget):
         pagination.addWidget(self._page_label)
         pagination.addWidget(self._btn_next)
 
-        # --- Layout ---
+        # Разметка
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self._table, stretch=1)
         layout.addLayout(pagination)
 
-    # --- Public API ---
+    # Публичный API
 
     def set_entries(self, entries: list[DictionaryEntry]) -> None:
-        """Load entries into the view (paginated)."""
+        """Загрузить записи в представление (с разбивкой по страницам)."""
         self._all_entries = entries
         self._page = 1
         self._refresh()
+
+    def set_study_list_lexemes(
+        self, lexemes: set[str] | frozenset[str] | list[str]
+    ) -> None:
+        """Задать лексемы из списка изучения для подсветки строк."""
+        self._source_model.set_study_list_lexemes(lexemes)
 
     def set_page_size(self, size: int) -> None:
         self._page_size = max(10, size)
@@ -106,14 +112,14 @@ class DictionaryView(QWidget):
         self._refresh()
 
     def current_entry(self) -> DictionaryEntry | None:
-        """Return the currently selected entry or ``None``."""
+        """Вернуть выбранную в данный момент запись или None."""
         index = self._table.currentIndex()
         if not index.isValid():
             return None
         source_index = self._proxy_model.mapToSource(index)
         return self._source_model.get_entry(source_index.row())
 
-    # --- Internal ---
+    # Внутренние методы
 
     def _refresh(self) -> None:
         total = len(self._all_entries)

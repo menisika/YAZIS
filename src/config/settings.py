@@ -1,4 +1,4 @@
-"""Configuration manager: load/save YAML config with defaults."""
+"""Менеджер конфигурации: загрузка/сохранение YAML с значениями по умолчанию."""
 
 from __future__ import annotations
 
@@ -53,7 +53,7 @@ class FlashcardConfig:
 
 @dataclass
 class AppSettings:
-    """Top-level application settings."""
+    """Настройки приложения верхнего уровня."""
 
     storage: StorageConfig = field(default_factory=StorageConfig)
     nlp: NLPConfig = field(default_factory=NLPConfig)
@@ -63,10 +63,10 @@ class AppSettings:
 
 
 class SettingsManager:
-    """Singleton configuration manager.
+    """Менеджер конфигурации (одиночка).
 
-    Loads settings from YAML files, merging with defaults.
-    Persists user overrides to ``~/.yazis/config.yaml``.
+    Загружает настройки из YAML, объединяя с значениями по умолчанию.
+    Сохраняет пользовательские изменения в ~/.yazis/config.yaml.
     """
 
     _instance: SettingsManager | None = None

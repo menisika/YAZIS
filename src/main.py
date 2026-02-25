@@ -1,7 +1,7 @@
-"""Application entry point.
+"""Точка входа приложения.
 
-Initializes configuration, logging, NLTK data, dependency injection,
-and launches the PyQt6 GUI.
+Инициализация конфигурации, логирования, данных NLTK, внедрение зависимостей
+и запуск GUI на PyQt6.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import QApplication, QMessageBox
 
 
 def _ensure_nltk_data() -> None:
-    """Download required NLTK data packages if missing."""
+    """Скачать необходимые пакеты данных NLTK при отсутствии."""
     import nltk  # type: ignore[import-untyped]
     from utils.constants import NLTK_REQUIRED_DATA
 
@@ -25,23 +25,23 @@ def _ensure_nltk_data() -> None:
 
 
 def main() -> None:
-    """Application main function."""
-    # Load .env from project root (cwd when run from repo) so API keys are available
+    """Главная функция приложения."""
+    # Загрузить .env из корня проекта, чтобы были доступны API-ключи
     from dotenv import load_dotenv
     load_dotenv()
 
-    # --- Qt application ---
+    # Приложение Qt
     app = QApplication(sys.argv)
     app.setApplicationName("YAZIS")
     app.setApplicationVersion("0.1.0")
 
-    # --- Configuration ---
+    # Конфигурация
     from config.settings import SettingsManager
 
     settings_mgr = SettingsManager()
     settings = settings_mgr.load()
 
-    # --- Logging ---
+    # Логирование
     from utils.logging_config import setup_logging
 
     log_level = getattr(logging, settings.logging.level.upper(), logging.INFO)
@@ -51,13 +51,13 @@ def main() -> None:
     logger = get_logger("main")
     logger.info("YAZIS starting up")
 
-    # --- NLTK data ---
+    # Данные NLTK
     try:
         _ensure_nltk_data()
     except Exception as exc:
         logger.warning("NLTK data download issue: %s", exc)
 
-    # --- Core components ---
+    # Ядро приложения
     from core.document_processor import DocumentProcessorFactory
     from core.lexical_analyzer import LexicalAnalyzer
     from core.morphological_analyzer import (
@@ -120,7 +120,7 @@ def main() -> None:
     study_manager = StudyManager()
     sound_manager = SoundManager(enabled=settings.flashcard.sound_enabled)
 
-    # --- GUI ---
+    # GUI
     from gui.main_window import MainWindow
     from gui.controllers.dictionary_controller import DictionaryController
     from gui.controllers.document_controller import DocumentController
@@ -191,7 +191,7 @@ def main() -> None:
 
     window.set_controllers(dict_controller, doc_controller)
 
-    # --- Show window ---
+    # Показать окно
     window.show()
     logger.info("YAZIS ready")
 

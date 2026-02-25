@@ -1,1 +1,1 @@
-"""Configuration management."""
+"""Управление конфигурацией."""

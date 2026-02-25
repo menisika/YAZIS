@@ -1,1 +1,1 @@
-"""Reusable GUI widget components."""
+"""Переиспользуемые виджеты GUI."""

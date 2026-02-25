@@ -1,4 +1,4 @@
-"""Text normalization and morphological spelling-rule helpers."""
+"""Нормализация текста и вспомогательные правила орфографии для морфологии."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from utils.constants import CONSONANTS, VOWELS
 
 
 def normalize_text(text: str) -> str:
-    """Normalize unicode, collapse whitespace, strip."""
+    """Нормализовать юникод, схлопнуть пробелы, обрезать."""
     text = unicodedata.normalize("NFKD", text)
     text = re.sub(r"\s+", " ", text)
     return text.strip()
@@ -23,12 +23,12 @@ def is_consonant(ch: str) -> bool:
     return ch.lower() in CONSONANTS
 
 
-# --- Spelling rules for English inflection ---
+# Правила орфографии для английской флексии
 
 def double_final_consonant(stem: str) -> str:
-    """Double the final consonant when adding -ing/-ed to CVC stems.
+    """Удвоить конечную согласную при добавлении -ing/-ed к основам CVC.
 
-    Examples:
+    Примеры:
         run  -> runn
         stop -> stopp
         big  -> bigg
@@ -46,9 +46,9 @@ def double_final_consonant(stem: str) -> str:
 
 
 def apply_e_dropping(stem: str, suffix: str) -> str:
-    """Drop silent-e before vowel-initial suffixes.
+    """Отбросить немую e перед суффиксами на гласную.
 
-    Examples:
+    Примеры:
         make + -ing -> making
         love + -able -> lovable
     """
@@ -58,9 +58,9 @@ def apply_e_dropping(stem: str, suffix: str) -> str:
 
 
 def apply_y_to_i(stem: str, suffix: str) -> str:
-    """Change final -y to -i before suffixes (except -ing).
+    """Заменить конечную -y на -i перед суффиксами (кроме -ing).
 
-    Examples:
+    Примеры:
         carry + -ed  -> carried
         happy + -er  -> happier
     """
@@ -76,9 +76,9 @@ def apply_y_to_i(stem: str, suffix: str) -> str:
 
 
 def apply_ies_rule(stem: str) -> str:
-    """Apply -ies plural rule for nouns/verbs ending in consonant+y.
+    """Применить правило множественного числа -ies для основ на согласную+y.
 
-    Examples:
+    Примеры:
         baby  -> babies
         carry -> carries
     """
@@ -88,9 +88,9 @@ def apply_ies_rule(stem: str) -> str:
 
 
 def apply_es_rule(stem: str) -> str:
-    """Apply -es plural/3rd-person rule for sibilant endings.
+    """Правило -es для множественного числа/3-го лица при свистящих окончаниях.
 
-    Examples:
+    Примеры:
         box   -> boxes
         watch -> watches
         bus   -> buses
@@ -101,5 +101,5 @@ def apply_es_rule(stem: str) -> str:
 
 
 def strip_punctuation(token: str) -> str:
-    """Remove leading/trailing punctuation from a token."""
+    """Удалить ведущую и конечную пунктуацию у токена."""
     return token.strip(".,;:!?\"'()[]{}…–—-/\\")

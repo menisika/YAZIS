@@ -1,4 +1,4 @@
-"""Study manager: study list CRUD, progress tracking, card selection."""
+"""Менеджер изучения: CRUD списка изучения, учёт прогресса, выбор карточек."""
 
 from __future__ import annotations
 
@@ -15,12 +15,12 @@ logger = get_logger("core.study_manager")
 
 
 class StudyManager:
-    """Manages the study list, progress records, and card selection.
+    """Управляет списком изучения, записями прогресса и выбором карточек.
 
-    Persists progress to ``~/.yazis/study_progress.json``.
+    Сохраняет прогресс в ~/.yazis/study_progress.json.
 
-    Args:
-        path: Override the default progress file path.
+    Аргументы:
+        path: Переопределить путь к файлу прогресса.
     """
 
     def __init__(self, path: Path | None = None) -> None:
@@ -31,17 +31,17 @@ class StudyManager:
     def progress(self) -> StudyProgress:
         return self._progress
 
-    # --- Study list CRUD ---
+    # CRUD списка изучения
 
     def add_to_study_list(self, lexeme: str) -> None:
-        """Add a word to the study list."""
+        """Добавить слово в список изучения."""
         rec = self._progress.get_or_create(lexeme)
         rec.in_study_list = True
         self.save()
         logger.debug("Added '%s' to study list", lexeme)
 
     def remove_from_study_list(self, lexeme: str) -> None:
-        """Remove a word from the study list."""
+        """Удалить слово из списка изучения."""
         rec = self._progress.get_or_create(lexeme)
         rec.in_study_list = False
         self.save()
@@ -53,21 +53,21 @@ class StudyManager:
         return rec.in_study_list if rec else False
 
     def get_study_list(self) -> list[str]:
-        """Return all lexemes in the study list."""
+        """Вернуть все лексемы из списка изучения."""
         return [
             rec.lexeme
             for rec in self._progress.records.values()
             if rec.in_study_list
         ]
 
-    # --- Recording results ---
+    # Запись результатов
 
     def record_result(self, lexeme: str, known: bool) -> None:
-        """Record a study attempt result.
+        """Записать результат попытки изучения.
 
-        Args:
-            lexeme: The word studied.
-            known: ``True`` if user marked "I know this".
+        Аргументы:
+            lexeme: Изучаемое слово.
+            known: True, если пользователь отметил «Знаю».
         """
         rec = self._progress.get_or_create(lexeme)
         if known:
@@ -77,7 +77,7 @@ class StudyManager:
         rec.last_studied = datetime.now(timezone.utc).isoformat()
         self.save()
 
-    # --- Card selection ---
+    # Выбор карточек
 
     def select_cards(
         self,
@@ -85,40 +85,39 @@ class StudyManager:
         count: int = DEFAULT_CARDS_PER_SESSION,
         mode: str = "word_to_def",
     ) -> list[DictionaryEntry]:
-        """Select cards for a study session with priority ordering.
+        """Выбрать карточки для сессии с приоритетным порядком.
 
-        Priority groups (highest first):
-        1. Words in study list
-        2. Words with high practice_count / low known_count (needs work)
-        3. Never-studied words
-        4. Well-known words
+        Группы приоритета (от высшего):
+        1. Слова из списка изучения
+        2. Слова с высоким practice_count / низким known_count (нудна практика)
+        3. Никогда не изученные
+        4. Хорошо изученные
 
-        Within each group, entries are shuffled randomly.
+        Внутри каждой группы записи перемешиваются случайно.
 
-        Args:
-            entries: Available dictionary entries.
-            count: Maximum number of cards to select.
-            mode: Study mode (``word_to_def``, ``def_to_word``, ``word_form_practice``).
-                  For ``word_to_def`` / ``def_to_word``, entries without
-                  definitions are deprioritized.
+        Аргументы:
+            entries: Доступные записи словаря.
+            count: Максимальное число карточек.
+            mode: Режим (word_to_def, def_to_word, word_form_practice).
+                  Для word_to_def/def_to_word записи без определений
+                  пропускаются, если их нет в списке изучения.
 
-        Returns:
-            Ordered list of entries for the session.
+        Возвращает:
+            Упорядоченный список записей для сессии.
         """
         needs_def = mode in ("word_to_def", "def_to_word")
 
-        # Partition into priority groups
+        # Разбиение на группы по приоритету
         study_list: list[DictionaryEntry] = []
         needs_practice: list[DictionaryEntry] = []
         never_studied: list[DictionaryEntry] = []
         well_known: list[DictionaryEntry] = []
 
         for entry in entries:
-            # Skip entries without definitions in definition-based modes
-            if needs_def and not entry.definition:
-                continue
-
             rec = self._progress.records.get(entry.lexeme.lower())
+            # Пропуск записей без определений в режимах по определению, кроме списка изучения
+            if needs_def and not entry.definition and not (rec and rec.in_study_list):
+                continue
 
             if rec and rec.in_study_list:
                 study_list.append(entry)
@@ -130,11 +129,11 @@ class StudyManager:
             else:
                 never_studied.append(entry)
 
-        # Shuffle within groups
+        # Перемешивание внутри групп
         for group in (study_list, needs_practice, never_studied, well_known):
             random.shuffle(group)
 
-        # Concatenate in priority order and take first `count`
+        # Объединение по приоритету и взятие первых count
         ordered = study_list + needs_practice + never_studied + well_known
         selected = ordered[:count]
 
@@ -146,12 +145,12 @@ class StudyManager:
         )
         return selected
 
-    # --- Persistence ---
+    # Сохранение
 
     def save(self) -> None:
-        """Persist progress to disk."""
+        """Сохранить прогресс на диск."""
         self._progress.save(self._path)
 
     def reload(self) -> None:
-        """Reload progress from disk."""
+        """Перезагрузить прогресс с диска."""
         self._progress = StudyProgress.load(self._path)

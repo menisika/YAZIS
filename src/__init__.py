@@ -1,3 +1,3 @@
-"""YAZIS - Natural Language Dictionary Formation System."""
+"""YAZIS — система формирования словаря естественного языка."""
 
 __version__ = "0.1.0"

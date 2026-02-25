@@ -1,4 +1,4 @@
-"""SQLite persistence adapter for Dictionary."""
+"""Адаптер сохранения словаря в SQLite."""
 
 from __future__ import annotations
 
@@ -44,19 +44,19 @@ CREATE INDEX IF NOT EXISTS idx_wf_lexeme ON word_forms(lexeme);
 
 
 class SQLiteAdapter(DictionaryRepository):
-    """Persist a :class:`Dictionary` in an SQLite database."""
+    """Сохранять Dictionary в базе SQLite."""
 
     def save(self, dictionary: Dictionary, path: Path) -> None:
-        """Write dictionary to an SQLite database at *path*.
+        """Записать словарь в SQLite по path.
 
-        Replaces all existing data in the database.
+        Заменяет все существующие данные в базе.
 
-        Args:
-            dictionary: Dictionary to persist.
-            path: Target ``.db`` file.
+        Аргументы:
+            dictionary: Словарь для сохранения.
+            path: Целевой .db файл.
 
-        Raises:
-            StorageError: On database write failures.
+        Исключения:
+            StorageError: при ошибках записи в БД.
         """
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -65,7 +65,7 @@ class SQLiteAdapter(DictionaryRepository):
             conn.execute("PRAGMA foreign_keys=ON")
 
             with conn:
-                # Re-create schema (drop old data)
+                # Пересоздать схему (удалить старые данные)
                 conn.executescript(
                     "DROP TABLE IF EXISTS word_forms;"
                     "DROP TABLE IF EXISTS entries;"
@@ -73,7 +73,7 @@ class SQLiteAdapter(DictionaryRepository):
                 )
                 conn.executescript(_SCHEMA)
 
-                # Metadata
+                # Метаданные
                 meta = dictionary.metadata
                 for key, value in meta.to_dict().items():
                     conn.execute(
@@ -81,7 +81,7 @@ class SQLiteAdapter(DictionaryRepository):
                         (key, json.dumps(value) if isinstance(value, (list, dict)) else str(value)),
                     )
 
-                # Entries + word forms
+                # Записи и словоформы
                 for entry in dictionary.entries:
                     conn.execute(
                         "INSERT INTO entries (lexeme, stem, pos, frequency, irregular, notes, definition) "
@@ -103,17 +103,17 @@ class SQLiteAdapter(DictionaryRepository):
             raise StorageError(f"SQLite write error for {path}: {exc}") from exc
 
     def load(self, path: Path) -> Dictionary:
-        """Load dictionary from an SQLite database.
+        """Загрузить словарь из базы SQLite.
 
-        Args:
-            path: Source ``.db`` file.
+        Аргументы:
+            path: Исходный .db файл.
 
-        Returns:
-            Loaded :class:`Dictionary`.
+        Возвращает:
+            Загруженный Dictionary.
 
-        Raises:
-            StorageError: If the file does not exist or cannot be read.
-            SerializationError: On data format errors.
+        Исключения:
+            StorageError: если файл не найден или не читается.
+            SerializationError: при ошибках формата данных.
         """
         if not path.exists():
             raise StorageError(f"Database not found: {path}")
@@ -121,7 +121,7 @@ class SQLiteAdapter(DictionaryRepository):
             conn = sqlite3.connect(str(path))
             conn.row_factory = sqlite3.Row
 
-            # Load metadata
+            # Загрузка метаданных
             meta_rows = conn.execute("SELECT key, value FROM metadata").fetchall()
             meta_dict: dict = {}
             for row in meta_rows:
@@ -134,7 +134,7 @@ class SQLiteAdapter(DictionaryRepository):
                     meta_dict[key] = val
             metadata = DictionaryMetadata.from_dict(meta_dict)
 
-            # Load entries
+            # Загрузка записей
             dictionary = Dictionary(metadata=metadata)
             entry_rows = conn.execute("SELECT * FROM entries").fetchall()
             for erow in entry_rows:
@@ -150,7 +150,7 @@ class SQLiteAdapter(DictionaryRepository):
                     )
                     for wfr in wf_rows
                 ]
-                # 'definition' column may not exist in older databases
+                # Колонка definition может отсутствовать в старых БД
                 defn = ""
                 try:
                     defn = erow["definition"] or ""

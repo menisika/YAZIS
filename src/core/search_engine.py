@@ -1,4 +1,4 @@
-"""Search and filter engine for dictionary entries."""
+"""Движок поиска и фильтрации записей словаря."""
 
 from __future__ import annotations
 
@@ -17,16 +17,16 @@ logger = get_logger("core.search_engine")
 
 @dataclass(slots=True)
 class SearchCriteria:
-    """Parameters for filtering dictionary entries.
+    """Параметры фильтрации записей словаря.
 
-    Attributes:
-        query: Text query (supports wildcards ``*`` and ``?``).
-        pos_filter: Filter by part of speech (``None`` = any).
-        min_frequency: Minimum frequency threshold.
-        max_frequency: Maximum frequency threshold (0 = no limit).
-        stem_contains: Filter entries whose stem contains this substring.
-        has_ending: Filter entries that have a specific ending.
-        use_regex: If ``True``, treat *query* as a regex pattern.
+    Атрибуты:
+        query: Текстовый запрос (поддержка масок * и ?).
+        pos_filter: Фильтр по части речи (None — любая).
+        min_frequency: Минимальная частота.
+        max_frequency: Максимальная частота (0 — без ограничения).
+        stem_contains: Фильтр по вхождению подстроки в основу.
+        has_ending: Фильтр по окончанию.
+        use_regex: Если True, считать query регулярным выражением.
     """
 
     query: str = ""
@@ -40,14 +40,14 @@ class SearchCriteria:
 
 @dataclass(slots=True)
 class SearchResult:
-    """Paginated search result.
+    """Результат поиска с постраничной разбивкой.
 
-    Attributes:
-        entries: Matching entries for the current page.
-        total_count: Total number of matching entries.
-        page: Current page number (1-based).
-        page_size: Entries per page.
-        total_pages: Total number of pages.
+    Атрибуты:
+        entries: Совпадающие записи на текущей странице.
+        total_count: Общее число совпадений.
+        page: Номер текущей страницы (начиная с 1).
+        page_size: Записей на странице.
+        total_pages: Всего страниц.
     """
 
     entries: list[DictionaryEntry] = field(default_factory=list)
@@ -58,7 +58,7 @@ class SearchResult:
 
 
 class SearchEngine:
-    """Filter and search dictionary entries with pagination."""
+    """Фильтрация и поиск записей словаря с постраничной разбивкой."""
 
     def search(
         self,
@@ -69,18 +69,18 @@ class SearchEngine:
         sort_by: str = "lexeme",
         ascending: bool = True,
     ) -> SearchResult:
-        """Execute a search against the dictionary.
+        """Выполнить поиск по словарю.
 
-        Args:
-            dictionary: The dictionary to search.
-            criteria: Filter criteria.
-            page: Page number (1-based).
-            page_size: Number of entries per page.
-            sort_by: Sort key (``lexeme``, ``pos``, ``stem``, ``frequency``).
-            ascending: Sort direction.
+        Аргументы:
+            dictionary: Словарь для поиска.
+            criteria: Критерии фильтрации.
+            page: Номер страницы (с 1).
+            page_size: Записей на странице.
+            sort_by: Ключ сортировки (lexeme, pos, stem, frequency).
+            ascending: Направление сортировки.
 
-        Returns:
-            :class:`SearchResult` with matching entries.
+        Возвращает:
+            SearchResult с совпадающими записями.
         """
         matches = self._filter(dictionary, criteria)
         matches = self._sort(matches, sort_by, ascending)
@@ -107,8 +107,8 @@ class SearchEngine:
     def _filter(
         self, dictionary: Dictionary, criteria: SearchCriteria
     ) -> list[DictionaryEntry]:
-        """Apply all filter criteria."""
-        entries = dictionary.entries  # already sorted alphabetically
+        """Применить все критерии фильтрации."""
+        entries = dictionary.entries  # уже отсортированы по алфавиту
 
         if criteria.query:
             entries = self._filter_by_query(entries, criteria.query, criteria.use_regex)
@@ -139,7 +139,7 @@ class SearchEngine:
     def _filter_by_query(
         entries: list[DictionaryEntry], query: str, use_regex: bool
     ) -> list[DictionaryEntry]:
-        """Filter entries by lexeme pattern."""
+        """Фильтровать записи по шаблону лексемы."""
         query = query.strip()
         if not query:
             return entries
@@ -152,7 +152,7 @@ class SearchEngine:
                 return entries
             return [e for e in entries if pattern.search(e.lexeme)]
         else:
-            # Wildcard matching
+            # Сопоставление по маскам
             query_lower = query.lower()
             if "*" in query or "?" in query:
                 return [e for e in entries if fnmatch.fnmatch(e.lexeme.lower(), query_lower)]
@@ -163,10 +163,10 @@ class SearchEngine:
     def _sort(
         entries: list[DictionaryEntry], sort_by: str, ascending: bool
     ) -> list[DictionaryEntry]:
-        """Sort entries by the given key."""
+        """Сортировать записи по заданному ключу."""
         key_funcs = {
             "lexeme": lambda e: e.lexeme.lower(),
-            "pos": lambda e: str(e.pos),
+            "pos": lambda e: e.pos.display_name(),
             "stem": lambda e: e.stem.lower(),
             "frequency": lambda e: e.frequency,
         }

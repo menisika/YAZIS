@@ -1,4 +1,4 @@
-"""Morphological analysis with Strategy pattern (NLTK vs spaCy)."""
+"""Морфологический анализ с паттерном «Стратегия» (NLTK или spaCy)."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ logger = get_logger("core.morphological_analyzer")
 
 
 class AnalysisStrategy(ABC):
-    """Abstract strategy for morphological analysis of tokens."""
+    """Абстрактная стратегия морфологического анализа токенов."""
 
     @abstractmethod
     def analyze_tokens(
@@ -22,23 +22,23 @@ class AnalysisStrategy(ABC):
         pos_map: dict[str, PartOfSpeech],
         forms_map: dict[str, list[str]],
     ) -> dict[str, list[WordForm]]:
-        """Analyze tokens and return word forms keyed by lemma.
+        """Анализировать токены и вернуть словоформы по лемме.
 
-        Args:
-            tokens: Unique lemma strings.
-            pos_map: Lemma-to-POS mapping.
-            forms_map: Lemma-to-observed-forms mapping.
+        Аргументы:
+            tokens: Уникальные строки лемм.
+            pos_map: Соответствие лемма -> POS.
+            forms_map: Соответствие лемма -> наблюдаемые формы.
 
-        Returns:
-            ``{lemma: [WordForm, ...]}`` for each lemma.
+        Возвращает:
+            {лемма: [WordForm, ...]} для каждой леммы.
         """
 
 
 class NLTKStrategy(AnalysisStrategy):
-    """NLTK-based morphological analysis.
+    """Морфологический анализ на базе NLTK.
 
-    Derives morphological features by comparing observed inflected forms
-    to the base lemma, using POS tag to infer feature meaning.
+    Выводит морфологические признаки, сравнивая наблюдаемые формы с базовой леммой
+    и используя POS-тег для определения признаков.
     """
 
     def analyze_tokens(
@@ -61,7 +61,7 @@ class NLTKStrategy(AnalysisStrategy):
                 ending = self._compute_ending(lemma, form)
                 word_forms.append(WordForm(form=form, ending=ending, features=features))
 
-            # Always include the base form
+            # Всегда включать базовую форму
             if not any(wf.form == lemma for wf in word_forms):
                 word_forms.insert(
                     0,

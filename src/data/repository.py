@@ -1,4 +1,4 @@
-"""Abstract repository interface for dictionary persistence."""
+"""Абстрактный интерфейс репозитория для сохранения словаря."""
 
 from __future__ import annotations
 
@@ -9,39 +9,38 @@ from models.dictionary import Dictionary
 
 
 class DictionaryRepository(ABC):
-    """Abstract base for dictionary storage backends.
+    """Абстрактная база для бэкендов хранения словаря.
 
-    Implementations must provide save/load semantics for the
-    :class:`~models.dictionary.Dictionary` aggregate.
+    Реализации должны обеспечивать семантику save/load для агрегата Dictionary.
     """
 
     @abstractmethod
     def save(self, dictionary: Dictionary, path: Path) -> None:
-        """Persist a dictionary to the given path.
+        """Сохранить словарь по заданному пути.
 
-        Args:
-            dictionary: The dictionary to save.
-            path: File/database path to write to.
+        Аргументы:
+            dictionary: Словарь для сохранения.
+            path: Путь к файлу или БД.
 
-        Raises:
-            StorageError: On I/O failures.
+        Исключения:
+            StorageError: при ошибках ввода-вывода.
         """
 
     @abstractmethod
     def load(self, path: Path) -> Dictionary:
-        """Load a dictionary from the given path.
+        """Загрузить словарь по заданному пути.
 
-        Args:
-            path: File/database path to read from.
+        Аргументы:
+            path: Путь к файлу или БД.
 
-        Returns:
-            The loaded dictionary.
+        Возвращает:
+            Загруженный словарь.
 
-        Raises:
-            StorageError: On I/O failures or missing file.
-            SerializationError: On data format errors.
+        Исключения:
+            StorageError: при ошибках ввода-вывода или отсутствии файла.
+            SerializationError: при ошибках формата данных.
         """
 
     @abstractmethod
     def exists(self, path: Path) -> bool:
-        """Check whether a persisted dictionary exists at *path*."""
+        """Проверить, существует ли сохранённый словарь по path."""

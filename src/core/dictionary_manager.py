@@ -1,4 +1,4 @@
-"""Dictionary manager: Singleton, CRUD, Observer (Qt signals), undo/redo."""
+"""Менеджер словаря: одиночка, CRUD, наблюдатель (сигналы Qt), отмена/повтор."""
 
 from __future__ import annotations
 
@@ -19,19 +19,19 @@ from utils.logging_config import get_logger
 logger = get_logger("core.dictionary_manager")
 
 
-# --- Command pattern for undo/redo ---
+# Паттерн «Команда» для отмены/повтора
 
 
 class Command(ABC):
-    """Abstract command for undo/redo."""
+    """Абстрактная команда для отмены/повтора."""
 
     @abstractmethod
     def execute(self) -> None:
-        """Execute the command."""
+        """Выполнить команду."""
 
     @abstractmethod
     def undo(self) -> None:
-        """Undo the command."""
+        """Отменить команду."""
 
 
 class AddEntryCommand(Command):
@@ -80,18 +80,18 @@ class UpdateEntryCommand(Command):
 
 class DictionaryManager(QObject):
     """
-    Singleton manager for dictionary CRUD with observer signals.
+    Менеджер-одиночка для CRUD словаря с сигналами-наблюдателями.
 
-    Signals:
-        dictionary_changed: Emitted when the dictionary content changes.
-        entry_selected: Emitted when an entry is selected in the UI.
-        dictionary_loaded: Emitted when a dictionary is loaded from disk.
-        dictionary_saved: Emitted when a dictionary is saved to disk.
+    Сигналы:
+        dictionary_changed: При изменении содержимого словаря.
+        entry_selected: При выборе записи в интерфейсе.
+        dictionary_loaded: При загрузке словаря с диска.
+        dictionary_saved: При сохранении словаря на диск.
     """
 
-    # Qt signals for Observer pattern
+    # Сигналы Qt (паттерн «Наблюдатель»)
     dictionary_changed = pyqtSignal()
-    entry_selected = pyqtSignal(object)  # DictionaryEntry or None
+    entry_selected = pyqtSignal(object)  # DictionaryEntry или None
     dictionary_loaded = pyqtSignal()
     dictionary_saved = pyqtSignal()
 
@@ -125,7 +125,7 @@ class DictionaryManager(QObject):
 
     @classmethod
     def reset_instance(cls) -> None:
-        """Reset singleton for testing."""
+        """Сбросить одиночку (для тестов)."""
         cls._instance = None
 
     # --- Properties ---
@@ -158,16 +158,16 @@ class DictionaryManager(QObject):
     def can_redo(self) -> bool:
         return len(self._redo_stack) > 0
 
-    # --- CRUD operations ---
+    # CRUD
 
     def add_entry(self, entry: DictionaryEntry) -> None:
-        """Add an entry (with undo support)."""
+        """Добавить запись (с поддержкой отмены)."""
         cmd = AddEntryCommand(self._dictionary, entry)
         self._execute_command(cmd)
         logger.info("Added entry: %s", entry.lexeme)
 
     def remove_entry(self, lexeme: str) -> None:
-        """Remove an entry by lexeme (with undo support)."""
+        """Удалить запись по лексеме (с поддержкой отмены)."""
         if not self._dictionary.has_entry(lexeme):
             raise EntryNotFoundError(lexeme)
         cmd = RemoveEntryCommand(self._dictionary, lexeme)
@@ -175,7 +175,7 @@ class DictionaryManager(QObject):
         logger.info("Removed entry: %s", lexeme)
 
     def update_entry(self, entry: DictionaryEntry) -> None:
-        """Update an existing entry (with undo support)."""
+        """Обновить существующую запись (с поддержкой отмены)."""
         cmd = UpdateEntryCommand(self._dictionary, entry)
         self._execute_command(cmd)
         logger.info("Updated entry: %s", entry.lexeme)
@@ -184,7 +184,7 @@ class DictionaryManager(QObject):
         return self._dictionary.get_entry(lexeme)
 
     def bulk_add(self, entries: list[DictionaryEntry]) -> None:
-        """Add many entries at once (single undo point not supported; marks dirty)."""
+        """Добавить много записей сразу (одна точка отмены не поддерживается; помечает грязным)."""
         for entry in entries:
             self._dictionary.add_entry(entry)
         self._dirty = True
@@ -193,7 +193,7 @@ class DictionaryManager(QObject):
         self.dictionary_changed.emit()
         logger.info("Bulk-added %d entries", len(entries))
 
-    # --- Undo / Redo ---
+    # Отмена / Повтор
 
     def undo(self) -> None:
         if not self._undo_stack:
@@ -215,10 +215,10 @@ class DictionaryManager(QObject):
         self.dictionary_changed.emit()
         logger.debug("Redo executed")
 
-    # --- Persistence ---
+    # Сохранение
 
     def save(self, path: Path | None = None) -> None:
-        """Save dictionary to disk."""
+        """Сохранить словарь на диск."""
         if self._repository is None:
             raise RuntimeError("No repository configured")
         save_path = path or self._current_path
@@ -233,7 +233,7 @@ class DictionaryManager(QObject):
         logger.info("Dictionary saved to %s", save_path)
 
     def load(self, path: Path) -> None:
-        """Load dictionary from disk."""
+        """Загрузить словарь с диска."""
         if self._repository is None:
             raise RuntimeError("No repository configured")
 
@@ -247,7 +247,7 @@ class DictionaryManager(QObject):
         logger.info("Dictionary loaded from %s", path)
 
     def new_dictionary(self) -> None:
-        """Create a fresh, empty dictionary."""
+        """Создать новый пустой словарь."""
         self._dictionary = Dictionary(
             metadata=DictionaryMetadata(
                 created=datetime.now(UTC).isoformat(),
@@ -261,7 +261,7 @@ class DictionaryManager(QObject):
         self.dictionary_changed.emit()
         logger.info("New empty dictionary created")
 
-    # --- Internal ---
+    # Внутренние методы
 
     def _execute_command(self, cmd: Command) -> None:
         cmd.execute()

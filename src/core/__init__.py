@@ -1,1 +1,1 @@
-"""Core business logic layer."""
+"""Ядро: бизнес-логика."""

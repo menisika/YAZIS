@@ -1,1 +1,1 @@
-"""Data access layer with repository pattern."""
+"""Слой доступа к данным с паттерном «Репозиторий»."""

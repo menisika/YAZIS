@@ -1,1 +1,1 @@
-"""GUI controllers mediating between widgets and business logic."""
+"""Контроллеры GUI: связь виджетов и бизнес-логики."""

@@ -1,48 +1,60 @@
-"""Qt table model for displaying dictionary entries in a QTableView."""
+"""Модель таблицы Qt для отображения записей словаря в QTableView."""
 
 from __future__ import annotations
 
 from typing import Any
 
 from PyQt6.QtCore import QAbstractTableModel, QModelIndex, QSortFilterProxyModel, Qt
+from PyQt6.QtGui import QBrush, QColor
 
 from models.lexeme import DictionaryEntry
-
 
 _COLUMNS = ("Lexeme", "POS", "Stem", "Frequency")
 
 
 class DictionaryTableModel(QAbstractTableModel):
-    """Read-only table model backed by a list of :class:`DictionaryEntry`.
+    """Только для чтения модель таблицы на списке DictionaryEntry.
 
-    Columns: Lexeme | POS | Stem | Frequency
+    Колонки: Lexeme | POS | Stem | Frequency.
     """
 
     def __init__(self, parent: Any = None) -> None:
         super().__init__(parent)
         self._entries: list[DictionaryEntry] = []
+        self._study_list_lexemes: frozenset[str] = frozenset()
 
-    # --- Public API ---
+    # Публичный API
+
+    def set_study_list_lexemes(
+        self, lexemes: set[str] | frozenset[str] | list[str]
+    ) -> None:
+        """Задать лексемы из списка изучения (для подсветки строк)."""
+        self._study_list_lexemes = frozenset(x.lower() for x in lexemes)
+        if self._entries:
+            self.dataChanged.emit(
+                self.index(0, 0),
+                self.index(len(self._entries) - 1, self.columnCount() - 1),
+            )
 
     def set_entries(self, entries: list[DictionaryEntry]) -> None:
-        """Replace all entries and refresh the view."""
+        """Заменить все записи и обновить представление."""
         self.beginResetModel()
         self._entries = list(entries)
         self.endResetModel()
 
     def get_entry(self, row: int) -> DictionaryEntry | None:
-        """Get the entry at *row* index, or ``None``."""
+        """Получить запись по индексу строки или None."""
         if 0 <= row < len(self._entries):
             return self._entries[row]
         return None
 
     def get_entry_by_index(self, index: QModelIndex) -> DictionaryEntry | None:
-        """Get entry for a model index."""
+        """Получить запись по индексу модели."""
         if not index.isValid():
             return None
         return self.get_entry(index.row())
 
-    # --- QAbstractTableModel overrides ---
+    # Переопределения QAbstractTableModel
 
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:  # noqa: N802
         return len(self._entries)
@@ -51,15 +63,20 @@ class DictionaryTableModel(QAbstractTableModel):
         return len(_COLUMNS)
 
     def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
-        if not index.isValid() or role != Qt.ItemDataRole.DisplayRole:
+        if not index.isValid():
             return None
-
         entry = self._entries[index.row()]
+        if role == Qt.ItemDataRole.BackgroundRole:
+            if entry.lexeme.lower() in self._study_list_lexemes:
+                return QBrush(QColor(200, 220, 255))
+            return None
+        if role != Qt.ItemDataRole.DisplayRole:
+            return None
         col = index.column()
         if col == 0:
             return entry.lexeme
         if col == 1:
-            return str(entry.pos)
+            return entry.pos.display_name()
         if col == 2:
             return entry.stem
         if col == 3:
@@ -82,15 +99,15 @@ class DictionaryTableModel(QAbstractTableModel):
 
 
 class SortableProxyModel(QSortFilterProxyModel):
-    """Proxy that enables column-based sorting on the dictionary table."""
+    """Прокси-модель для сортировки таблицы словаря по колонкам."""
 
     def lessThan(self, left: QModelIndex, right: QModelIndex) -> bool:  # noqa: N802
         left_data = self.sourceModel().data(left, Qt.ItemDataRole.DisplayRole)
         right_data = self.sourceModel().data(right, Qt.ItemDataRole.DisplayRole)
 
-        # Numeric comparison for frequency column
+        # Числовое сравнение для колонки частоты
         if left.column() == 3:
             return (left_data or 0) < (right_data or 0)
 
-        # String comparison for others
+        # Строковое сравнение для остальных
         return str(left_data or "").lower() < str(right_data or "").lower()

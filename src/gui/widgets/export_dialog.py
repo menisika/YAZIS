@@ -1,4 +1,4 @@
-"""Export dialog: select format, scope, and destination."""
+"""Диалог экспорта: выбор формата, области и пути сохранения."""
 
 from __future__ import annotations
 
@@ -20,10 +20,9 @@ from PyQt6.QtWidgets import (
 
 
 class ExportDialog(QDialog):
-    """Dialog for choosing export format, scope, and output path.
+    """Диалог выбора формата экспорта, области и выходного пути.
 
-    After ``exec()`` returns ``Accepted``, read :attr:`selected_format`
-    and :attr:`selected_path` for the user's choices.
+    После exec() с результатом Accepted читать атрибуты selected_format и selected_path.
     """
 
     def __init__(
@@ -47,7 +46,7 @@ class ExportDialog(QDialog):
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
 
-        # --- Format selection ---
+        # Выбор формата
         fmt_group = QGroupBox("Export Format")
         fmt_layout = QVBoxLayout(fmt_group)
         self._fmt_group = QButtonGroup(self)
@@ -67,7 +66,7 @@ class ExportDialog(QDialog):
 
         layout.addWidget(fmt_group)
 
-        # --- Scope selection ---
+        # Выбор области
         scope_group = QGroupBox("Scope")
         scope_layout = QVBoxLayout(scope_group)
         self._scope_group = QButtonGroup(self)
@@ -86,7 +85,7 @@ class ExportDialog(QDialog):
 
         layout.addWidget(scope_group)
 
-        # --- Path ---
+        # Путь
         path_layout = QHBoxLayout()
         path_layout.addWidget(QLabel("Save to:"))
         self._path_edit = QLineEdit()
@@ -97,7 +96,7 @@ class ExportDialog(QDialog):
         path_layout.addWidget(btn_browse)
         layout.addLayout(path_layout)
 
-        # --- Buttons ---
+        # Кнопки
         btn_layout = QHBoxLayout()
         btn_layout.addStretch()
         btn_export = QPushButton("Export")

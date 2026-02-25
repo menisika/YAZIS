@@ -1,4 +1,4 @@
-"""Flashcard settings dialog."""
+"""Диалог настроек карточек."""
 
 from __future__ import annotations
 
@@ -26,11 +26,11 @@ logger = get_logger("gui.flashcard_settings")
 
 
 class FlashcardSettingsDialog(QDialog):
-    """Settings dialog for flashcard study configuration.
+    """Диалог настроек изучения по карточкам.
 
-    Args:
-        definition_service: For testing API connection.
-        parent: Parent widget.
+    Аргументы:
+        definition_service: Для проверки подключения к API.
+        parent: Родительский виджет.
     """
 
     def __init__(
@@ -52,7 +52,7 @@ class FlashcardSettingsDialog(QDialog):
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
 
-        # --- Study settings ---
+        # Настройки изучения
         study_group = QGroupBox("Study Settings")
         study_layout = QFormLayout(study_group)
 
@@ -74,7 +74,7 @@ class FlashcardSettingsDialog(QDialog):
 
         layout.addWidget(study_group)
 
-        # --- Groq API settings ---
+        # Настройки Groq API
         api_group = QGroupBox("Definition Generation (Groq API)")
         api_layout = QFormLayout(api_group)
 

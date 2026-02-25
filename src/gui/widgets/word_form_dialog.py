@@ -1,4 +1,4 @@
-"""Dialog for generating inflected word forms from a lexeme."""
+"""Диалог генерации словоизменительных форм по лексеме."""
 
 from __future__ import annotations
 
@@ -22,12 +22,12 @@ from models.lexeme import DictionaryEntry, MorphologicalFeature, WordForm
 
 
 class WordFormDialog(QDialog):
-    """Dialog to generate word forms from a lexeme with selectable features.
+    """Диалог генерации словоформ по лексеме с выбором признаков.
 
-    Args:
-        entry: The dictionary entry to generate forms for.
-        rule_engine: The rule engine to use for generation.
-        parent: Parent widget.
+    Аргументы:
+        entry: Запись словаря, для которой генерировать формы.
+        rule_engine: Движок правил для генерации.
+        parent: Родительский виджет.
     """
 
     def __init__(
@@ -48,15 +48,15 @@ class WordFormDialog(QDialog):
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
 
-        # Info
+        # Информация о записи
         info = QLabel(
             f"<b>Lexeme:</b> {self._entry.lexeme} &nbsp; "
-            f"<b>POS:</b> {self._entry.pos.value} &nbsp; "
+            f"<b>POS:</b> {self._entry.pos.display_name()} &nbsp; "
             f"<b>Stem:</b> {self._entry.stem}"
         )
         layout.addWidget(info)
 
-        # Feature selectors
+        # Выбор признаков
         feat_group = QGroupBox("Morphological Parameters")
         feat_layout = QFormLayout(feat_group)
 
@@ -93,7 +93,7 @@ class WordFormDialog(QDialog):
 
         layout.addWidget(feat_group)
 
-        # Generate buttons
+        # Кнопки генерации
         btn_layout = QHBoxLayout()
         self._btn_generate_one = QPushButton("Generate Form")
         self._btn_generate_one.clicked.connect(self._on_generate_one)
@@ -105,7 +105,7 @@ class WordFormDialog(QDialog):
         btn_layout.addStretch()
         layout.addLayout(btn_layout)
 
-        # Result display
+        # Область результата
         result_group = QGroupBox("Generated Forms")
         result_layout = QVBoxLayout(result_group)
         self._result_text = QTextEdit()
@@ -113,7 +113,7 @@ class WordFormDialog(QDialog):
         result_layout.addWidget(self._result_text)
         layout.addWidget(result_group, stretch=1)
 
-        # Close
+        # Закрытие
         close_btn = QPushButton("Close")
         close_btn.clicked.connect(self.accept)
         btn_row = QHBoxLayout()
@@ -155,6 +155,6 @@ class WordFormDialog(QDialog):
             lines.append(
                 f"  {wf.form:20s}  ending: {wf.ending:10s}  {wf.features.summary()}"
             )
-        header = f"Lexeme: {self._entry.lexeme} ({self._entry.pos.value})\n"
+        header = f"Lexeme: {self._entry.lexeme} ({self._entry.pos.display_name()})\n"
         header += "-" * 60 + "\n"
         self._result_text.setPlainText(header + "\n".join(lines))

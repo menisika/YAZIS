@@ -1,4 +1,4 @@
-"""JSON file persistence adapter for Dictionary."""
+"""Адаптер сохранения словаря в JSON-файл."""
 
 from __future__ import annotations
 
@@ -14,17 +14,17 @@ logger = get_logger("data.json")
 
 
 class JSONAdapter(DictionaryRepository):
-    """Persist a :class:`Dictionary` as a pretty-printed JSON file."""
+    """Сохранять Dictionary в виде форматированного JSON-файла."""
 
     def save(self, dictionary: Dictionary, path: Path) -> None:
-        """Write dictionary to *path* as JSON.
+        """Записать словарь в path в формате JSON.
 
-        Args:
-            dictionary: Dictionary to persist.
-            path: Target ``.json`` file.
+        Аргументы:
+            dictionary: Словарь для сохранения.
+            path: Целевой .json файл.
 
-        Raises:
-            StorageError: On file write failures.
+        Исключения:
+            StorageError: при ошибках записи.
         """
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -38,16 +38,16 @@ class JSONAdapter(DictionaryRepository):
             raise SerializationError(f"Serialization error: {exc}") from exc
 
     def load(self, path: Path) -> Dictionary:
-        """Read dictionary from a JSON file.
+        """Прочитать словарь из JSON-файла.
 
-        Args:
-            path: Source ``.json`` file.
+        Аргументы:
+            path: Исходный .json файл.
 
-        Returns:
-            Loaded :class:`Dictionary`.
+        Возвращает:
+            Загруженный Dictionary.
 
-        Raises:
-            StorageError: If the file does not exist or cannot be read.
+        Исключения:
+            StorageError: если файл не существует или не читается.
             SerializationError: If the JSON is malformed.
         """
         if not path.exists():

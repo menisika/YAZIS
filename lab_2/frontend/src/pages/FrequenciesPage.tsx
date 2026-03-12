@@ -7,6 +7,7 @@ import { Card, CardTitle } from "@/components/Card";
 import { Skeleton } from "@/components/Skeleton";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { formatNumber } from "@/lib/utils";
+import { formatPosLabel } from "@/lib/linguisticLabels";
 import { Search } from "lucide-react";
 import {
   BarChart,
@@ -30,6 +31,11 @@ export function FrequenciesPage() {
 
   const freqQuery = useFrequency({ q: submittedQuery, by });
   const topQuery = useTopN({ n: topN, by: topBy });
+  const topResults = topQuery.data?.results ?? [];
+  const topDisplayResults = topResults.map((item) => ({
+    ...item,
+    displayTerm: topBy === "pos" ? formatPosLabel(item.term) : item.term,
+  }));
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +77,11 @@ export function FrequenciesPage() {
             <div className="flex items-center gap-4">
               <div className="text-2xl font-bold">{formatNumber(freqQuery.data.total)}</div>
               <div className="text-sm text-[var(--color-text-muted)]">
-                total occurrences of <span className="text-[var(--color-accent)] font-mono">{freqQuery.data.query}</span> ({freqQuery.data.by})
+                total occurrences of{" "}
+                <span className="text-[var(--color-accent)] font-mono">
+                  {freqQuery.data.by === "pos" ? formatPosLabel(freqQuery.data.query) : freqQuery.data.query}
+                </span>{" "}
+                ({freqQuery.data.by})
               </div>
             </div>
 
@@ -140,16 +150,16 @@ export function FrequenciesPage() {
             <Card>
               <CardTitle>Frequency Distribution</CardTitle>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={topQuery.data.results} layout="vertical" margin={{ left: 60, right: 20 }}>
+                <BarChart data={topDisplayResults} layout="vertical" margin={{ left: 60, right: 20 }}>
                   <XAxis type="number" tick={{ fill: "#94a3b8", fontSize: 11 }} />
-                  <YAxis type="category" dataKey="term" tick={{ fill: "#94a3b8", fontSize: 11 }} width={80} />
+                  <YAxis type="category" dataKey="displayTerm" tick={{ fill: "#94a3b8", fontSize: 11 }} width={120} />
                   <Tooltip
                     contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8 }}
                     labelStyle={{ color: "#f1f5f9" }}
                     itemStyle={{ color: "#f59e0b" }}
                   />
                   <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-                    {topQuery.data.results.map((_, i) => (
+                    {topDisplayResults.map((_, i) => (
                       <Cell key={i} fill={i === 0 ? ACCENT : MUTED} />
                     ))}
                   </Bar>
@@ -161,19 +171,19 @@ export function FrequenciesPage() {
             <Card>
               <CardTitle>Word Cloud</CardTitle>
               <div className="flex flex-wrap gap-2 items-center justify-center py-4">
-                {topQuery.data.results.map((item, i) => {
-                  const max = topQuery.data!.results[0].count;
+                {topDisplayResults.map((item, i) => {
+                  const max = topDisplayResults[0].count;
                   const ratio = item.count / max;
                   const size = 12 + ratio * 24;
                   const opacity = 0.4 + ratio * 0.6;
                   return (
                     <span
-                      key={item.term}
+                      key={`${item.term}-${i}`}
                       style={{ fontSize: `${size}px`, opacity, color: i < 3 ? ACCENT : "#94a3b8" }}
                       className="font-medium select-none cursor-default"
                       title={`${item.count} occurrences`}
                     >
-                      {item.term}
+                      {item.displayTerm}
                     </span>
                   );
                 })}

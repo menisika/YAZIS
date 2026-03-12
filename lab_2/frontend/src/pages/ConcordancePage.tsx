@@ -10,6 +10,7 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { Search } from "lucide-react";
 import { useUIStore } from "@/stores/ui";
 import { Link } from "react-router-dom";
+import { formatPosLabel } from "@/lib/linguisticLabels";
 
 export function ConcordancePage() {
   const { concordanceWindow, setConcordanceWindow } = useUIStore();
@@ -146,7 +147,7 @@ function KWICRow({ line }: { line: ConcordanceLine }) {
         </Link>
       </td>
       <td className="py-2">
-        <Badge variant="muted">{line.match_pos}</Badge>
+        <Badge variant="muted">{formatPosLabel(line.match_pos)}</Badge>
       </td>
     </tr>
   );

@@ -1,11 +1,10 @@
-import { useState } from "react";
 import { useTexts } from "@/api/corpus";
 import { useCompareTexts, type TextStyle } from "@/api/style";
 import { Card, CardTitle } from "@/components/Card";
 import { Skeleton } from "@/components/Skeleton";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { useUIStore } from "@/stores/ui";
-import { Badge } from "@/components/Badge";
+import { formatPosLabel } from "@/lib/linguisticLabels";
 import {
   RadarChart,
   Radar,
@@ -19,14 +18,72 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-  Cell,
 } from "recharts";
-import { X } from "lucide-react";
+import { CircleHelp, X } from "lucide-react";
 
 const COLORS = ["#f59e0b", "#38bdf8", "#a78bfa", "#34d399"];
 
+const METRICS: {
+  key: keyof TextStyle["metrics"];
+  label: string;
+  shortLabel: string;
+  description: string;
+}[] = [
+  {
+    key: "ttr",
+    label: "Type-Token Ratio",
+    shortLabel: "TTR",
+    description: "Shows lexical variety. Higher values mean fewer repeated words.",
+  },
+  {
+    key: "mtld",
+    label: "MTLD",
+    shortLabel: "MTLD",
+    description: "A stable lexical diversity score. Higher values suggest richer vocabulary.",
+  },
+  {
+    key: "avg_sentence_length",
+    label: "Avg Sentence Length",
+    shortLabel: "Avg Sent Len",
+    description: "Average number of words per sentence. Higher values often mean more complex syntax.",
+  },
+  {
+    key: "lexical_density",
+    label: "Lexical Density",
+    shortLabel: "Lex Density",
+    description: "Share of content words (nouns, verbs, adjectives, adverbs). Higher means more information-rich text.",
+  },
+  {
+    key: "flesch_kincaid",
+    label: "Flesch-Kincaid",
+    shortLabel: "Flesch-Kincaid",
+    description: "Readability grade estimate. Higher values usually indicate harder text.",
+  },
+];
+
+function MetricLabel({
+  label,
+  description,
+  compact = false,
+}: {
+  label: string;
+  description: string;
+  compact?: boolean;
+}) {
+  return (
+    <span
+      className="inline-flex items-center gap-1 align-middle cursor-help"
+      title={description}
+      aria-label={`${label}: ${description}`}
+    >
+      <span>{label}</span>
+      <CircleHelp size={compact ? 12 : 13} className="text-[var(--color-text-muted)]/80" />
+    </span>
+  );
+}
+
 export function StyleLabPage() {
-  const { selectedTextIds, toggleSelectedText, setSelectedTextIds } = useUIStore();
+  const { selectedTextIds, toggleSelectedText } = useUIStore();
   const { data: textsData } = useTexts({ page_size: 100 });
   const { data: comparison, isLoading, error } = useCompareTexts(selectedTextIds);
 
@@ -104,22 +161,15 @@ export function StyleLabPage() {
 function ComparisonView({ texts }: { texts: TextStyle[] }) {
   // POS radar data
   const radarData = ["NOUN", "VERB", "ADJ", "ADV", "OTHER"].map((pos) => ({
-    subject: pos,
-    ...Object.fromEntries(texts.map((t, i) => [t.title.slice(0, 15), t.pos_distribution[pos as keyof typeof t.pos_distribution]])),
+    subject: formatPosLabel(pos),
+    ...Object.fromEntries(texts.map((t) => [t.title.slice(0, 15), t.pos_distribution[pos as keyof typeof t.pos_distribution]])),
   }));
 
   // Metric bar charts
-  const metrics: { key: keyof TextStyle["metrics"]; label: string }[] = [
-    { key: "ttr", label: "Type-Token Ratio" },
-    { key: "mtld", label: "MTLD" },
-    { key: "avg_sentence_length", label: "Avg Sentence Length" },
-    { key: "lexical_density", label: "Lexical Density" },
-    { key: "flesch_kincaid", label: "Flesch-Kincaid" },
-  ];
-
-  const metricsData = metrics.map(({ key, label }) => ({
+  const metricsData = METRICS.map(({ key, label, description }) => ({
     name: label,
-    ...Object.fromEntries(texts.map((t, i) => [t.title.slice(0, 15), t.metrics[key]])),
+    description,
+    ...Object.fromEntries(texts.map((t) => [t.title.slice(0, 15), t.metrics[key]])),
   }));
 
   return (
@@ -154,8 +204,23 @@ function ComparisonView({ texts }: { texts: TextStyle[] }) {
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={metricsData} layout="vertical" margin={{ left: 120, right: 20 }}>
               <XAxis type="number" tick={{ fill: "#94a3b8", fontSize: 11 }} />
-              <YAxis type="category" dataKey="name" tick={{ fill: "#94a3b8", fontSize: 11 }} width={120} />
-              <Tooltip contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8 }} />
+              <YAxis
+                type="category"
+                dataKey="name"
+                tick={{ fill: "#94a3b8", fontSize: 11 }}
+                width={120}
+                tickFormatter={(value: string) => {
+                  const metric = METRICS.find((item) => item.label === value);
+                  return metric?.shortLabel ?? value;
+                }}
+              />
+              <Tooltip
+                labelFormatter={(label, payload) => {
+                  const description = payload?.[0]?.payload?.description as string | undefined;
+                  return description ? `${label}: ${description}` : String(label);
+                }}
+                contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8 }}
+              />
               <Legend wrapperStyle={{ fontSize: 11, color: "#94a3b8" }} />
               {texts.map((t, i) => (
                 <Bar key={t.text_id} dataKey={t.title.slice(0, 15)} fill={COLORS[i]} radius={[0, 3, 3, 0]} />
@@ -195,11 +260,14 @@ function ComparisonView({ texts }: { texts: TextStyle[] }) {
               <tr className="border-b border-[var(--color-border)] text-[var(--color-text-muted)] text-left">
                 <th className="pb-2 pr-4 font-medium">Text</th>
                 <th className="pb-2 pr-4 font-medium text-right">Tokens</th>
-                <th className="pb-2 pr-4 font-medium text-right">TTR</th>
-                <th className="pb-2 pr-4 font-medium text-right">MTLD</th>
-                <th className="pb-2 pr-4 font-medium text-right">Avg Sent Len</th>
-                <th className="pb-2 pr-4 font-medium text-right">Lex Density</th>
-                <th className="pb-2 font-medium text-right">Flesch-Kincaid</th>
+                {METRICS.map((metric) => (
+                  <th
+                    key={metric.key}
+                    className={`pb-2 font-medium text-right ${metric.key === "flesch_kincaid" ? "" : "pr-4"}`}
+                  >
+                    <MetricLabel label={metric.shortLabel} description={metric.description} compact />
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>

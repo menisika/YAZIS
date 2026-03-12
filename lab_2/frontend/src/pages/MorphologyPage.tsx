@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/Skeleton";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Search, ChevronDown, ChevronUp } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
+import { formatMorphBadge, formatPosLabel } from "@/lib/linguisticLabels";
 
 export function MorphologyPage() {
   const [query, setQuery] = useState("");
@@ -72,11 +73,11 @@ function FormCard({ form }: { form: MorphForm }) {
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3 flex-wrap">
           <span className="font-mono font-bold text-lg">{form.surface}</span>
-          <Badge variant="muted">{form.pos}</Badge>
+          <Badge variant="muted">{formatPosLabel(form.pos)}</Badge>
           <Badge variant="accent">{formatNumber(form.count)} occ.</Badge>
           {morphEntries.map(([k, v]) => (
             <Badge key={k} variant="muted">
-              {k}={v.join(",")}
+              {formatMorphBadge(k, v)}
             </Badge>
           ))}
         </div>

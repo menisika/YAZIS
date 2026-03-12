@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useText, useAnnotatedContent, type AnnotatedToken } from "@/api/corpus";
-import { Card, CardTitle } from "@/components/Card";
-import { Badge } from "@/components/Badge";
-import { Button } from "@/components/Button";
+import { Card } from "@/components/Card";
 import { Skeleton } from "@/components/Skeleton";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Pagination } from "@/components/Pagination";
 import { formatNumber } from "@/lib/utils";
+import { formatMorphBadge, formatPosLabel } from "@/lib/linguisticLabels";
 import { ArrowLeft } from "lucide-react";
 
 const POS_COLORS: Record<string, string> = {
@@ -22,7 +21,7 @@ function TokenSpan({ token }: { token: AnnotatedToken }) {
   const [tip, setTip] = useState(false);
   const morphStr = token.morph
     ? Object.entries(token.morph)
-        .map(([k, v]) => `${k}=${v.join(",")}`)
+        .map(([k, v]) => formatMorphBadge(k, v))
         .join(" | ")
     : null;
 
@@ -34,7 +33,7 @@ function TokenSpan({ token }: { token: AnnotatedToken }) {
       {tip && (
         <span className="absolute bottom-full left-0 z-10 mb-1 whitespace-nowrap bg-[var(--color-surface-raised)] border border-[var(--color-border)] rounded px-2 py-1 text-xs shadow-lg">
           <span className="font-mono text-[var(--color-accent)]">{token.lemma}</span>
-          <span className="text-[var(--color-text-muted)] ml-2">{token.pos}</span>
+          <span className="text-[var(--color-text-muted)] ml-2">{formatPosLabel(token.pos)}</span>
           {morphStr && <span className="text-[var(--color-text-muted)] ml-2">{morphStr}</span>}
         </span>
       )}
@@ -88,7 +87,7 @@ export function TextDetailPage() {
       {/* Legend */}
       <div className="flex gap-3 text-xs text-[var(--color-text-muted)] flex-wrap">
         {Object.entries(POS_COLORS).map(([pos, cls]) => (
-          <span key={pos} className={cls}>● {pos}</span>
+          <span key={pos} className={cls}>● {formatPosLabel(pos)}</span>
         ))}
         <span>Hover any word for lemma + morphology</span>
       </div>

@@ -28,14 +28,16 @@ interface Exercise {
 export default function ExerciseLibraryPage() {
   const [search, setSearch] = useState('')
   const [muscleFilter, setMuscleFilter] = useState('')
+  const [showAll, setShowAll] = useState(false)
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null)
 
   const { data: exercises, isLoading } = useQuery<Exercise[]>({
-    queryKey: ['exercises', search, muscleFilter],
+    queryKey: ['exercises', search, muscleFilter, showAll],
     queryFn: async () => {
       const params: Record<string, string> = { limit: '50' }
       if (search) params.search = search
       if (muscleFilter) params.muscle_group = muscleFilter
+      if (!showAll) params.scope = 'plan'
       const { data } = await api.get('/exercises', { params })
       return data
     },
@@ -43,7 +45,12 @@ export default function ExerciseLibraryPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Exercise Library</h1>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Exercise Library</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          {showAll ? 'All exercises' : 'Exercises in your current plan'}
+        </p>
+      </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
@@ -68,6 +75,16 @@ export default function ExerciseLibraryPage() {
             ))}
           </SelectContent>
         </Select>
+        <button
+          onClick={() => setShowAll(!showAll)}
+          className={`shrink-0 text-xs px-3 py-2 rounded-lg border transition-colors ${
+            showAll
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'bg-background text-muted-foreground border-border hover:border-primary hover:text-primary'
+          }`}
+        >
+          {showAll ? 'My plan' : 'Show all'}
+        </button>
       </div>
 
       {isLoading ? (

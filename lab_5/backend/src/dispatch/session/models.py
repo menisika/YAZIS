@@ -53,6 +53,7 @@ class SessionSetCreate(BaseModel):
 class SessionSetRead(BaseModel):
     id: int
     exercise_id: int
+    exercise_name: str | None = None
     set_number: int
     weight_kg: float | None
     reps: int

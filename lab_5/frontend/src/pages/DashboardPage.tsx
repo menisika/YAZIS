@@ -71,8 +71,15 @@ export default function DashboardPage() {
                   key={ex.id}
                   className="flex items-center justify-between py-2.5 px-4 rounded-xl bg-muted"
                 >
-                  <span className="font-medium text-sm">{ex.exercise_name}</span>
-                  <span className="text-xs text-muted-foreground">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm">{ex.exercise_name}</p>
+                    {ex.exercise_description && (
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                        {ex.exercise_description}
+                      </p>
+                    )}
+                  </div>
+                  <span className="text-xs text-muted-foreground shrink-0">
                     {ex.sets} x {ex.reps_min}-{ex.reps_max}
                   </span>
                 </div>

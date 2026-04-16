@@ -57,6 +57,25 @@ def get_today_plan(*, db_session: Session, user_id: int) -> WorkoutPlanDayRead |
     return _to_day_read(db_session=db_session, day=plan_day)
 
 
+def delete_active_plan(*, db_session: Session, user_id: int) -> None:
+    """Delete all of the user's existing plans (one-plan-per-user invariant)."""
+    plans = db_session.exec(
+        select(WorkoutPlan).where(WorkoutPlan.user_id == user_id)
+    ).all()
+    for plan in plans:
+        days = db_session.exec(
+            select(WorkoutPlanDay).where(WorkoutPlanDay.plan_id == plan.id)
+        ).all()
+        for day in days:
+            for ex in db_session.exec(
+                select(WorkoutPlanExercise).where(WorkoutPlanExercise.plan_day_id == day.id)
+            ).all():
+                db_session.delete(ex)
+            db_session.delete(day)
+        db_session.delete(plan)
+    db_session.commit()
+
+
 def delete(*, db_session: Session, plan_id: int, user_id: int) -> bool:
     plan = get(db_session=db_session, plan_id=plan_id)
     if not plan or plan.user_id != user_id:
@@ -139,6 +158,7 @@ def _to_day_read(*, db_session: Session, day: WorkoutPlanDay) -> WorkoutPlanDayR
             id=ex.id,
             exercise_id=ex.exercise_id,
             exercise_name=exercise.name if exercise else None,
+            exercise_description=exercise.description if exercise else None,
             sets=ex.sets,
             reps_min=ex.reps_min,
             reps_max=ex.reps_max,

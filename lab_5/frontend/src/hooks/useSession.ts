@@ -4,6 +4,7 @@ import api from '../config/api'
 export interface SessionSet {
   id: number
   exercise_id: number
+  exercise_name: string | null
   set_number: number
   weight_kg: number | null
   reps: number

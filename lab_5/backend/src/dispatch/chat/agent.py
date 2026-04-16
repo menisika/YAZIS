@@ -1,17 +1,11 @@
-"""LangGraph AI fitness assistant agent using Functional API."""
+"""AI fitness assistant agent."""
 
-from typing import Literal
-
-from langchain_core.messages import (
-    BaseMessage,
-    SystemMessage,
-    ToolMessage,
-)
+from langchain_core.messages import BaseMessage
 from langchain_groq import ChatGroq
-from langgraph.graph import END, START, MessagesState, StateGraph
 from sqlmodel import Session
 
 from src.dispatch.chat.tools import create_assistant_tools
+from src.dispatch.common.agent_graph import build_react_graph
 from src.dispatch.config import settings
 
 ASSISTANT_SYSTEM_PROMPT = """You are an expert fitness coach and nutritionist integrated into a workout app. You have access to the user's profile, workout plan, and recent activity through your tools.
@@ -39,44 +33,10 @@ def create_assistant_agent(db_session: Session, user_id: int):
         temperature=0.5,
         api_key=settings.groq_api_key,
     )
-
     tools = create_assistant_tools(db_session, user_id)
     tools_by_name = {t.name: t for t in tools}
     llm_with_tools = llm.bind_tools(tools)
-
-    def llm_call(state: MessagesState):
-        return {
-            "messages": [
-                llm_with_tools.invoke(
-                    [SystemMessage(content=ASSISTANT_SYSTEM_PROMPT)] + state["messages"]
-                )
-            ]
-        }
-
-    def tool_node(state: MessagesState):
-        results = []
-        for tool_call in state["messages"][-1].tool_calls:
-            tool_fn = tools_by_name[tool_call["name"]]
-            observation = tool_fn.invoke(tool_call["args"])
-            results.append(
-                ToolMessage(content=str(observation), tool_call_id=tool_call["id"])
-            )
-        return {"messages": results}
-
-    def should_continue(state: MessagesState) -> Literal["tool_node", "__end__"]:
-        last_message = state["messages"][-1]
-        if hasattr(last_message, "tool_calls") and last_message.tool_calls:
-            return "tool_node"
-        return END
-
-    graph = StateGraph(MessagesState)
-    graph.add_node("llm_call", llm_call)
-    graph.add_node("tool_node", tool_node)
-    graph.add_edge(START, "llm_call")
-    graph.add_conditional_edges("llm_call", should_continue, ["tool_node", END])
-    graph.add_edge("tool_node", "llm_call")
-
-    return graph.compile()
+    return build_react_graph(llm_with_tools, tools_by_name, ASSISTANT_SYSTEM_PROMPT)
 
 
 def run_assistant(
@@ -89,7 +49,12 @@ def run_assistant(
     result = agent.invoke({"messages": messages})
 
     for msg in reversed(result["messages"]):
-        if hasattr(msg, "content") and isinstance(msg.content, str) and msg.content and not (hasattr(msg, "tool_calls") and msg.tool_calls):
+        if (
+            hasattr(msg, "content")
+            and isinstance(msg.content, str)
+            and msg.content
+            and not (hasattr(msg, "tool_calls") and msg.tool_calls)
+        ):
             return msg.content
 
     return "I'm sorry, I couldn't process your request. Please try again."

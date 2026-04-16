@@ -5,6 +5,7 @@ export interface PlanExercise {
   id: number
   exercise_id: number
   exercise_name: string | null
+  exercise_description: string | null
   sets: number
   reps_min: number
   reps_max: number

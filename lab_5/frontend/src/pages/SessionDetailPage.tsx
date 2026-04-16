@@ -60,7 +60,9 @@ export default function SessionDetailPage() {
       <div className="space-y-4">
         {Object.entries(exerciseGroups).map(([exerciseId, sets]) => (
           <Card key={exerciseId} className="p-5">
-            <h3 className="font-semibold mb-3">Exercise #{exerciseId}</h3>
+            <h3 className="font-semibold mb-3">
+              {sets[0]?.exercise_name ?? `Exercise #${exerciseId}`}
+            </h3>
             <div className="space-y-1">
               {sets.map((set, i) => (
                 <div key={set.id}>

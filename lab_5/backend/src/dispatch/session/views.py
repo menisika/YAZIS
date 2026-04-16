@@ -3,6 +3,7 @@ from fastapi import APIRouter, Query
 from src.dispatch.auth.permissions import CurrentUser
 from src.dispatch.database import SessionDep
 from src.dispatch.exceptions import NotFoundError
+from src.dispatch.exercise.models import Exercise
 from src.dispatch.session import service as session_service
 from src.dispatch.session.models import (
     SessionCreate,
@@ -13,6 +14,14 @@ from src.dispatch.session.models import (
 )
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
+
+
+def _enrich_set(st, db_session) -> SessionSetRead:
+    exercise = db_session.get(Exercise, st.exercise_id)
+    return SessionSetRead(
+        **st.model_dump(),
+        exercise_name=exercise.name if exercise else None,
+    )
 
 
 @router.post("", response_model=SessionRead)
@@ -39,7 +48,7 @@ def list_sessions(
     )
     result = []
     for s in sessions:
-        sets = [SessionSetRead(**st.model_dump()) for st in (s.sets or [])]
+        sets = [_enrich_set(st, db_session) for st in (s.sets or [])]
         result.append(SessionRead(**s.model_dump(), sets=sets))
     return result
 
@@ -49,7 +58,7 @@ def get_session(session_id: int, current_user: CurrentUser, db_session: SessionD
     ws = session_service.get(db_session=db_session, session_id=session_id)
     if not ws or ws.user_id != current_user.id:
         raise NotFoundError("Session not found")
-    sets = [SessionSetRead(**st.model_dump()) for st in (ws.sets or [])]
+    sets = [_enrich_set(st, db_session) for st in (ws.sets or [])]
     return SessionRead(**ws.model_dump(), sets=sets)
 
 
@@ -66,7 +75,7 @@ def update_session(
         user_id=current_user.id,
         session_in=body,
     )
-    sets = [SessionSetRead(**st.model_dump()) for st in (ws.sets or [])]
+    sets = [_enrich_set(st, db_session) for st in (ws.sets or [])]
     return SessionRead(**ws.model_dump(), sets=sets)
 
 
@@ -83,7 +92,7 @@ def log_set(
         user_id=current_user.id,
         set_in=body,
     )
-    return SessionSetRead(**s.model_dump())
+    return _enrich_set(s, db_session)
 
 
 @router.delete("/{session_id}/sets/{set_id}")

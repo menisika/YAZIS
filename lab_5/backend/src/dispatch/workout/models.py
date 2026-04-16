@@ -56,6 +56,7 @@ class WorkoutPlanExerciseRead(BaseModel):
     id: int
     exercise_id: int
     exercise_name: str | None = None
+    exercise_description: str | None = None
     sets: int
     reps_min: int
     reps_max: int

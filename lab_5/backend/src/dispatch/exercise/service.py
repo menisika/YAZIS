@@ -1,3 +1,5 @@
+import re
+
 from sqlmodel import Session, func, select
 
 from src.dispatch.exercise.models import (
@@ -6,6 +8,14 @@ from src.dispatch.exercise.models import (
     ExerciseRead,
     MuscleGroupRead,
 )
+
+
+def slugify(name: str) -> str:
+    """Normalize exercise name to a canonical slug."""
+    name = name.lower().strip()
+    name = re.sub(r"[^\w\s]", "", name)
+    name = re.sub(r"\s+", "_", name)
+    return name
 
 
 def get(*, db_session: Session, exercise_id: int) -> Exercise | None:
@@ -81,3 +91,51 @@ def get_exercises_by_muscle_group(
     if difficulty:
         statement = statement.where(Exercise.difficulty == difficulty)
     return list(db_session.exec(statement).all())
+
+
+def get_all_names(*, db_session: Session) -> list[str]:
+    """Return all exercise names currently in the DB."""
+    rows = db_session.exec(select(Exercise.name)).all()
+    return list(rows)
+
+
+def get_by_slugs(*, db_session: Session, slugs: list[str]) -> dict[str, Exercise]:
+    """Return {slug: Exercise} map for all matching slugs."""
+    if not slugs:
+        return {}
+    statement = select(Exercise).where(Exercise.slug.in_(slugs))
+    exercises = db_session.exec(statement).all()
+    return {ex.slug: ex for ex in exercises if ex.slug is not None}
+
+
+def create_with_muscles(*, db_session: Session, data: object) -> Exercise:
+    """Create an Exercise row with its muscle group associations.
+
+    `data` must have: name, slug, description, instructions, category,
+    equipment, difficulty, met_value, muscle_groups (list[str]),
+    primary_muscles (list[str]).
+    """
+    exercise = Exercise(
+        name=data.name,
+        slug=data.slug,
+        description=data.description,
+        instructions=data.instructions,
+        category=data.category,
+        equipment=data.equipment,
+        difficulty=data.difficulty,
+        met_value=data.met_value,
+    )
+    db_session.add(exercise)
+    db_session.flush()  # assign ID without committing
+
+    for mg in data.muscle_groups:
+        is_primary = mg in data.primary_muscles
+        db_session.add(ExerciseMuscleGroup(
+            exercise_id=exercise.id,
+            muscle_group=mg,
+            is_primary=is_primary,
+        ))
+
+    db_session.commit()
+    db_session.refresh(exercise)
+    return exercise

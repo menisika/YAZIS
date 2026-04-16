@@ -17,6 +17,7 @@ class Exercise(SQLModel, table=True):
     instructions: str = ""
     met_value: float = 3.5
     youtube_video_id: str | None = None
+    slug: str | None = Field(default=None, unique=True, index=True)
 
 
 class ExerciseMuscleGroup(SQLModel, table=True):

@@ -1,6 +1,9 @@
 services:
+
+  # ── PostgreSQL ───────────────────────────────────────────────────────────────
   db:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_USER: fitness
       POSTGRES_PASSWORD: fitness_secret
@@ -13,10 +16,15 @@ services:
       test: ["CMD-SHELL", "pg_isready -U fitness -d fitness_planner"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
+  # ── FastAPI backend ──────────────────────────────────────────────────────────
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      # Target the runtime stage; builder is a throwaway cache layer
+      target: runtime
+    restart: unless-stopped
     ports:
       - "8000:8000"
     env_file: ./backend/.env
@@ -26,20 +34,33 @@ services:
       db:
         condition: service_healthy
     volumes:
+      # Hot-reload: live source + migration files mounted from host
       - ./backend/src:/app/src
       - ./backend/migrations:/app/migrations
+    # entrypoint.sh runs `alembic upgrade head` before starting uvicorn
     command: uvicorn src.dispatch.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
+  # ── Vite frontend ────────────────────────────────────────────────────────────
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      target: dev
+    restart: unless-stopped
     ports:
       - "5173:5173"
     env_file: ./frontend/.env
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     volumes:
+      # Hot-reload: live source mounted from host
       - ./frontend/src:/app/src
-    command: npm run dev -- --host 0.0.0.0
 
 volumes:
   postgres_data:

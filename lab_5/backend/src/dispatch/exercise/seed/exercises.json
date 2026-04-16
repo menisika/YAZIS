@@ -1,0 +1,1555 @@
+[
+  {
+    "name": "Barbell Bench Press",
+    "description": "Classic compound chest exercise performed lying on a flat bench.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Barbell%20Bench%20Press",
+    "instructions": "Lie on a flat bench, grip the barbell slightly wider than shoulder-width. Lower the bar to your mid-chest with control. Press the bar back up to full arm extension.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "chest", "is_primary": true },
+      { "muscle_group": "triceps", "is_primary": false },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Incline Barbell Bench Press",
+    "description": "Upper chest focused pressing movement on an inclined bench.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Incline%20Barbell%20Bench%20Press",
+    "instructions": "Set the bench to a 30-45 degree incline and lie back. Lower the barbell to your upper chest. Press the bar upward until arms are fully extended.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "chest", "is_primary": true },
+      { "muscle_group": "shoulders", "is_primary": false },
+      { "muscle_group": "triceps", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Dumbbell Flyes",
+    "description": "Chest isolation exercise using a wide arc motion with dumbbells.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Dumbbell%20Flyes",
+    "instructions": "Lie on a flat bench holding dumbbells above your chest with a slight elbow bend. Lower the weights out to the sides in a wide arc until you feel a stretch in your chest. Bring the dumbbells back together above your chest.",
+    "met_value": 4.0,
+    "muscle_groups": [
+      { "muscle_group": "chest", "is_primary": true },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Cable Crossover",
+    "description": "Chest isolation exercise using cable pulleys for constant tension.",
+    "category": "strength",
+    "equipment": "cable",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Cable%20Crossover",
+    "instructions": "Stand between two high cable pulleys, grab a handle in each hand. Step forward slightly and bring your hands together in a hugging motion. Slowly return to the starting position with arms wide.",
+    "met_value": 4.0,
+    "muscle_groups": [
+      { "muscle_group": "chest", "is_primary": true },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Push-Up",
+    "description": "Fundamental bodyweight pressing exercise for chest and triceps.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Push-Up",
+    "instructions": "Start in a plank position with hands slightly wider than shoulder-width. Lower your body until your chest nearly touches the floor. Push back up to the starting position.",
+    "met_value": 3.8,
+    "muscle_groups": [
+      { "muscle_group": "chest", "is_primary": true },
+      { "muscle_group": "triceps", "is_primary": false },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Barbell Back Squat",
+    "description": "King of all exercises, a compound lower-body movement targeting the legs and core.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Barbell%20Back%20Squat",
+    "instructions": "Place the barbell on your upper traps and unrack it with feet shoulder-width apart. Lower your hips back and down until thighs are at least parallel to the floor. Drive through your heels to stand back up.",
+    "met_value": 6.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": false },
+      { "muscle_group": "abs", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Front Squat",
+    "description": "Squat variation with the barbell held in front, emphasizing quads and core.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "advanced",
+    "image_url": "https://via.placeholder.com/300x200?text=Front%20Squat",
+    "instructions": "Rest the barbell across your front deltoids with elbows high. Descend into a deep squat keeping your torso upright. Stand back up by driving through your feet.",
+    "met_value": 6.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "abs", "is_primary": false },
+      { "muscle_group": "glutes", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Leg Press",
+    "description": "Machine-based compound leg exercise for building lower body mass.",
+    "category": "strength",
+    "equipment": "machine",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Leg%20Press",
+    "instructions": "Sit in the leg press machine with feet shoulder-width apart on the platform. Lower the platform by bending your knees toward your chest. Press the platform back up without locking your knees.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": false },
+      { "muscle_group": "hamstrings", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Conventional Deadlift",
+    "description": "Full-body compound pull lifting a barbell from the floor.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Conventional%20Deadlift",
+    "instructions": "Stand with feet hip-width apart, shins touching the bar. Hinge at the hips and grip the bar just outside your knees. Drive through your feet and extend your hips to stand up with the bar.",
+    "met_value": 6.0,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "forearms", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Romanian Deadlift",
+    "description": "Hip-hinge movement emphasizing the hamstrings and glutes.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Romanian%20Deadlift",
+    "instructions": "Hold the barbell at hip level with a shoulder-width grip. Push your hips back and lower the bar along your legs, keeping a slight knee bend. Return to standing by driving your hips forward.",
+    "met_value": 5.5,
+    "muscle_groups": [
+      { "muscle_group": "hamstrings", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "back", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Barbell Overhead Press",
+    "description": "Compound shoulder pressing movement performed standing.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Barbell%20Overhead%20Press",
+    "instructions": "Hold the barbell at shoulder height with a grip just outside shoulder-width. Press the bar straight overhead until arms are fully extended. Lower the bar back to shoulder height under control.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "shoulders", "is_primary": true },
+      { "muscle_group": "triceps", "is_primary": false },
+      { "muscle_group": "abs", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Dumbbell Lateral Raise",
+    "description": "Isolation exercise for the lateral head of the deltoid.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Dumbbell%20Lateral%20Raise",
+    "instructions": "Stand holding dumbbells at your sides with a slight elbow bend. Raise both arms out to the sides until they are parallel with the floor. Lower the weights back down slowly.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "shoulders", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Face Pull",
+    "description": "Rear deltoid and upper back exercise using a cable rope attachment.",
+    "category": "strength",
+    "equipment": "cable",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Face%20Pull",
+    "instructions": "Set a cable pulley to upper chest height and attach a rope. Pull the rope toward your face, separating the ends as you pull. Squeeze your rear delts and slowly return to the start.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "shoulders", "is_primary": true },
+      { "muscle_group": "back", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Arnold Press",
+    "description": "Dumbbell shoulder press with a rotation for complete deltoid activation.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Arnold%20Press",
+    "instructions": "Start with dumbbells at shoulder height, palms facing you. Rotate your palms outward as you press the dumbbells overhead. Reverse the motion to return to the starting position.",
+    "met_value": 4.5,
+    "muscle_groups": [
+      { "muscle_group": "shoulders", "is_primary": true },
+      { "muscle_group": "triceps", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Barbell Bent-Over Row",
+    "description": "Compound pulling exercise for a thick, strong back.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Barbell%20Bent-Over%20Row",
+    "instructions": "Hinge at the hips with a slight knee bend, holding the barbell with an overhand grip. Pull the bar toward your lower chest, squeezing your shoulder blades together. Lower the bar back down with control.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "biceps", "is_primary": false },
+      { "muscle_group": "forearms", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Pull-Up",
+    "description": "Classic bodyweight back exercise performed on an overhead bar.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Pull-Up",
+    "instructions": "Hang from a bar with an overhand grip slightly wider than shoulder-width. Pull yourself up until your chin clears the bar. Lower yourself back down to a full hang.",
+    "met_value": 5.5,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "biceps", "is_primary": false },
+      { "muscle_group": "forearms", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Chin-Up",
+    "description": "Bodyweight pulling exercise with an underhand grip for more biceps involvement.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Chin-Up",
+    "instructions": "Hang from a bar with an underhand (supinated) grip at shoulder-width. Pull yourself up until your chin is above the bar. Lower yourself under control to a dead hang.",
+    "met_value": 5.5,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "biceps", "is_primary": true },
+      { "muscle_group": "forearms", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Seated Cable Row",
+    "description": "Cable machine rowing exercise for mid-back thickness.",
+    "category": "strength",
+    "equipment": "cable",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Seated%20Cable%20Row",
+    "instructions": "Sit at the cable row station with feet on the platform and knees slightly bent. Pull the handle toward your abdomen, squeezing your shoulder blades. Extend your arms back to the starting position.",
+    "met_value": 4.5,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "biceps", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Lat Pulldown",
+    "description": "Machine exercise mimicking a pull-up for lat development.",
+    "category": "strength",
+    "equipment": "cable",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Lat%20Pulldown",
+    "instructions": "Sit at the lat pulldown machine and grip the bar wider than shoulder-width. Pull the bar down to your upper chest while leaning back slightly. Return the bar up slowly with control.",
+    "met_value": 4.5,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "biceps", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Single-Arm Dumbbell Row",
+    "description": "Unilateral back exercise performed with one knee on a bench.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Single-Arm%20Dumbbell%20Row",
+    "instructions": "Place one hand and knee on a bench, holding a dumbbell in the other hand. Row the dumbbell toward your hip, keeping your elbow close to your body. Lower the weight back down with control.",
+    "met_value": 4.5,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "biceps", "is_primary": false },
+      { "muscle_group": "forearms", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Barbell Curl",
+    "description": "Classic biceps exercise using a straight barbell.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Barbell%20Curl",
+    "instructions": "Stand holding a barbell with an underhand grip at shoulder-width. Curl the bar upward by contracting your biceps, keeping elbows pinned to your sides. Lower the bar back down slowly.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "biceps", "is_primary": true },
+      { "muscle_group": "forearms", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Dumbbell Hammer Curl",
+    "description": "Biceps curl variation with a neutral grip targeting the brachialis.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Dumbbell%20Hammer%20Curl",
+    "instructions": "Stand holding dumbbells at your sides with palms facing each other. Curl the weights up while keeping your palms facing inward throughout. Lower the dumbbells back to the starting position.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "biceps", "is_primary": true },
+      { "muscle_group": "forearms", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Concentration Curl",
+    "description": "Seated single-arm biceps curl for peak contraction.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Concentration%20Curl",
+    "instructions": "Sit on a bench and brace the back of your upper arm against your inner thigh. Curl the dumbbell up toward your shoulder, squeezing at the top. Lower the weight slowly to full extension.",
+    "met_value": 3.0,
+    "muscle_groups": [
+      { "muscle_group": "biceps", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Cable Bicep Curl",
+    "description": "Biceps curl using a cable for constant tension throughout the movement.",
+    "category": "strength",
+    "equipment": "cable",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Cable%20Bicep%20Curl",
+    "instructions": "Stand facing a low cable pulley with a straight bar attachment. Curl the bar toward your shoulders while keeping your elbows stationary. Lower the bar back down under control.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "biceps", "is_primary": true },
+      { "muscle_group": "forearms", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Tricep Pushdown",
+    "description": "Cable isolation exercise for triceps using a rope or bar attachment.",
+    "category": "strength",
+    "equipment": "cable",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Tricep%20Pushdown",
+    "instructions": "Stand facing a high cable pulley and grip the attachment with both hands. Push the weight down by extending your elbows, keeping upper arms stationary. Slowly return to the starting position.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "triceps", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Skull Crusher",
+    "description": "Lying triceps extension using a barbell or EZ-bar.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Skull%20Crusher",
+    "instructions": "Lie on a flat bench holding a barbell with arms extended above your chest. Lower the bar toward your forehead by bending at the elbows. Extend your arms back to the starting position.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "triceps", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Overhead Tricep Extension",
+    "description": "Dumbbell exercise targeting the long head of the triceps.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Overhead%20Tricep%20Extension",
+    "instructions": "Hold a dumbbell overhead with both hands, arms fully extended. Lower the dumbbell behind your head by bending your elbows. Press the weight back up to full extension.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "triceps", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Diamond Push-Up",
+    "description": "Close-hand push-up variation emphasizing the triceps.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Diamond%20Push-Up",
+    "instructions": "Assume a push-up position with your hands together forming a diamond shape. Lower your chest to your hands while keeping elbows close to your body. Push back up to the starting position.",
+    "met_value": 4.0,
+    "muscle_groups": [
+      { "muscle_group": "triceps", "is_primary": true },
+      { "muscle_group": "chest", "is_primary": false },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Dip",
+    "description": "Compound bodyweight exercise for chest and triceps on parallel bars.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Dip",
+    "instructions": "Support yourself on parallel bars with arms fully extended. Lower your body by bending your elbows until your upper arms are parallel to the floor. Press yourself back up to the top position.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "triceps", "is_primary": true },
+      { "muscle_group": "chest", "is_primary": true },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Wrist Curl",
+    "description": "Isolation exercise for forearm flexors performed seated.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Wrist%20Curl",
+    "instructions": "Sit on a bench with forearms resting on your thighs, palms facing up, holding dumbbells. Curl the weights up by flexing your wrists. Lower the weights back down slowly.",
+    "met_value": 2.5,
+    "muscle_groups": [
+      { "muscle_group": "forearms", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Reverse Wrist Curl",
+    "description": "Forearm extensor exercise performed with an overhand grip.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Reverse%20Wrist%20Curl",
+    "instructions": "Sit with forearms on your thighs, palms facing down, holding dumbbells. Extend your wrists to raise the weights upward. Lower the weights back down under control.",
+    "met_value": 2.5,
+    "muscle_groups": [
+      { "muscle_group": "forearms", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Leg Extension",
+    "description": "Machine isolation exercise for the quadriceps.",
+    "category": "strength",
+    "equipment": "machine",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Leg%20Extension",
+    "instructions": "Sit in the leg extension machine with the pad on your shins. Extend your legs until they are straight, squeezing your quads at the top. Lower the weight back down slowly.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Leg Curl",
+    "description": "Machine isolation exercise for the hamstrings.",
+    "category": "strength",
+    "equipment": "machine",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Leg%20Curl",
+    "instructions": "Lie face down on the leg curl machine with the pad behind your ankles. Curl your legs up by bending your knees as far as possible. Lower the weight back down with control.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "hamstrings", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Bulgarian Split Squat",
+    "description": "Unilateral leg exercise with the rear foot elevated on a bench.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Bulgarian%20Split%20Squat",
+    "instructions": "Stand in a split stance with your rear foot elevated on a bench, holding dumbbells. Lower your body until your front thigh is parallel to the floor. Drive through your front heel to stand back up.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Walking Lunge",
+    "description": "Dynamic lunge exercise performed while moving forward.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Walking%20Lunge",
+    "instructions": "Stand holding dumbbells at your sides. Step forward into a lunge, lowering your back knee toward the floor. Push off your front foot and step forward into the next lunge.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Goblet Squat",
+    "description": "Beginner-friendly squat holding a dumbbell or kettlebell at the chest.",
+    "category": "strength",
+    "equipment": "kettlebell",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Goblet%20Squat",
+    "instructions": "Hold a kettlebell at chest height with both hands. Squat down by pushing your hips back and bending your knees. Stand back up by driving through your heels.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "abs", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Hip Thrust",
+    "description": "Glute-focused exercise performed with back against a bench.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Hip%20Thrust",
+    "instructions": "Sit with your upper back against a bench and a barbell over your hips. Drive through your heels to lift your hips until your body forms a straight line. Lower your hips back down slowly.",
+    "met_value": 4.5,
+    "muscle_groups": [
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Glute Bridge",
+    "description": "Bodyweight glute activation exercise performed lying on the floor.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Glute%20Bridge",
+    "instructions": "Lie on your back with knees bent and feet flat on the floor. Squeeze your glutes and lift your hips until your body forms a straight line. Hold briefly at the top, then lower back down.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Standing Calf Raise",
+    "description": "Calf isolation exercise performed on a raised surface or machine.",
+    "category": "strength",
+    "equipment": "machine",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Standing%20Calf%20Raise",
+    "instructions": "Stand on the edge of a platform with the balls of your feet, heels hanging off. Rise up onto your toes as high as possible. Lower your heels below the platform for a full stretch.",
+    "met_value": 3.0,
+    "muscle_groups": [
+      { "muscle_group": "calves", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Seated Calf Raise",
+    "description": "Calf exercise targeting the soleus muscle performed seated.",
+    "category": "strength",
+    "equipment": "machine",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Seated%20Calf%20Raise",
+    "instructions": "Sit in the seated calf raise machine with the pad on your lower thighs. Raise your heels as high as possible by pressing through the balls of your feet. Lower your heels for a deep stretch.",
+    "met_value": 3.0,
+    "muscle_groups": [
+      { "muscle_group": "calves", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Crunch",
+    "description": "Basic abdominal exercise performed lying on the floor.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Crunch",
+    "instructions": "Lie on your back with knees bent and hands behind your head. Curl your upper body toward your knees by contracting your abs. Lower back down without fully resting your shoulders on the floor.",
+    "met_value": 3.0,
+    "muscle_groups": [
+      { "muscle_group": "abs", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Plank",
+    "description": "Isometric core exercise holding a push-up-like position.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Plank",
+    "instructions": "Get into a forearm plank position with elbows under shoulders and body in a straight line. Engage your core and hold the position without letting your hips sag. Breathe steadily and maintain the position for the target duration.",
+    "met_value": 3.0,
+    "muscle_groups": [
+      { "muscle_group": "abs", "is_primary": true },
+      { "muscle_group": "obliques", "is_primary": false },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Hanging Leg Raise",
+    "description": "Advanced abdominal exercise performed hanging from a bar.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "advanced",
+    "image_url": "https://via.placeholder.com/300x200?text=Hanging%20Leg%20Raise",
+    "instructions": "Hang from a pull-up bar with an overhand grip. Raise your legs until they are parallel to the floor or higher. Lower your legs back down with control, avoiding swinging.",
+    "met_value": 4.0,
+    "muscle_groups": [
+      { "muscle_group": "abs", "is_primary": true },
+      { "muscle_group": "obliques", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Cable Woodchop",
+    "description": "Rotational core exercise using a cable machine.",
+    "category": "strength",
+    "equipment": "cable",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Cable%20Woodchop",
+    "instructions": "Set a cable pulley high and stand sideways to the machine. Pull the handle diagonally across your body from high to low, rotating your torso. Return to the start position with control.",
+    "met_value": 4.0,
+    "muscle_groups": [
+      { "muscle_group": "obliques", "is_primary": true },
+      { "muscle_group": "abs", "is_primary": false },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Russian Twist",
+    "description": "Seated rotational core exercise with or without weight.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Russian%20Twist",
+    "instructions": "Sit on the floor with knees bent, lean back slightly and lift your feet off the ground. Rotate your torso to one side, then to the other. Continue alternating sides in a controlled manner.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "obliques", "is_primary": true },
+      { "muscle_group": "abs", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Ab Wheel Rollout",
+    "description": "Advanced core exercise using an ab wheel for deep abdominal activation.",
+    "category": "strength",
+    "equipment": "other",
+    "difficulty": "advanced",
+    "image_url": "https://via.placeholder.com/300x200?text=Ab%20Wheel%20Rollout",
+    "instructions": "Kneel on the floor and grip the ab wheel with both hands. Roll the wheel forward, extending your body as far as you can while keeping your core tight. Pull the wheel back toward your knees to return to the start.",
+    "met_value": 4.5,
+    "muscle_groups": [
+      { "muscle_group": "abs", "is_primary": true },
+      { "muscle_group": "shoulders", "is_primary": false },
+      { "muscle_group": "back", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Bicycle Crunch",
+    "description": "Dynamic core exercise combining a crunch with alternating knee-to-elbow rotation.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Bicycle%20Crunch",
+    "instructions": "Lie on your back with hands behind your head and legs raised. Bring one knee toward your chest while rotating your opposite elbow to meet it. Alternate sides in a pedaling motion.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "abs", "is_primary": true },
+      { "muscle_group": "obliques", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Kettlebell Swing",
+    "description": "Explosive hip-hinge movement using a kettlebell for power and conditioning.",
+    "category": "strength",
+    "equipment": "kettlebell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Kettlebell%20Swing",
+    "instructions": "Stand with feet shoulder-width apart, holding a kettlebell with both hands. Hinge at the hips and swing the kettlebell back between your legs. Snap your hips forward to swing the kettlebell to chest height.",
+    "met_value": 6.0,
+    "muscle_groups": [
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": true },
+      { "muscle_group": "abs", "is_primary": false },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Kettlebell Turkish Get-Up",
+    "description": "Full-body stability exercise transitioning from lying to standing while holding a kettlebell.",
+    "category": "strength",
+    "equipment": "kettlebell",
+    "difficulty": "advanced",
+    "image_url": "https://via.placeholder.com/300x200?text=Kettlebell%20Turkish%20Get-Up",
+    "instructions": "Lie on your back holding a kettlebell with one arm extended above you. Use a series of deliberate movements to rise to a standing position while keeping the weight overhead. Reverse the steps to return to the lying position.",
+    "met_value": 5.5,
+    "muscle_groups": [
+      { "muscle_group": "shoulders", "is_primary": true },
+      { "muscle_group": "abs", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": false },
+      { "muscle_group": "quadriceps", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Kettlebell Goblet Squat",
+    "description": "Squat variation holding a kettlebell close to the chest.",
+    "category": "strength",
+    "equipment": "kettlebell",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Kettlebell%20Goblet%20Squat",
+    "instructions": "Hold a kettlebell by the horns at chest height. Squat down keeping your chest upright and elbows inside your knees. Drive up through your heels to return to standing.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "abs", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Resistance Band Pull-Apart",
+    "description": "Rear deltoid and upper back exercise using a resistance band.",
+    "category": "strength",
+    "equipment": "band",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Resistance%20Band%20Pull-Apart",
+    "instructions": "Hold a resistance band in front of you at shoulder height with arms extended. Pull the band apart by squeezing your shoulder blades together. Slowly return to the starting position.",
+    "met_value": 3.0,
+    "muscle_groups": [
+      { "muscle_group": "shoulders", "is_primary": true },
+      { "muscle_group": "back", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Banded Lateral Walk",
+    "description": "Glute activation exercise using a resistance band around the legs.",
+    "category": "strength",
+    "equipment": "band",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Banded%20Lateral%20Walk",
+    "instructions": "Place a resistance band around your ankles and stand in a quarter-squat position. Step laterally, maintaining tension in the band throughout. Complete the target steps in one direction, then reverse.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "quadriceps", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Banded Bicep Curl",
+    "description": "Biceps curl using a resistance band for accommodating resistance.",
+    "category": "strength",
+    "equipment": "band",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Banded%20Bicep%20Curl",
+    "instructions": "Stand on a resistance band with both feet and grip the ends with an underhand grip. Curl your hands toward your shoulders, keeping elbows pinned. Lower back down under tension.",
+    "met_value": 3.0,
+    "muscle_groups": [
+      { "muscle_group": "biceps", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Chest Press Machine",
+    "description": "Machine-guided pressing movement for the chest.",
+    "category": "strength",
+    "equipment": "machine",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Chest%20Press%20Machine",
+    "instructions": "Sit in the chest press machine and grip the handles at chest height. Push the handles forward until your arms are fully extended. Return the handles slowly to the starting position.",
+    "met_value": 4.0,
+    "muscle_groups": [
+      { "muscle_group": "chest", "is_primary": true },
+      { "muscle_group": "triceps", "is_primary": false },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Shoulder Press Machine",
+    "description": "Machine-based overhead pressing for the shoulders.",
+    "category": "strength",
+    "equipment": "machine",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Shoulder%20Press%20Machine",
+    "instructions": "Sit in the shoulder press machine and grip the handles at shoulder height. Press the handles overhead until your arms are extended. Lower the weight back to the starting position.",
+    "met_value": 4.0,
+    "muscle_groups": [
+      { "muscle_group": "shoulders", "is_primary": true },
+      { "muscle_group": "triceps", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Hack Squat",
+    "description": "Machine squat variation that targets the quads with back support.",
+    "category": "strength",
+    "equipment": "machine",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Hack%20Squat",
+    "instructions": "Stand on the hack squat machine platform with your back against the pad. Lower yourself by bending your knees to at least 90 degrees. Press through your feet to return to the starting position.",
+    "met_value": 5.5,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": false }
+    ]
+  },
+  {
+    "name": "T-Bar Row",
+    "description": "Compound back exercise using a T-bar or landmine setup.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=T-Bar%20Row",
+    "instructions": "Straddle the T-bar and grip the handles with both hands. Hinge forward at the hips and pull the weight toward your chest. Lower the weight back down with control.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "biceps", "is_primary": false },
+      { "muscle_group": "forearms", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Sumo Deadlift",
+    "description": "Wide-stance deadlift variation emphasizing the inner thighs and glutes.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "advanced",
+    "image_url": "https://via.placeholder.com/300x200?text=Sumo%20Deadlift",
+    "instructions": "Stand with a wide stance, toes pointed out, and grip the bar inside your knees. Drive through your heels and extend your hips and knees to lift the bar. Lower the bar back to the floor under control.",
+    "met_value": 6.0,
+    "muscle_groups": [
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": true },
+      { "muscle_group": "quadriceps", "is_primary": false },
+      { "muscle_group": "back", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Dumbbell Shoulder Press",
+    "description": "Overhead pressing with dumbbells for shoulder development.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Dumbbell%20Shoulder%20Press",
+    "instructions": "Sit or stand holding dumbbells at shoulder height with palms facing forward. Press both dumbbells overhead until arms are fully extended. Lower the weights back to shoulder level.",
+    "met_value": 4.5,
+    "muscle_groups": [
+      { "muscle_group": "shoulders", "is_primary": true },
+      { "muscle_group": "triceps", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Dumbbell Bench Press",
+    "description": "Chest pressing with dumbbells allowing a greater range of motion.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Dumbbell%20Bench%20Press",
+    "instructions": "Lie on a flat bench holding dumbbells above your chest with arms extended. Lower the dumbbells to the sides of your chest. Press the weights back up to the starting position.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "chest", "is_primary": true },
+      { "muscle_group": "triceps", "is_primary": false },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Dumbbell Rear Delt Fly",
+    "description": "Isolation exercise for the posterior deltoids performed bent over.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Dumbbell%20Rear%20Delt%20Fly",
+    "instructions": "Bend forward at the hips holding dumbbells with arms hanging down. Raise the dumbbells out to the sides, squeezing your shoulder blades together. Lower the weights back down slowly.",
+    "met_value": 3.5,
+    "muscle_groups": [
+      { "muscle_group": "shoulders", "is_primary": true },
+      { "muscle_group": "back", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Dumbbell Shrug",
+    "description": "Trapezius isolation exercise using dumbbells.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Dumbbell%20Shrug",
+    "instructions": "Stand holding heavy dumbbells at your sides with arms straight. Shrug your shoulders up toward your ears as high as possible. Lower your shoulders back down slowly.",
+    "met_value": 3.0,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Farmer's Walk",
+    "description": "Loaded carry exercise for grip, core, and total body conditioning.",
+    "category": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Farmer%27s%20Walk",
+    "instructions": "Hold heavy dumbbells at your sides with a firm grip. Walk forward with an upright posture and controlled steps. Continue for the target distance or duration.",
+    "met_value": 5.5,
+    "muscle_groups": [
+      { "muscle_group": "forearms", "is_primary": true },
+      { "muscle_group": "abs", "is_primary": false },
+      { "muscle_group": "back", "is_primary": false },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Running (Treadmill)",
+    "description": "Steady-state or interval running on a treadmill for cardiovascular fitness.",
+    "category": "cardio",
+    "equipment": "machine",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Running%20(Treadmill)",
+    "instructions": "Step onto the treadmill and set your desired speed and incline. Maintain an upright posture with arms swinging naturally at your sides. Keep a steady pace and breathe rhythmically throughout.",
+    "met_value": 8.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": false },
+      { "muscle_group": "calves", "is_primary": false },
+      { "muscle_group": "glutes", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Cycling (Stationary Bike)",
+    "description": "Low-impact cardiovascular exercise on a stationary bike.",
+    "category": "cardio",
+    "equipment": "machine",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Cycling%20(Stationary%20Bike)",
+    "instructions": "Adjust the seat height so your leg has a slight bend at the bottom of the pedal stroke. Pedal at a steady cadence while keeping your upper body relaxed. Adjust resistance to match your desired intensity.",
+    "met_value": 7.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": false },
+      { "muscle_group": "calves", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Rowing Machine",
+    "description": "Full-body cardiovascular exercise using an indoor rowing ergometer.",
+    "category": "cardio",
+    "equipment": "machine",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Rowing%20Machine",
+    "instructions": "Sit on the rower with feet secured and grip the handle with both hands. Drive with your legs first, then lean back slightly and pull the handle to your lower chest. Return by extending your arms, leaning forward, and bending your knees.",
+    "met_value": 7.0,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "biceps", "is_primary": false },
+      { "muscle_group": "abs", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Elliptical Trainer",
+    "description": "Low-impact full-body cardio machine combining leg and arm movement.",
+    "category": "cardio",
+    "equipment": "machine",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Elliptical%20Trainer",
+    "instructions": "Stand on the elliptical pedals and grip the moving handles. Push and pull the handles while striding in an elliptical motion. Maintain an upright posture and steady rhythm.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": false },
+      { "muscle_group": "hamstrings", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Jump Rope",
+    "description": "High-intensity cardio using a skipping rope for coordination and conditioning.",
+    "category": "cardio",
+    "equipment": "other",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Jump%20Rope",
+    "instructions": "Hold the rope handles at hip height with elbows close to your body. Swing the rope overhead and jump just high enough to clear it with both feet. Land softly on the balls of your feet and maintain a steady rhythm.",
+    "met_value": 10.0,
+    "muscle_groups": [
+      { "muscle_group": "calves", "is_primary": true },
+      { "muscle_group": "quadriceps", "is_primary": false },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Burpee",
+    "description": "Full-body cardio exercise combining a squat, push-up, and jump.",
+    "category": "cardio",
+    "equipment": "bodyweight",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Burpee",
+    "instructions": "From standing, squat down and place your hands on the floor. Jump your feet back into a push-up position and perform a push-up. Jump your feet forward, then explosively jump up with arms overhead.",
+    "met_value": 8.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "chest", "is_primary": false },
+      { "muscle_group": "shoulders", "is_primary": false },
+      { "muscle_group": "abs", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Mountain Climber",
+    "description": "Dynamic bodyweight cardio exercise performed in a plank position.",
+    "category": "cardio",
+    "equipment": "bodyweight",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Mountain%20Climber",
+    "instructions": "Start in a high plank position with arms extended. Drive one knee toward your chest, then quickly switch legs. Continue alternating legs at a rapid pace.",
+    "met_value": 8.0,
+    "muscle_groups": [
+      { "muscle_group": "abs", "is_primary": true },
+      { "muscle_group": "quadriceps", "is_primary": false },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Jumping Jack",
+    "description": "Simple full-body cardio exercise involving jumping with arm and leg spread.",
+    "category": "cardio",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Jumping%20Jack",
+    "instructions": "Stand with feet together and arms at your sides. Jump while spreading your legs wide and raising your arms overhead. Jump back to the starting position and repeat.",
+    "met_value": 7.0,
+    "muscle_groups": [
+      { "muscle_group": "calves", "is_primary": true },
+      { "muscle_group": "shoulders", "is_primary": false },
+      { "muscle_group": "quadriceps", "is_primary": false }
+    ]
+  },
+  {
+    "name": "High Knees",
+    "description": "Cardio drill involving running in place with exaggerated knee lifts.",
+    "category": "cardio",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=High%20Knees",
+    "instructions": "Stand with feet hip-width apart. Run in place, driving your knees up toward your chest as high as possible. Pump your arms in coordination with your legs.",
+    "met_value": 8.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "abs", "is_primary": false },
+      { "muscle_group": "calves", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Battle Ropes",
+    "description": "High-intensity conditioning exercise using heavy ropes for upper body endurance.",
+    "category": "cardio",
+    "equipment": "other",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Battle%20Ropes",
+    "instructions": "Hold one end of a battle rope in each hand in an athletic stance. Alternate whipping the ropes up and down rapidly, creating waves. Maintain the intensity for the target duration.",
+    "met_value": 8.0,
+    "muscle_groups": [
+      { "muscle_group": "shoulders", "is_primary": true },
+      { "muscle_group": "abs", "is_primary": false },
+      { "muscle_group": "forearms", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Stair Climber",
+    "description": "Cardio machine simulating stair climbing for lower body endurance.",
+    "category": "cardio",
+    "equipment": "machine",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Stair%20Climber",
+    "instructions": "Step onto the stair climber and grip the handles lightly for balance. Step at a steady pace, pushing through each foot fully. Maintain an upright posture and avoid leaning on the handles.",
+    "met_value": 9.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "calves", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Box Jump",
+    "description": "Explosive plyometric exercise jumping onto a raised platform.",
+    "category": "plyometrics",
+    "equipment": "other",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Box%20Jump",
+    "instructions": "Stand facing a sturdy box or platform with feet shoulder-width apart. Swing your arms and jump explosively onto the box, landing softly with both feet. Step back down and repeat.",
+    "met_value": 8.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "calves", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Depth Jump",
+    "description": "Advanced plyometric exercise stepping off a box and immediately jumping.",
+    "category": "plyometrics",
+    "equipment": "other",
+    "difficulty": "advanced",
+    "image_url": "https://via.placeholder.com/300x200?text=Depth%20Jump",
+    "instructions": "Stand on a box roughly 12-24 inches high. Step off the box and land on both feet simultaneously. Immediately explode upward into a maximal vertical jump upon landing.",
+    "met_value": 8.5,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "calves", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Tuck Jump",
+    "description": "Plyometric jump bringing knees to chest at the peak.",
+    "category": "plyometrics",
+    "equipment": "bodyweight",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Tuck%20Jump",
+    "instructions": "Stand with feet shoulder-width apart in an athletic stance. Jump explosively upward, tucking your knees toward your chest at the top. Land softly and immediately jump again.",
+    "met_value": 8.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": false },
+      { "muscle_group": "abs", "is_primary": false },
+      { "muscle_group": "calves", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Lateral Bound",
+    "description": "Side-to-side plyometric exercise for lateral power and stability.",
+    "category": "plyometrics",
+    "equipment": "bodyweight",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Lateral%20Bound",
+    "instructions": "Stand on one leg in a slight squat position. Bound laterally to the opposite side, landing softly on the other foot. Immediately bound back in the other direction.",
+    "met_value": 7.5,
+    "muscle_groups": [
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "calves", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Broad Jump",
+    "description": "Horizontal plyometric jump for explosive lower body power.",
+    "category": "plyometrics",
+    "equipment": "bodyweight",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Broad%20Jump",
+    "instructions": "Stand with feet shoulder-width apart, swing your arms back. Explode forward, jumping as far as possible while driving your arms forward. Land softly with bent knees to absorb the impact.",
+    "met_value": 8.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": false },
+      { "muscle_group": "calves", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Plyo Push-Up",
+    "description": "Explosive push-up where hands leave the ground at the top of the movement.",
+    "category": "plyometrics",
+    "equipment": "bodyweight",
+    "difficulty": "advanced",
+    "image_url": "https://via.placeholder.com/300x200?text=Plyo%20Push-Up",
+    "instructions": "Start in a standard push-up position. Lower your chest to the floor, then push up explosively so your hands leave the ground. Land softly with slightly bent elbows and immediately go into the next rep.",
+    "met_value": 6.0,
+    "muscle_groups": [
+      { "muscle_group": "chest", "is_primary": true },
+      { "muscle_group": "triceps", "is_primary": false },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Squat Jump",
+    "description": "Bodyweight jump squat for explosive leg power.",
+    "category": "plyometrics",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Squat%20Jump",
+    "instructions": "Stand with feet shoulder-width apart and lower into a squat. Explosively jump as high as possible, extending your hips, knees, and ankles. Land softly back into the squat position.",
+    "met_value": 7.5,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "calves", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Skater Jump",
+    "description": "Lateral plyometric exercise mimicking the motion of speed skating.",
+    "category": "plyometrics",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Skater%20Jump",
+    "instructions": "Stand on one foot and leap laterally to the other side, landing on the opposite foot. Swing your arms across your body for momentum. Continue bounding side to side in a fluid motion.",
+    "met_value": 7.0,
+    "muscle_groups": [
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "quadriceps", "is_primary": false },
+      { "muscle_group": "calves", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Standing Hamstring Stretch",
+    "description": "Basic stretch for the hamstrings performed standing with one leg elevated.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Standing%20Hamstring%20Stretch",
+    "instructions": "Place one heel on an elevated surface with your leg straight. Hinge forward at the hips, reaching toward your toes until you feel a stretch. Hold the position and breathe deeply, then switch legs.",
+    "met_value": 2.5,
+    "muscle_groups": [
+      { "muscle_group": "hamstrings", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Quad Stretch",
+    "description": "Standing stretch for the quadriceps by pulling the foot toward the glute.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Quad%20Stretch",
+    "instructions": "Stand on one foot and grab the other ankle behind you. Pull your heel toward your glute until you feel a stretch in the front of your thigh. Hold, breathing steadily, then switch legs.",
+    "met_value": 2.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Pigeon Pose",
+    "description": "Yoga-based hip opener stretch for the glutes and hip flexors.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Pigeon%20Pose",
+    "instructions": "From a plank position, bring one knee forward and place it behind your wrist with your shin angled. Extend the back leg straight behind you, lowering your hips toward the floor. Hold the stretch and then switch sides.",
+    "met_value": 2.5,
+    "muscle_groups": [
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Cat-Cow Stretch",
+    "description": "Gentle spinal mobilization exercise alternating between arching and rounding the back.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Cat-Cow%20Stretch",
+    "instructions": "Start on all fours with hands under shoulders and knees under hips. Arch your back, dropping your belly and lifting your head for cow pose. Round your back, tucking your chin and tailbone for cat pose.",
+    "met_value": 2.0,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "abs", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Child's Pose",
+    "description": "Resting yoga stretch for the back, shoulders, and hips.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Child%27s%20Pose",
+    "instructions": "Kneel on the floor and sit back on your heels. Extend your arms forward on the floor and lower your chest toward the ground. Hold the stretch, breathing deeply and relaxing into the position.",
+    "met_value": 2.0,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Chest Doorway Stretch",
+    "description": "Pectoral stretch performed using a doorframe for support.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Chest%20Doorway%20Stretch",
+    "instructions": "Stand in a doorway and place your forearms on either side of the frame at shoulder height. Lean forward until you feel a stretch across your chest. Hold the position and breathe deeply.",
+    "met_value": 2.0,
+    "muscle_groups": [
+      { "muscle_group": "chest", "is_primary": true },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Shoulder Cross-Body Stretch",
+    "description": "Stretch for the posterior shoulder and upper back.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Shoulder%20Cross-Body%20Stretch",
+    "instructions": "Bring one arm across your body at shoulder height. Use your other hand to gently press the arm closer to your chest. Hold the stretch, then switch arms.",
+    "met_value": 2.0,
+    "muscle_groups": [
+      { "muscle_group": "shoulders", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Tricep Overhead Stretch",
+    "description": "Stretch for the triceps performed by reaching behind the head.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Tricep%20Overhead%20Stretch",
+    "instructions": "Raise one arm overhead and bend the elbow, reaching your hand down your back. Use the other hand to gently press the elbow further back. Hold the stretch, then switch arms.",
+    "met_value": 2.0,
+    "muscle_groups": [
+      { "muscle_group": "triceps", "is_primary": true },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Seated Forward Fold",
+    "description": "Hamstring and lower back stretch performed seated with legs extended.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Seated%20Forward%20Fold",
+    "instructions": "Sit on the floor with legs extended straight in front of you. Hinge at the hips and reach forward toward your toes. Hold the stretch, breathing into it to deepen the position.",
+    "met_value": 2.5,
+    "muscle_groups": [
+      { "muscle_group": "hamstrings", "is_primary": true },
+      { "muscle_group": "back", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Hip Flexor Lunge Stretch",
+    "description": "Deep lunge stretch targeting the hip flexors and psoas.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Hip%20Flexor%20Lunge%20Stretch",
+    "instructions": "Kneel on one knee with the other foot flat on the floor in front of you. Push your hips forward until you feel a deep stretch in the front of the kneeling leg's hip. Hold the position and switch sides.",
+    "met_value": 2.5,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Figure-Four Stretch",
+    "description": "Supine stretch for the glutes and piriformis muscle.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Figure-Four%20Stretch",
+    "instructions": "Lie on your back and cross one ankle over the opposite knee. Pull the uncrossed leg toward your chest until you feel a stretch in the crossed leg's glute. Hold and then switch sides.",
+    "met_value": 2.0,
+    "muscle_groups": [
+      { "muscle_group": "glutes", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Cobra Stretch",
+    "description": "Prone backbend stretch opening the chest and stretching the abdominals.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Cobra%20Stretch",
+    "instructions": "Lie face down with palms flat on the floor under your shoulders. Press your upper body off the floor by straightening your arms, keeping hips on the ground. Hold the stretch with your gaze forward and shoulders relaxed.",
+    "met_value": 2.0,
+    "muscle_groups": [
+      { "muscle_group": "abs", "is_primary": true },
+      { "muscle_group": "chest", "is_primary": false },
+      { "muscle_group": "back", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Calf Stretch (Wall)",
+    "description": "Standing calf stretch performed against a wall.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Calf%20Stretch%20(Wall)",
+    "instructions": "Stand facing a wall with one foot forward and one foot back. Press the back heel into the ground and lean into the wall. Hold the stretch, then switch legs.",
+    "met_value": 2.0,
+    "muscle_groups": [
+      { "muscle_group": "calves", "is_primary": true }
+    ]
+  },
+  {
+    "name": "Lat Stretch (Doorway)",
+    "description": "Stretch for the latissimus dorsi using a doorframe or pole.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Lat%20Stretch%20(Doorway)",
+    "instructions": "Grip a doorframe or pole at about waist height with one hand. Step back and lean away, letting your arm extend fully. Hold the stretch and feel the pull along your side, then switch arms.",
+    "met_value": 2.0,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Spinal Twist Stretch",
+    "description": "Seated or lying twist for spinal mobility and oblique flexibility.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Spinal%20Twist%20Stretch",
+    "instructions": "Sit on the floor with one leg extended and the other crossed over it. Twist your torso toward the bent knee, placing the opposite elbow on the outside of the knee. Hold the rotation and breathe, then switch sides.",
+    "met_value": 2.0,
+    "muscle_groups": [
+      { "muscle_group": "obliques", "is_primary": true },
+      { "muscle_group": "back", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Downward Dog",
+    "description": "Classic yoga pose stretching the hamstrings, calves, and shoulders.",
+    "category": "stretching",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Downward%20Dog",
+    "instructions": "Start on all fours, then lift your hips up and back, straightening your legs. Press your heels toward the floor and your chest toward your thighs. Hold the position, pedaling your feet if needed to deepen the stretch.",
+    "met_value": 2.5,
+    "muscle_groups": [
+      { "muscle_group": "hamstrings", "is_primary": true },
+      { "muscle_group": "calves", "is_primary": true },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Bodyweight Squat",
+    "description": "Fundamental lower body exercise using only body weight.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Bodyweight%20Squat",
+    "instructions": "Stand with feet shoulder-width apart and arms extended in front of you. Lower your body by bending your knees and pushing your hips back. Stand back up by driving through your heels.",
+    "met_value": 4.0,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Inverted Row",
+    "description": "Bodyweight rowing exercise performed under a bar set at waist height.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "beginner",
+    "image_url": "https://via.placeholder.com/300x200?text=Inverted%20Row",
+    "instructions": "Lie under a bar set at waist height and grip it with an overhand grip. Pull your chest up to the bar while keeping your body straight. Lower yourself back down with control.",
+    "met_value": 4.0,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "biceps", "is_primary": false },
+      { "muscle_group": "abs", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Pike Push-Up",
+    "description": "Bodyweight shoulder press exercise performed in an inverted V position.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Pike%20Push-Up",
+    "instructions": "Start in a downward dog position with hips raised high. Bend your elbows and lower the top of your head toward the floor. Press back up to the starting position.",
+    "met_value": 4.5,
+    "muscle_groups": [
+      { "muscle_group": "shoulders", "is_primary": true },
+      { "muscle_group": "triceps", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Muscle-Up",
+    "description": "Advanced calisthenic movement combining a pull-up with a dip.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "advanced",
+    "image_url": "https://via.placeholder.com/300x200?text=Muscle-Up",
+    "instructions": "Hang from a bar with an overhand grip. Pull yourself up explosively and transition over the bar by leaning your chest forward. Press yourself up on top of the bar until arms are extended.",
+    "met_value": 7.0,
+    "muscle_groups": [
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "chest", "is_primary": true },
+      { "muscle_group": "triceps", "is_primary": false },
+      { "muscle_group": "biceps", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Pistol Squat",
+    "description": "Single-leg squat requiring strength, balance, and flexibility.",
+    "category": "strength",
+    "equipment": "bodyweight",
+    "difficulty": "advanced",
+    "image_url": "https://via.placeholder.com/300x200?text=Pistol%20Squat",
+    "instructions": "Stand on one leg with the other leg extended in front of you. Lower yourself into a deep single-leg squat while keeping the free leg off the ground. Drive through your heel to stand back up.",
+    "met_value": 5.5,
+    "muscle_groups": [
+      { "muscle_group": "quadriceps", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": false },
+      { "muscle_group": "abs", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Kettlebell Clean and Press",
+    "description": "Full-body kettlebell exercise combining a clean to the rack position with an overhead press.",
+    "category": "strength",
+    "equipment": "kettlebell",
+    "difficulty": "advanced",
+    "image_url": "https://via.placeholder.com/300x200?text=Kettlebell%20Clean%20and%20Press",
+    "instructions": "Swing the kettlebell between your legs, then clean it to the rack position at your shoulder. Press the kettlebell overhead until your arm is fully extended. Lower the weight back to the rack, then swing it back down.",
+    "met_value": 6.5,
+    "muscle_groups": [
+      { "muscle_group": "shoulders", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": false },
+      { "muscle_group": "abs", "is_primary": false },
+      { "muscle_group": "triceps", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Kettlebell Snatch",
+    "description": "Explosive single-arm kettlebell lift from the floor to overhead in one motion.",
+    "category": "strength",
+    "equipment": "kettlebell",
+    "difficulty": "advanced",
+    "image_url": "https://via.placeholder.com/300x200?text=Kettlebell%20Snatch",
+    "instructions": "Swing the kettlebell back between your legs with one hand. Explosively drive your hips forward and pull the kettlebell overhead in one fluid motion. Lock the arm out overhead, then lower back to the swing position.",
+    "met_value": 7.0,
+    "muscle_groups": [
+      { "muscle_group": "shoulders", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": true },
+      { "muscle_group": "hamstrings", "is_primary": false },
+      { "muscle_group": "back", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Decline Bench Press",
+    "description": "Chest press on a decline bench emphasizing the lower chest.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Decline%20Bench%20Press",
+    "instructions": "Lie on a decline bench with feet secured and grip the barbell at shoulder-width. Lower the bar to your lower chest with control. Press the bar back up to full arm extension.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "chest", "is_primary": true },
+      { "muscle_group": "triceps", "is_primary": false },
+      { "muscle_group": "shoulders", "is_primary": false }
+    ]
+  },
+  {
+    "name": "Barbell Hip Hinge (Good Morning)",
+    "description": "Hip hinge exercise with a barbell on the back for hamstring and lower back development.",
+    "category": "strength",
+    "equipment": "barbell",
+    "difficulty": "intermediate",
+    "image_url": "https://via.placeholder.com/300x200?text=Good%20Morning",
+    "instructions": "Place a barbell on your upper back as you would for a squat. Hinge at the hips, pushing them back while keeping a slight knee bend and flat back. Return to standing by driving your hips forward.",
+    "met_value": 5.0,
+    "muscle_groups": [
+      { "muscle_group": "hamstrings", "is_primary": true },
+      { "muscle_group": "back", "is_primary": true },
+      { "muscle_group": "glutes", "is_primary": false }
+    ]
+  }
+]

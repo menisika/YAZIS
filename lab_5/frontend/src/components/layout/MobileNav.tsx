@@ -3,7 +3,7 @@ import {
   LayoutDashboard,
   ClipboardList,
   ScrollText,
-  BarChart3,
+  MessageSquare,
   User,
 } from 'lucide-react'
 
@@ -11,7 +11,7 @@ const navItems = [
   { path: '/', label: 'Home', icon: LayoutDashboard },
   { path: '/plan', label: 'Plan', icon: ClipboardList },
   { path: '/history', label: 'History', icon: ScrollText },
-  { path: '/analytics', label: 'Stats', icon: BarChart3 },
+  { path: '/assistant', label: 'Assistant', icon: MessageSquare },
   { path: '/profile', label: 'Profile', icon: User },
 ]
 

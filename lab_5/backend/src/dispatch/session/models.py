@@ -11,7 +11,8 @@ class WorkoutSession(SQLModel, table=True):
 
     id: int | None = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id", index=True)
-    plan_day_id: int | None = Field(default=None, foreign_key="workout_plan_day.id")
+    plan_id: int | None = None
+    plan_day_of_week: int | None = None
     started_at: datetime = Field(default_factory=datetime.utcnow)
     ended_at: datetime | None = None
     duration_seconds: int | None = None
@@ -63,7 +64,8 @@ class SessionSetRead(BaseModel):
 
 
 class SessionCreate(BaseModel):
-    plan_day_id: int | None = None
+    plan_id: int | None = None
+    plan_day_of_week: int | None = None
     notes: str | None = None
 
 
@@ -75,7 +77,8 @@ class SessionUpdate(BaseModel):
 class SessionRead(BaseModel):
     id: int
     user_id: int
-    plan_day_id: int | None
+    plan_id: int | None
+    plan_day_of_week: int | None
     started_at: datetime
     ended_at: datetime | None
     duration_seconds: int | None

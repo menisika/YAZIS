@@ -159,6 +159,14 @@ def build_pipeline(db_session: Session):
                     logger.info("Librarian: created exercise '%s'", gen_ex.name)
                 except Exception:
                     logger.exception("Librarian: failed to create '%s'", gen_ex.name)
+                    db_session.rollback()
+                    # Recover: the exercise may already exist — look it up by name
+                    recovered = exercise_service.get_by_name(
+                        db_session=db_session, name=gen_ex.name
+                    )
+                    if recovered:
+                        existing_map[gen_ex.slug] = recovered
+                        logger.info("Librarian: recovered existing exercise '%s'", gen_ex.name)
 
         return {"exercise_map": existing_map}
 
@@ -173,7 +181,7 @@ def build_pipeline(db_session: Session):
         week_end = week_start + timedelta(days=6)
 
         # Delete previous plan (one-plan-per-user invariant)
-        workout_service.delete_active_plan(db_session=db_session, user_id=user_id)
+        workout_service.delete_user_plan(db_session=db_session, user_id=user_id)
 
         # Build days_data in the format save_generated_plan expects
         days_data = []
@@ -198,7 +206,7 @@ def build_pipeline(db_session: Session):
             days_data.append({
                 "day_of_week": day.day_of_week,
                 "focus": day.focus,
-                "order_index": idx,
+                "is_rest": day.is_rest,
                 "exercises": exercises_data,
             })
 

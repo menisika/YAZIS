@@ -18,7 +18,13 @@ export default function ChatWindow({ conversationId, onConversationCreated }: Ch
 
   const { data: conversation } = useConversation(conversationId)
 
-  const messages = conversation?.messages || localMessages
+  // Reset local messages whenever we switch conversations
+  useEffect(() => {
+    setLocalMessages([])
+    setInput('')
+  }, [conversationId])
+
+  const messages = conversation?.messages ?? localMessages
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })

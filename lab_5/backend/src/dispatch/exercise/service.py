@@ -108,13 +108,24 @@ def get_by_slugs(*, db_session: Session, slugs: list[str]) -> dict[str, Exercise
     return {ex.slug: ex for ex in exercises if ex.slug is not None}
 
 
+def get_by_name(*, db_session: Session, name: str) -> Exercise | None:
+    """Return an Exercise by exact name, or None."""
+    return db_session.exec(select(Exercise).where(Exercise.name == name)).first()
+
+
 def create_with_muscles(*, db_session: Session, data: object) -> Exercise:
     """Create an Exercise row with its muscle group associations.
 
     `data` must have: name, slug, description, instructions, category,
     equipment, difficulty, met_value, muscle_groups (list[str]),
     primary_muscles (list[str]).
+
+    If an exercise with the same name already exists, returns it (get-or-create).
     """
+    existing = get_by_name(db_session=db_session, name=data.name)
+    if existing:
+        return existing
+
     exercise = Exercise(
         name=data.name,
         slug=data.slug,

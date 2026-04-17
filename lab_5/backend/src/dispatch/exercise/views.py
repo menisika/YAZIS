@@ -7,7 +7,7 @@ from src.dispatch.exceptions import NotFoundError
 from src.dispatch.exercise import service as exercise_service
 from src.dispatch.exercise.models import Exercise, ExerciseRead, ExerciseVideoResponse
 from src.dispatch.exercise.youtube import get_or_fetch_video_id
-from src.dispatch.workout.models import WorkoutPlan, WorkoutPlanDay, WorkoutPlanExercise
+from src.dispatch.workout.models import WorkoutPlan, WorkoutPlanExercise
 
 router = APIRouter(prefix="/exercises", tags=["exercises"])
 
@@ -26,15 +26,9 @@ def list_exercises(
     limit: int = Query(default=20, ge=1, le=100),
 ):
     if scope == "plan":
-        from datetime import date
-        today = date.today()
-        # Find user's active plan
+        # Find user's plan (unique per user)
         plan = db_session.exec(
-            select(WorkoutPlan)
-            .where(WorkoutPlan.user_id == current_user.id)
-            .where(WorkoutPlan.valid_from <= today)
-            .where(WorkoutPlan.valid_to >= today)
-            .order_by(WorkoutPlan.created_at.desc())
+            select(WorkoutPlan).where(WorkoutPlan.user_id == current_user.id)
         ).first()
 
         if not plan:
@@ -43,8 +37,7 @@ def list_exercises(
         # Collect exercise IDs referenced by this plan
         exercise_ids_stmt = (
             select(WorkoutPlanExercise.exercise_id)
-            .join(WorkoutPlanDay, WorkoutPlanExercise.plan_day_id == WorkoutPlanDay.id)
-            .where(WorkoutPlanDay.plan_id == plan.id)
+            .where(WorkoutPlanExercise.plan_id == plan.id)
             .distinct()
         )
         exercise_ids = list(db_session.exec(exercise_ids_stmt).all())

@@ -1,7 +1,6 @@
 """LangGraph agent tools for AI fitness assistant."""
 
 import json
-from datetime import date
 
 from langchain_core.tools import tool
 from sqlmodel import Session, select
@@ -39,24 +38,23 @@ def create_assistant_tools(db_session: Session, user_id: int):
     @tool
     def get_current_workout_plan() -> str:
         """Get the user's current week workout plan with all exercises."""
-        today = date.today()
-        stmt = (
-            select(WorkoutPlan)
-            .where(WorkoutPlan.user_id == user_id)
-            .where(WorkoutPlan.valid_from <= today)
-            .where(WorkoutPlan.valid_to >= today)
-            .order_by(WorkoutPlan.created_at.desc())
-        )
-        plan = db_session.exec(stmt).first()
+        plan = db_session.exec(
+            select(WorkoutPlan).where(WorkoutPlan.user_id == user_id)
+        ).first()
         if not plan:
             return json.dumps({"error": "No active plan found"})
 
-        days_stmt = select(WorkoutPlanDay).where(WorkoutPlanDay.plan_id == plan.id).order_by(WorkoutPlanDay.order_index)
+        days_stmt = select(WorkoutPlanDay).where(WorkoutPlanDay.plan_id == plan.id).order_by(WorkoutPlanDay.day_of_week)
         days = db_session.exec(days_stmt).all()
 
         plan_data = {"name": plan.name, "days": []}
         for day in days:
-            ex_stmt = select(WorkoutPlanExercise).where(WorkoutPlanExercise.plan_day_id == day.id).order_by(WorkoutPlanExercise.order_index)
+            ex_stmt = (
+                select(WorkoutPlanExercise)
+                .where(WorkoutPlanExercise.plan_id == day.plan_id)
+                .where(WorkoutPlanExercise.day_of_week == day.day_of_week)
+                .order_by(WorkoutPlanExercise.order_index)
+            )
             exercises = db_session.exec(ex_stmt).all()
             day_data = {
                 "day_of_week": day.day_of_week,

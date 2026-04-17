@@ -21,10 +21,7 @@ async def generate_plan_flow(
     """Full flow: run the LangGraph pipeline to generate and save a workout plan."""
     if week_start is None:
         today = date.today()
-        days_until_monday = (7 - today.weekday()) % 7
-        if days_until_monday == 0:
-            days_until_monday = 7
-        week_start = today + __import__("datetime").timedelta(days=days_until_monday)
+        week_start = today - __import__("datetime").timedelta(days=today.weekday())
 
     preferences: dict = {}
     if focus_muscle_groups:

@@ -14,6 +14,7 @@ import SessionDetailPage from './pages/SessionDetailPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import ExerciseLibraryPage from './pages/ExerciseLibraryPage'
 import ProfilePage from './pages/ProfilePage'
+import AssistantPage from './pages/AssistantPage'
 
 export default function App() {
   useAuth()
@@ -39,12 +40,13 @@ export default function App() {
         >
           <Route path="/" element={<DashboardPage />} />
           <Route path="/plan" element={<WorkoutPlanPage />} />
-          <Route path="/workout/:dayId" element={<ActiveWorkoutPage />} />
+          <Route path="/workout/:planId/:dayOfWeek" element={<ActiveWorkoutPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/history/:sessionId" element={<SessionDetailPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/exercises" element={<ExerciseLibraryPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/assistant" element={<AssistantPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

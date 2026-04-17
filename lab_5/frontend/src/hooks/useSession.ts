@@ -16,7 +16,8 @@ export interface SessionSet {
 export interface WorkoutSession {
   id: number
   user_id: number
-  plan_day_id: number | null
+  plan_id: number | null
+  plan_day_of_week: number | null
   started_at: string
   ended_at: string | null
   duration_seconds: number | null
@@ -50,7 +51,7 @@ export function useSessionDetail(sessionId: number | null) {
 export function useStartSession() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (params: { plan_day_id?: number; notes?: string }) => {
+    mutationFn: async (params: { plan_id?: number; plan_day_of_week?: number; notes?: string }) => {
       const { data } = await api.post('/sessions', params)
       return data as WorkoutSession
     },

@@ -8,6 +8,7 @@ import {
   Dumbbell,
   User,
   LogOut,
+  MessageSquare,
 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 
@@ -17,6 +18,7 @@ const navItems = [
   { path: '/history', label: 'History', icon: ScrollText },
   { path: '/analytics', label: 'Analytics', icon: BarChart3 },
   { path: '/exercises', label: 'Exercises', icon: Dumbbell },
+  { path: '/assistant', label: 'AI Assistant', icon: MessageSquare },
   { path: '/profile', label: 'Profile', icon: User },
 ]
 

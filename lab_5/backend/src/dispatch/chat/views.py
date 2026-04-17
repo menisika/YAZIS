@@ -42,11 +42,20 @@ def get_conversation(
     current_user: CurrentUser,
     db_session: SessionDep,
 ):
+    from src.dispatch.exceptions import ForbiddenError
+    from src.dispatch.chat.models import ChatConversation
+    from sqlmodel import select
+
+    raw = db_session.exec(
+        select(ChatConversation).where(ChatConversation.id == conversation_id)
+    ).first()
+    if not raw:
+        raise NotFoundError("Conversation not found")
+    if raw.user_id != current_user.id:
+        raise ForbiddenError("Access denied")
     conv = chat_service.get_conversation_with_messages(
         db_session=db_session, conversation_id=conversation_id
     )
-    if not conv:
-        raise NotFoundError("Conversation not found")
     return conv
 
 

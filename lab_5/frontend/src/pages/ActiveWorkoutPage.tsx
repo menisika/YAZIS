@@ -16,7 +16,7 @@ import api from '../config/api'
 import type { PlanDay } from '../hooks/useWorkout'
 
 export default function ActiveWorkoutPage() {
-  const { dayId } = useParams()
+  const { planId, dayOfWeek } = useParams()
   const navigate = useNavigate()
   const [planDay, setPlanDay] = useState<PlanDay | null>(null)
   const [loading, setLoading] = useState(true)
@@ -40,9 +40,9 @@ export default function ActiveWorkoutPage() {
       try {
         const { data: plans } = await api.get('/workouts')
         for (const plan of plans) {
-          const day = plan.days?.find((d: PlanDay) => d.id === Number(dayId))
-          if (day) {
-            setPlanDay(day)
+          if (plan.id === Number(planId)) {
+            const day = plan.days?.find((d: PlanDay) => d.day_of_week === Number(dayOfWeek))
+            if (day) setPlanDay(day)
             break
           }
         }
@@ -52,11 +52,14 @@ export default function ActiveWorkoutPage() {
       setLoading(false)
     }
     load()
-  }, [dayId])
+  }, [planId, dayOfWeek])
 
   const handleStart = async () => {
-    const result = await startSession.mutateAsync({ plan_day_id: Number(dayId) })
-    store.startSession(result.id, Number(dayId))
+    const result = await startSession.mutateAsync({
+      plan_id: Number(planId),
+      plan_day_of_week: Number(dayOfWeek),
+    })
+    store.startSession(result.id, Number(dayOfWeek))
     stopwatch.start()
   }
 

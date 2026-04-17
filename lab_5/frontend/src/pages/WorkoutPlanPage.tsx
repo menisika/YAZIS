@@ -1,15 +1,22 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Loader2 } from 'lucide-react'
+import { Loader2, MoreVertical } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import EmptyState from '../components/common/EmptyState'
-import { useWorkoutPlans, useGenerateWorkout } from '../hooks/useWorkout'
-import { DAY_NAMES_SHORT } from '../lib/formatters'
+import { useWorkoutPlans, useGenerateWorkout, useSwapDays, useToggleRest } from '../hooks/useWorkout'
+import { DAY_NAMES, DAY_NAMES_SHORT } from '../lib/formatters'
 
 export default function WorkoutPlanPage() {
   const navigate = useNavigate()
   const { data: plans, isLoading } = useWorkoutPlans()
   const generateWorkout = useGenerateWorkout()
+  const swapDays = useSwapDays()
+  const toggleRest = useToggleRest()
+
+  const [openMenu, setOpenMenu] = useState<number | null>(null)
+  const [swapFrom, setSwapFrom] = useState<number | null>(null)
 
   const activePlan = plans?.[0]
 
@@ -36,6 +43,17 @@ export default function WorkoutPlanPage() {
     )
   }
 
+  const handleToggleRest = async (dow: number) => {
+    setOpenMenu(null)
+    await toggleRest.mutateAsync(dow)
+  }
+
+  const handleSwapConfirm = async (targetDow: number) => {
+    if (swapFrom === null) return
+    setSwapFrom(null)
+    await swapDays.mutateAsync({ day_a: swapFrom, day_b: targetDow })
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -56,18 +74,49 @@ export default function WorkoutPlanPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {Array.from({ length: 7 }, (_, i) => {
           const day = activePlan.days.find((d) => d.day_of_week === i)
+          const isRest = day?.is_rest ?? true
+          const isBusy = swapDays.isPending || toggleRest.isPending
+
           return (
-            <Card key={i} className={`p-5 ${day ? 'border-l-4 border-l-primary' : 'opacity-60'}`}>
+            <Card key={i} className={`p-5 relative ${!isRest ? 'border-l-4 border-l-primary' : 'opacity-80'}`}>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold">{DAY_NAMES_SHORT[i]}</h3>
-                {day && (
-                  <span className="text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full font-medium">
-                    {day.focus}
-                  </span>
-                )}
+                <div className="flex items-center gap-1">
+                  {day && (
+                    <span className="text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full font-medium">
+                      {day.focus}
+                    </span>
+                  )}
+                  {/* Day actions menu */}
+                  <div className="relative">
+                    <button
+                      className="p-1 rounded hover:bg-muted transition-colors"
+                      onClick={() => setOpenMenu(openMenu === i ? null : i)}
+                      disabled={isBusy}
+                    >
+                      <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                    {openMenu === i && (
+                      <div className="absolute right-0 top-7 z-20 bg-card border border-border rounded-xl shadow-lg min-w-[160px] py-1">
+                        <button
+                          className="w-full text-left px-4 py-2 text-sm hover:bg-muted transition-colors"
+                          onClick={() => handleToggleRest(i)}
+                        >
+                          {isRest ? 'Make workout day' : 'Make rest day'}
+                        </button>
+                        <button
+                          className="w-full text-left px-4 py-2 text-sm hover:bg-muted transition-colors"
+                          onClick={() => { setSwapFrom(i); setOpenMenu(null) }}
+                        >
+                          Swap with…
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              {day ? (
+              {day && !isRest ? (
                 <div className="space-y-2">
                   {day.exercises.map((ex) => (
                     <div key={ex.id} className="text-xs text-muted-foreground flex justify-between">
@@ -81,7 +130,7 @@ export default function WorkoutPlanPage() {
                     size="sm"
                     variant="secondary"
                     className="w-full mt-3"
-                    onClick={() => navigate(`/workout/${day.id}`)}
+                    onClick={() => navigate(`/workout/${activePlan.id}/${i}`)}
                   >
                     Start
                   </Button>
@@ -93,6 +142,35 @@ export default function WorkoutPlanPage() {
           )
         })}
       </div>
+
+      {/* Click-outside to close menu */}
+      {openMenu !== null && (
+        <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />
+      )}
+
+      {/* Swap day picker dialog */}
+      <Dialog open={swapFrom !== null} onOpenChange={(open) => !open && setSwapFrom(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Swap {swapFrom !== null ? DAY_NAMES[swapFrom] : ''} with…</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            {Array.from({ length: 7 }, (_, i) => {
+              if (i === swapFrom) return null
+              return (
+                <Button
+                  key={i}
+                  variant="outline"
+                  onClick={() => handleSwapConfirm(i)}
+                  disabled={swapDays.isPending}
+                >
+                  {DAY_NAMES[i]}
+                </Button>
+              )
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

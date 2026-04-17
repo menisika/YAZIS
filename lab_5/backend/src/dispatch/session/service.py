@@ -18,7 +18,8 @@ from src.dispatch.user.models import UserProfile
 def create(*, db_session: Session, user_id: int, session_in: SessionCreate) -> WorkoutSession:
     workout_session = WorkoutSession(
         user_id=user_id,
-        plan_day_id=session_in.plan_day_id,
+        plan_id=session_in.plan_id,
+        plan_day_of_week=session_in.plan_day_of_week,
         notes=session_in.notes,
     )
     db_session.add(workout_session)

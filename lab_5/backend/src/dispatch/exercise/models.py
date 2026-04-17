@@ -13,7 +13,6 @@ class Exercise(SQLModel, table=True):
     category: str  # strength, cardio, stretching, plyometrics
     equipment: str  # barbell, dumbbell, bodyweight, machine, cable, band
     difficulty: str  # beginner, intermediate, advanced
-    image_url: str | None = None
     instructions: str = ""
     met_value: float = 3.5
     youtube_video_id: str | None = None
@@ -38,7 +37,6 @@ class ExerciseRead(BaseModel):
     category: str
     equipment: str
     difficulty: str
-    image_url: str | None
     instructions: str
     met_value: float
     youtube_video_id: str | None = None

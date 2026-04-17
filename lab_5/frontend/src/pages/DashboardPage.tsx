@@ -59,7 +59,7 @@ export default function DashboardPage() {
               <Button
                 size="lg"
                 className="font-semibold text-lg px-8"
-                onClick={() => navigate(`/workout/${todayWorkout.id}`)}
+                onClick={() => navigate(`/workout/${todayWorkout.plan_id}/${todayWorkout.day_of_week}`)}
               >
                 Start Workout
               </Button>

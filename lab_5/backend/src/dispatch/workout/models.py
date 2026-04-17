@@ -1,7 +1,8 @@
 from datetime import date, datetime
 
 from pydantic import BaseModel
-from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import ForeignKeyConstraint
+from sqlmodel import Field, SQLModel
 
 # --- SQLModel Tables ---
 
@@ -10,34 +11,29 @@ class WorkoutPlan(SQLModel, table=True):
     __tablename__ = "workout_plan"
 
     id: int | None = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id", index=True)
+    user_id: int = Field(foreign_key="user.id", unique=True, index=True)
     name: str = ""
     plan_type: str = "generated"  # generated / custom
     created_at: datetime = Field(default_factory=datetime.utcnow)
     valid_from: date | None = None
     valid_to: date | None = None
 
-    days: list["WorkoutPlanDay"] = Relationship(back_populates="plan")
-
 
 class WorkoutPlanDay(SQLModel, table=True):
     __tablename__ = "workout_plan_day"
 
-    id: int | None = Field(default=None, primary_key=True)
-    plan_id: int = Field(foreign_key="workout_plan.id", index=True)
-    day_of_week: int  # 0=Monday .. 6=Sunday
+    plan_id: int = Field(foreign_key="workout_plan.id", primary_key=True)
+    day_of_week: int = Field(primary_key=True)  # 0=Monday .. 6=Sunday
     focus: str = ""  # Push, Pull, Legs, Upper, Lower, Full Body, Rest
-    order_index: int = 0
-
-    plan: WorkoutPlan | None = Relationship(back_populates="days")
-    exercises: list["WorkoutPlanExercise"] = Relationship(back_populates="plan_day")
+    is_rest: bool = False
 
 
 class WorkoutPlanExercise(SQLModel, table=True):
     __tablename__ = "workout_plan_exercise"
 
     id: int | None = Field(default=None, primary_key=True)
-    plan_day_id: int = Field(foreign_key="workout_plan_day.id", index=True)
+    plan_id: int = Field(index=True)
+    day_of_week: int = Field(index=True)
     exercise_id: int = Field(foreign_key="exercise.id")
     sets: int = 3
     reps_min: int = 8
@@ -46,7 +42,13 @@ class WorkoutPlanExercise(SQLModel, table=True):
     order_index: int = 0
     notes: str | None = None
 
-    plan_day: WorkoutPlanDay | None = Relationship(back_populates="exercises")
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["plan_id", "day_of_week"],
+            ["workout_plan_day.plan_id", "workout_plan_day.day_of_week"],
+            ondelete="CASCADE",
+        ),
+    )
 
 
 # --- Pydantic Schemas ---
@@ -66,10 +68,10 @@ class WorkoutPlanExerciseRead(BaseModel):
 
 
 class WorkoutPlanDayRead(BaseModel):
-    id: int
+    plan_id: int
     day_of_week: int
     focus: str
-    order_index: int
+    is_rest: bool
     exercises: list[WorkoutPlanExerciseRead] = []
 
 
@@ -88,3 +90,8 @@ class GenerateWorkoutRequest(BaseModel):
     week_start: date | None = None
     focus_muscle_groups: list[str] | None = None
     exclude_exercises: list[int] | None = None
+
+
+class SwapDaysRequest(BaseModel):
+    day_a: int
+    day_b: int

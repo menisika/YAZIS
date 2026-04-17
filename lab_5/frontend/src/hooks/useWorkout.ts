@@ -15,10 +15,10 @@ export interface PlanExercise {
 }
 
 export interface PlanDay {
-  id: number
+  plan_id: number
   day_of_week: number
   focus: string
-  order_index: number
+  is_rest: boolean
   exercises: PlanExercise[]
 }
 
@@ -74,6 +74,32 @@ export function useGenerateWorkout() {
     }) => {
       const { data } = await api.post('/workouts/generate', params)
       return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workouts'] })
+    },
+  })
+}
+
+export function useSwapDays() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (params: { day_a: number; day_b: number }) => {
+      const { data } = await api.patch('/workouts/plan/days/swap', params)
+      return data as WorkoutPlan
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workouts'] })
+    },
+  })
+}
+
+export function useToggleRest() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (dayOfWeek: number) => {
+      const { data } = await api.patch(`/workouts/plan/days/${dayOfWeek}/toggle-rest`)
+      return data as WorkoutPlan
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workouts'] })

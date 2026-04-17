@@ -7,6 +7,7 @@ from src.dispatch.workout import service as workout_service
 from src.dispatch.workout.flows import generate_plan_flow
 from src.dispatch.workout.models import (
     GenerateWorkoutRequest,
+    SwapDaysRequest,
     WorkoutPlanDayRead,
     WorkoutPlanRead,
 )
@@ -44,6 +45,32 @@ def get_today_workout(current_user: CurrentUser, db_session: SessionDep):
     return workout_service.get_today_plan(
         db_session=db_session, user_id=current_user.id
     )
+
+
+@router.patch("/plan/days/swap", response_model=WorkoutPlanRead)
+def swap_plan_days(
+    body: SwapDaysRequest,
+    current_user: CurrentUser,
+    db_session: SessionDep,
+):
+    plan = workout_service.get_user_plan(db_session=db_session, user_id=current_user.id)
+    if not plan:
+        raise NotFoundError("No workout plan found")
+    workout_service.swap_days(db_session=db_session, plan_id=plan.id, day_a=body.day_a, day_b=body.day_b)
+    return workout_service.get_plan_read(db_session=db_session, plan_id=plan.id)
+
+
+@router.patch("/plan/days/{day_of_week}/toggle-rest", response_model=WorkoutPlanRead)
+def toggle_rest_day(
+    day_of_week: int,
+    current_user: CurrentUser,
+    db_session: SessionDep,
+):
+    plan = workout_service.get_user_plan(db_session=db_session, user_id=current_user.id)
+    if not plan:
+        raise NotFoundError("No workout plan found")
+    workout_service.toggle_rest(db_session=db_session, plan_id=plan.id, day_of_week=day_of_week)
+    return workout_service.get_plan_read(db_session=db_session, plan_id=plan.id)
 
 
 @router.get("/{plan_id}", response_model=WorkoutPlanRead)

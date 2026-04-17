@@ -1,38 +1,36 @@
 # ══════════════════════════════════════════════════════════════════════════════
-# Stage 1 — dependency installer
-#   Installs node_modules in isolation so this layer is cached independently
-#   of source-code changes.  Rebuilds only when package-lock.json changes.
-#
-#   node:23-alpine ships npm 11 which matches the lock-file format generated
-#   by the local npm 11 install; node:22-alpine's npm 10 would reject it.
+# Stage 1 — deps
+#   Installs node_modules once; cached until package-lock.json changes.
 # ══════════════════════════════════════════════════════════════════════════════
-FROM node:23-alpine AS deps
+FROM node:22-alpine AS deps
 
 WORKDIR /app
 
-# Copy only the lockfiles first – maximises Docker layer cache hit rate
+# Copy only manifest files first so the npm ci layer is cached independently
+# of source-code changes.
 COPY package.json package-lock.json ./
 
-# Reproducible install from the lockfile (no stray version changes)
-RUN npm ci
+# Use `npm install` (not `npm ci`) so the lockfile can self-heal when it drifts
+# slightly from package.json — acceptable for a dev image.
+RUN npm install --no-audit --no-fund
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# Stage 2 — development server
-#   Receives the pre-built node_modules from Stage 1.
-#   In development the `src/` directory is volume-mounted from the host,
-#   so Vite's HMR picks up edits instantly without rebuilding this image.
+# Stage 2 — dev
+#   Runs the Vite dev server with HMR. src/ is bind-mounted by docker-compose,
+#   so code changes on the host are reflected live inside the container.
 # ══════════════════════════════════════════════════════════════════════════════
-FROM node:23-alpine AS dev
+FROM node:22-alpine AS dev
 
 WORKDIR /app
 
-# Bring in the installed modules (no re-download needed)
+ENV NODE_ENV=development \
+    CHOKIDAR_USEPOLLING=true
+
+# Reuse the pre-built node_modules from the deps stage
 COPY --from=deps /app/node_modules ./node_modules
 
-# Copy everything except src/ and node_modules (see .dockerignore).
-# Vite needs index.html, vite.config.ts, tsconfig*.json, public/, etc.
-# src/ will be overridden by the volume mount at runtime.
+# Copy the rest of the project (overridden by the src/ volume mount in compose)
 COPY . .
 
 EXPOSE 5173

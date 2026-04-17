@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { Loader2, Check, X, Clock } from 'lucide-react'
-import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import StatsCard from '../components/common/StatsCard'
+import ActivityRing from '../components/common/ActivityRing'
 import EmptyState from '../components/common/EmptyState'
 import {
   useTodayWorkout,
@@ -15,6 +14,7 @@ import { useAnalyticsSummary } from '../hooks/useAnalytics'
 import { formatDuration, DAY_NAMES_SHORT } from '../lib/formatters'
 
 const TODAY_IDX = (new Date().getDay() + 6) % 7
+const CALORIE_GOAL = 500
 
 function WeeklyStrip({
   days,
@@ -27,60 +27,64 @@ function WeeklyStrip({
 }) {
   const byDow = new Map(days.map((d) => [d.day_of_week, d]))
 
-  const statusStyles: Record<PlanDayStatus, string> = {
-    done: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
-    skipped: 'bg-muted-foreground/10 text-muted-foreground border-muted-foreground/20',
-    today: 'bg-primary text-primary-foreground border-primary',
-    upcoming: 'bg-muted text-muted-foreground border-border',
-    rest: 'bg-muted/60 text-muted-foreground border-border',
-  }
-
   return (
-    <Card className="p-5">
+    <div className="rounded-3xl p-5" style={{ background: '#1C1C1E' }}>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">This Week</h2>
-        <span className="text-xs text-muted-foreground">
+        <h2 className="text-base font-semibold text-white">This Week</h2>
+        <span className="text-xs" style={{ color: '#8E8E93' }}>
           {days.filter((d) => d.status === 'done').length} of{' '}
           {days.filter((d) => !d.is_rest).length} done
         </span>
       </div>
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-1.5">
         {Array.from({ length: 7 }, (_, i) => {
           const day = byDow.get(i)
           const status: PlanDayStatus = day?.status ?? 'upcoming'
-          const label = day?.focus && !day.is_rest ? day.focus : day?.is_rest ? 'Rest' : '—'
           const isToday = i === TODAY_IDX
           const clickable = isToday && !day?.is_rest
+          const isRest = day?.is_rest ?? false
+
+          let bgColor = '#2C2C2E'
+          let textColor = '#8E8E93'
+          let borderColor = 'transparent'
+          if (status === 'done') { bgColor = 'rgba(173,255,47,0.12)'; textColor = '#ADFF2F' }
+          if (status === 'today') { bgColor = '#ADFF2F'; textColor = '#000' }
+          if (isToday && status !== 'today') { borderColor = '#ADFF2F' }
+
           return (
             <button
               key={i}
               type="button"
               onClick={clickable ? onStartToday : undefined}
               disabled={!clickable}
-              className={`flex flex-col items-center gap-1 rounded-xl border px-1 py-2 transition-opacity ${statusStyles[status]} ${
-                clickable ? 'cursor-pointer hover:opacity-90' : 'cursor-default'
-              }`}
+              className="flex flex-col items-center gap-1 rounded-2xl py-2.5 px-0.5 transition-opacity"
+              style={{ background: bgColor, border: `1.5px solid ${borderColor}`, cursor: clickable ? 'pointer' : 'default' }}
               title={`${DAY_NAMES_SHORT[i]} · ${status}`}
             >
-              <span className="text-[10px] font-semibold opacity-80">{DAY_NAMES_SHORT[i]}</span>
-              <StatusIcon status={status} />
-              <span className="text-[10px] truncate max-w-full px-1">{label}</span>
+              <span className="text-[9px] font-bold" style={{ color: textColor, opacity: 0.8 }}>
+                {DAY_NAMES_SHORT[i]}
+              </span>
+              <StatusIcon status={status} textColor={textColor} />
+              <span className="text-[8px] font-medium" style={{ color: textColor }}>
+                {isRest ? 'Rest' : status === 'done' ? '✓' : ''}
+              </span>
             </button>
           )
         })}
       </div>
-      <p className="text-[11px] text-muted-foreground mt-3">
-        Plan #{planId} · green = done, gray = skipped, filled = today.
+      <p className="text-[10px] mt-3" style={{ color: '#8E8E93' }}>
+        Plan #{planId} · tap today to start
       </p>
-    </Card>
+    </div>
   )
 }
 
-function StatusIcon({ status }: { status: PlanDayStatus }) {
-  if (status === 'done') return <Check className="h-4 w-4" />
-  if (status === 'skipped') return <X className="h-4 w-4" />
-  if (status === 'today') return <Clock className="h-4 w-4" />
-  return <span className="h-4 w-4 block" />
+function StatusIcon({ status, textColor }: { status: PlanDayStatus; textColor: string }) {
+  const style = { color: textColor }
+  if (status === 'done') return <Check className="h-3.5 w-3.5" style={style} />
+  if (status === 'skipped') return <X className="h-3.5 w-3.5" style={style} />
+  if (status === 'today') return <Clock className="h-3.5 w-3.5" style={style} />
+  return <span className="h-3.5 w-3.5 block" />
 }
 
 export default function DashboardPage() {
@@ -91,10 +95,8 @@ export default function DashboardPage() {
   const generateWorkout = useGenerateWorkout()
 
   const activePlan = plans?.[0]
-
-  const handleGenerate = async () => {
-    await generateWorkout.mutateAsync({})
-  }
+  const calories = Math.round(summary?.total_calories ?? 0)
+  const calorieProgress = Math.min(1, calories / CALORIE_GOAL)
 
   const startToday = () => {
     if (todayWorkout) {
@@ -104,56 +106,94 @@ export default function DashboardPage() {
 
   const todayDone = todayWorkout?.status === 'done'
 
+  const stats = [
+    { label: 'This Week', value: summary?.sessions_this_week ?? 0, color: '#ADFF2F' },
+    { label: 'Total Sessions', value: summary?.total_sessions ?? 0, color: '#BF5AF2' },
+    { label: 'Duration', value: formatDuration((summary?.total_duration_minutes ?? 0) * 60), color: '#32D2FF' },
+    { label: 'Calories', value: `${calories} kcal`, color: '#FF375F' },
+  ]
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Welcome back! Here's your fitness overview.</p>
+        <h1 className="text-2xl font-bold text-white tracking-tight">Summary</h1>
+        <p className="text-sm mt-0.5" style={{ color: '#8E8E93' }}>
+          {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })}
+        </p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard label="This Week" value={summary?.sessions_this_week ?? 0} icon="🏋️" />
-        <StatsCard label="Total Sessions" value={summary?.total_sessions ?? 0} icon="📈" />
-        <StatsCard
-          label="Total Duration"
-          value={formatDuration((summary?.total_duration_minutes ?? 0) * 60)}
-          icon="⏱️"
-        />
-        <StatsCard
-          label="Calories Burned"
-          value={`${Math.round(summary?.total_calories ?? 0)}`}
-          icon="🔥"
-        />
+      {/* Activity Ring Hero */}
+      <div className="rounded-3xl p-5" style={{ background: '#1C1C1E' }}>
+        <h2 className="text-sm font-semibold text-white mb-4">Activity Ring</h2>
+        <div className="flex items-center gap-6">
+          <ActivityRing progress={calorieProgress} color="#FF375F" size={160} strokeWidth={20}>
+            <div className="text-center">
+              <span className="text-2xl font-bold text-white">{Math.round(calorieProgress * 100)}%</span>
+            </div>
+          </ActivityRing>
+          <div className="flex flex-col gap-3">
+            <div>
+              <p className="text-xs font-semibold mb-0.5" style={{ color: '#8E8E93' }}>MOVE</p>
+              <p className="text-xl font-bold" style={{ color: '#FF375F' }}>
+                {calories}<span className="text-sm font-medium ml-1" style={{ color: '#8E8E93' }}>/{CALORIE_GOAL} KCAL</span>
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold mb-0.5" style={{ color: '#8E8E93' }}>SESSIONS</p>
+              <p className="text-xl font-bold" style={{ color: '#ADFF2F' }}>
+                {summary?.sessions_this_week ?? 0}
+                <span className="text-sm font-medium ml-1" style={{ color: '#8E8E93' }}>this week</span>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 gap-3">
+        {stats.map((s) => (
+          <div key={s.label} className="rounded-2xl p-4" style={{ background: '#1C1C1E' }}>
+            <p className="text-[11px] font-semibold uppercase tracking-wide mb-1" style={{ color: '#8E8E93' }}>
+              {s.label}
+            </p>
+            <p className="text-xl font-bold" style={{ color: s.color }}>
+              {s.value}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Weekly strip */}
       {activePlan && activePlan.days.length > 0 && (
         <WeeklyStrip days={activePlan.days} planId={activePlan.id} onStartToday={startToday} />
       )}
 
-      <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4">Today's Workout</h2>
+      {/* Today's Workout */}
+      <div className="rounded-3xl p-5" style={{ background: '#1C1C1E' }}>
+        <h2 className="text-base font-semibold text-white mb-4">Today's Workout</h2>
 
         {todayLoading ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <Loader2 className="h-6 w-6 animate-spin" style={{ color: '#ADFF2F' }} />
           </div>
         ) : todayWorkout ? (
           <div>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-xl font-bold text-primary">{todayWorkout.focus}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {todayWorkout.exercises.length} exercises
-                  {todayDone && ' · completed'}
+                <h3 className="text-lg font-bold" style={{ color: '#ADFF2F' }}>{todayWorkout.focus}</h3>
+                <p className="text-sm" style={{ color: '#8E8E93' }}>
+                  {todayWorkout.exercises.length} exercises{todayDone ? ' · completed' : ''}
                 </p>
               </div>
               <Button
                 size="lg"
-                className="font-semibold text-lg px-8"
+                className="font-bold px-6 rounded-full text-black"
+                style={{ background: '#ADFF2F', color: '#000' }}
                 onClick={startToday}
                 disabled={todayDone}
               >
-                {todayDone ? 'Completed' : 'Start Workout'}
+                {todayDone ? 'Done ✓' : 'Start'}
               </Button>
             </div>
 
@@ -161,18 +201,12 @@ export default function DashboardPage() {
               {todayWorkout.exercises.map((ex) => (
                 <div
                   key={ex.id}
-                  className="flex items-center justify-between py-2.5 px-4 rounded-xl bg-muted"
+                  className="flex items-center justify-between py-2.5 px-4 rounded-2xl"
+                  style={{ background: '#2C2C2E' }}
                 >
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-sm">{ex.exercise_name}</p>
-                    {ex.exercise_description && (
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                        {ex.exercise_description}
-                      </p>
-                    )}
-                  </div>
-                  <span className="text-xs text-muted-foreground shrink-0">
-                    {ex.sets} x {ex.reps_min}-{ex.reps_max}
+                  <p className="font-medium text-sm text-white">{ex.exercise_name}</p>
+                  <span className="text-xs font-semibold" style={{ color: '#8E8E93' }}>
+                    {ex.sets} × {ex.reps_min}–{ex.reps_max}
                   </span>
                 </div>
               ))}
@@ -183,11 +217,11 @@ export default function DashboardPage() {
             icon="📋"
             title="No workout for today"
             description="Generate a personalized workout plan to get started!"
-            actionLabel={generateWorkout.isPending ? 'Generating...' : 'Generate Plan'}
-            onAction={handleGenerate}
+            actionLabel={generateWorkout.isPending ? 'Generating…' : 'Generate Plan'}
+            onAction={() => generateWorkout.mutateAsync({})}
           />
         )}
-      </Card>
+      </div>
     </div>
   )
 }

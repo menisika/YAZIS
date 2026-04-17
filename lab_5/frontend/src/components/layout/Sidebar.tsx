@@ -10,7 +10,6 @@ import {
   LogOut,
   MessageSquare,
 } from 'lucide-react'
-import { Separator } from '@/components/ui/separator'
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -26,40 +25,55 @@ export default function Sidebar() {
   const { user, signOut } = useAuthStore()
 
   return (
-    <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-card border-r border-border h-screen sticky top-0">
-      <div className="p-6">
-        <h1 className="text-xl font-bold text-primary tracking-tight">FitPlanner AI</h1>
-        <p className="text-sm text-muted-foreground mt-1 truncate">{user?.display_name || user?.email}</p>
+    <aside
+      className="hidden lg:flex lg:flex-col lg:w-64 h-screen sticky top-0"
+      style={{ background: '#0A0A0A', borderRight: '1px solid rgba(255,255,255,0.06)' }}
+    >
+      <div className="p-6 pb-4">
+        <h1 className="text-lg font-bold tracking-tight" style={{ color: '#ADFF2F' }}>
+          FitPlanner AI
+        </h1>
+        <p className="text-sm mt-1 truncate" style={{ color: '#8E8E93' }}>
+          {user?.display_name || user?.email}
+        </p>
       </div>
 
-      <Separator />
+      <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '0 16px' }} />
 
-      <nav className="flex-1 p-3 space-y-1">
+      <nav className="flex-1 p-3 space-y-0.5 mt-2">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             end={item.path === '/'}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                isActive
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-              }`
-            }
+            className="block"
           >
-            <item.icon className="h-4 w-4" />
-            <span>{item.label}</span>
+            {({ isActive }) => (
+              <div
+                className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all"
+                style={
+                  isActive
+                    ? { background: 'rgba(173,255,47,0.12)', color: '#ADFF2F' }
+                    : { color: '#8E8E93' }
+                }
+              >
+                <item.icon className="h-4 w-4" />
+                <span>{item.label}</span>
+              </div>
+            )}
           </NavLink>
         ))}
       </nav>
 
-      <Separator />
+      <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '0 16px' }} />
 
-      <div className="p-3">
+      <div className="p-3 mb-2">
         <button
           onClick={() => signOut()}
-          className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+          className="flex items-center gap-3 w-full px-4 py-2.5 rounded-2xl text-sm font-medium transition-all cursor-pointer"
+          style={{ color: '#FF375F' }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,55,95,0.08)')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
         >
           <LogOut className="h-4 w-4" />
           Sign Out

@@ -1,24 +1,23 @@
-import { useParams } from 'react-router-dom'
-import { Loader2 } from 'lucide-react'
-import { Card } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
+import { useParams, useNavigate } from 'react-router-dom'
+import { Loader2, ChevronLeft, Clock, Flame, Dumbbell } from 'lucide-react'
 import { useSessionDetail } from '../hooks/useSession'
 import { formatDate, formatDuration } from '../lib/formatters'
 
 export default function SessionDetailPage() {
   const { sessionId } = useParams()
+  const navigate = useNavigate()
   const { data: session, isLoading } = useSessionDetail(sessionId ? Number(sessionId) : null)
 
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-8 w-8 animate-spin" style={{ color: '#ADFF2F' }} />
       </div>
     )
   }
 
   if (!session) {
-    return <div className="text-center py-12 text-muted-foreground">Session not found</div>
+    return <div className="text-center py-12" style={{ color: '#8E8E93' }}>Session not found</div>
   }
 
   const exerciseGroups = session.sets.reduce(
@@ -31,53 +30,87 @@ export default function SessionDetailPage() {
     {} as Record<number, typeof session.sets>
   )
 
+  const stats = [
+    {
+      label: 'Duration',
+      value: session.duration_seconds ? formatDuration(session.duration_seconds) : '--',
+      icon: Clock,
+      color: '#32D2FF',
+    },
+    {
+      label: 'Sets',
+      value: session.sets.length,
+      icon: Dumbbell,
+      color: '#BF5AF2',
+    },
+    {
+      label: 'Calories',
+      value: session.estimated_calories ? Math.round(session.estimated_calories) : '--',
+      icon: Flame,
+      color: '#FF375F',
+    },
+  ]
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Session Detail</h1>
-        <p className="text-muted-foreground">{formatDate(session.started_at)}</p>
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => navigate('/history')}
+          className="flex items-center justify-center w-9 h-9 rounded-full"
+          style={{ background: '#1C1C1E' }}
+        >
+          <ChevronLeft className="h-5 w-5 text-white" />
+        </button>
+        <div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Session</h1>
+          <p className="text-sm" style={{ color: '#8E8E93' }}>{formatDate(session.started_at)}</p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <Card className="p-4 text-center">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Duration</p>
-          <p className="text-lg font-bold mt-1">
-            {session.duration_seconds ? formatDuration(session.duration_seconds) : '--'}
-          </p>
-        </Card>
-        <Card className="p-4 text-center">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Sets</p>
-          <p className="text-lg font-bold mt-1">{session.sets.length}</p>
-        </Card>
-        <Card className="p-4 text-center">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Calories</p>
-          <p className="text-lg font-bold mt-1">
-            {session.estimated_calories ? Math.round(session.estimated_calories) : '--'}
-          </p>
-        </Card>
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-3">
+        {stats.map((s) => (
+          <div key={s.label} className="rounded-2xl p-4 text-center" style={{ background: '#1C1C1E' }}>
+            <s.icon className="h-5 w-5 mx-auto mb-1" style={{ color: s.color }} />
+            <p className="text-lg font-bold text-white">{s.value}</p>
+            <p className="text-[10px] uppercase font-semibold mt-0.5" style={{ color: '#8E8E93' }}>{s.label}</p>
+          </div>
+        ))}
       </div>
 
-      <div className="space-y-4">
+      {/* Exercise groups */}
+      <div className="space-y-3">
         {Object.entries(exerciseGroups).map(([exerciseId, sets]) => (
-          <Card key={exerciseId} className="p-5">
-            <h3 className="font-semibold mb-3">
+          <div
+            key={exerciseId}
+            className="rounded-3xl p-5"
+            style={{ background: '#1C1C1E' }}
+          >
+            <h3 className="font-bold text-white mb-3">
               {sets[0]?.exercise_name ?? `Exercise #${exerciseId}`}
             </h3>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {sets.map((set, i) => (
-                <div key={set.id}>
-                  <div className="flex justify-between text-sm py-1.5">
-                    <span className="text-muted-foreground">Set {set.set_number}</span>
-                    <span className="font-medium">
-                      {set.weight_kg ?? 'BW'} kg x {set.reps} reps
-                      {set.rpe ? ` @ RPE ${set.rpe}` : ''}
-                    </span>
-                  </div>
-                  {i < sets.length - 1 && <Separator />}
+                <div
+                  key={set.id}
+                  className="flex justify-between items-center px-3 py-2 rounded-xl text-sm"
+                  style={{ background: i % 2 === 0 ? '#2C2C2E' : 'transparent' }}
+                >
+                  <span style={{ color: '#8E8E93' }}>Set {set.set_number}</span>
+                  <span className="font-semibold text-white">
+                    {set.weight_kg ?? 'BW'} kg × {set.reps} reps
+                    {set.rpe ? (
+                      <span className="ml-2 text-xs font-medium" style={{ color: '#BF5AF2' }}>
+                        RPE {set.rpe}
+                      </span>
+                    ) : null}
+                  </span>
                 </div>
               ))}
             </div>
-          </Card>
+          </div>
         ))}
       </div>
     </div>

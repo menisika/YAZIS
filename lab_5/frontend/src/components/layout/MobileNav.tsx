@@ -17,21 +17,40 @@ const navItems = [
 
 export default function MobileNav() {
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 pb-[env(safe-area-inset-bottom)]">
-      <div className="flex justify-around py-2">
+    <nav
+      className="lg:hidden fixed bottom-4 left-3 right-3 z-50"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
+      <div
+        className="flex justify-around items-center py-2 px-1 rounded-full shadow-2xl"
+        style={{ background: '#1C1C1E', backdropFilter: 'blur(20px)' }}
+      >
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             end={item.path === '/'}
-            className={({ isActive }) =>
-              `flex flex-col items-center gap-1 px-3 py-2 text-xs transition-colors min-w-[48px] ${
-                isActive ? 'text-primary' : 'text-muted-foreground'
-              }`
-            }
+            className="flex-1"
           >
-            <item.icon className="h-5 w-5" />
-            <span>{item.label}</span>
+            {({ isActive }) => (
+              <div className="flex flex-col items-center gap-0.5 px-2 py-1.5 transition-all">
+                <div
+                  className="flex items-center justify-center w-9 h-9 rounded-full transition-all"
+                  style={isActive ? { background: 'rgba(173,255,47,0.15)' } : {}}
+                >
+                  <item.icon
+                    className="h-5 w-5 transition-colors"
+                    style={{ color: isActive ? '#ADFF2F' : '#8E8E93' }}
+                  />
+                </div>
+                <span
+                  className="text-[10px] font-medium transition-colors"
+                  style={{ color: isActive ? '#ADFF2F' : '#8E8E93' }}
+                >
+                  {item.label}
+                </span>
+              </div>
+            )}
           </NavLink>
         ))}
       </div>

@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import { Card } from '@/components/ui/card'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
@@ -12,9 +10,21 @@ import {
   useCalorieHistory,
   useAnalyticsSummary,
 } from '../hooks/useAnalytics'
-import StatsCard from '../components/common/StatsCard'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import { MUSCLE_GROUP_LABELS } from '../lib/muscleGroups'
+
+const PERIODS = [
+  { label: '7d', value: 7 },
+  { label: '30d', value: 30 },
+  { label: '90d', value: 90 },
+]
+
+const TOOLTIP_STYLE = {
+  background: '#2C2C2E',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: 12,
+  color: '#fff',
+}
 
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState(30)
@@ -24,71 +34,115 @@ export default function AnalyticsPage() {
   const { data: muscles } = useMuscleDistribution(period)
   const { data: calories } = useCalorieHistory(period)
 
-  if (isLoading) return <LoadingSpinner label="Loading analytics..." />
+  if (isLoading) return <LoadingSpinner label="Loading analytics…" />
 
   const muscleData = muscles?.map((m) => ({
     muscle: MUSCLE_GROUP_LABELS[m.muscle_group] || m.muscle_group,
     sets: m.total_sets,
   })) || []
 
+  const stats = [
+    { label: 'Sessions', value: summary?.total_sessions ?? 0, color: '#ADFF2F' },
+    { label: 'Volume', value: `${Math.round(summary?.total_volume_kg ?? 0)} kg`, color: '#BF5AF2' },
+    { label: 'Calories', value: Math.round(summary?.total_calories ?? 0), color: '#FF375F' },
+    { label: 'This Week', value: summary?.sessions_this_week ?? 0, color: '#32D2FF' },
+  ]
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
-        <Tabs value={String(period)} onValueChange={(v) => setPeriod(Number(v))}>
-          <TabsList>
-            <TabsTrigger value="7">7d</TabsTrigger>
-            <TabsTrigger value="30">30d</TabsTrigger>
-            <TabsTrigger value="90">90d</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <h1 className="text-2xl font-bold text-white tracking-tight">Analytics</h1>
+        <div
+          className="flex rounded-full p-1 gap-0.5"
+          style={{ background: '#1C1C1E' }}
+        >
+          {PERIODS.map((p) => (
+            <button
+              key={p.value}
+              type="button"
+              onClick={() => setPeriod(p.value)}
+              className="px-4 py-1.5 rounded-full text-sm font-semibold transition-all"
+              style={
+                period === p.value
+                  ? { background: '#2C2C2E', color: '#fff' }
+                  : { color: '#8E8E93' }
+              }
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard label="Sessions" value={summary?.total_sessions ?? 0} icon="🏋️" />
-        <StatsCard label="Volume" value={`${Math.round(summary?.total_volume_kg ?? 0)}kg`} icon="📊" />
-        <StatsCard label="Calories" value={Math.round(summary?.total_calories ?? 0)} icon="🔥" />
-        <StatsCard label="This Week" value={summary?.sessions_this_week ?? 0} icon="📅" />
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 gap-3">
+        {stats.map((s) => (
+          <div key={s.label} className="rounded-2xl p-4" style={{ background: '#1C1C1E' }}>
+            <p className="text-[11px] font-semibold uppercase tracking-wide mb-1" style={{ color: '#8E8E93' }}>
+              {s.label}
+            </p>
+            <p className="text-xl font-bold" style={{ color: s.color }}>
+              {s.value}
+            </p>
+          </div>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-5">
-          <h3 className="font-semibold mb-4">Weekly Frequency</h3>
-          <ResponsiveContainer width="100%" height={250}>
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Weekly Frequency */}
+        <div className="rounded-3xl p-5" style={{ background: '#1C1C1E' }}>
+          <h3 className="font-semibold text-white mb-4">Weekly Frequency</h3>
+          <ResponsiveContainer width="100%" height={220}>
             <BarChart data={frequency || []}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="week" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
-              <YAxis allowDecimals={false} stroke="hsl(var(--muted-foreground))" />
-              <Tooltip contentStyle={{ borderRadius: '0.75rem', border: '1px solid hsl(var(--border))' }} />
-              <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+              <XAxis dataKey="week" tick={{ fontSize: 9, fill: '#8E8E93' }} axisLine={false} tickLine={false} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 9, fill: '#8E8E93' }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(173,255,47,0.05)' }} />
+              <Bar dataKey="count" fill="#ADFF2F" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        </Card>
+        </div>
 
-        <Card className="p-5">
-          <h3 className="font-semibold mb-4">Muscle Distribution</h3>
-          <ResponsiveContainer width="100%" height={250}>
+        {/* Muscle Distribution */}
+        <div className="rounded-3xl p-5" style={{ background: '#1C1C1E' }}>
+          <h3 className="font-semibold text-white mb-4">Muscle Distribution</h3>
+          <ResponsiveContainer width="100%" height={220}>
             <RadarChart data={muscleData}>
-              <PolarGrid stroke="hsl(var(--border))" />
-              <PolarAngleAxis dataKey="muscle" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
-              <PolarRadiusAxis stroke="hsl(var(--muted-foreground))" />
-              <Radar dataKey="sets" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.3} />
+              <PolarGrid stroke="rgba(255,255,255,0.08)" />
+              <PolarAngleAxis dataKey="muscle" tick={{ fontSize: 9, fill: '#8E8E93' }} />
+              <PolarRadiusAxis tick={{ fontSize: 8, fill: '#8E8E93' }} axisLine={false} />
+              <Radar dataKey="sets" stroke="#BF5AF2" fill="#BF5AF2" fillOpacity={0.25} />
             </RadarChart>
           </ResponsiveContainer>
-        </Card>
+        </div>
 
-        <Card className="p-5 lg:col-span-2">
-          <h3 className="font-semibold mb-4">Calories Burned Over Time</h3>
-          <ResponsiveContainer width="100%" height={250}>
+        {/* Calories Over Time */}
+        <div className="rounded-3xl p-5 lg:col-span-2" style={{ background: '#1C1C1E' }}>
+          <h3 className="font-semibold text-white mb-4">Calories Burned</h3>
+          <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={calories || []}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="date" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
-              <YAxis stroke="hsl(var(--muted-foreground))" />
-              <Tooltip contentStyle={{ borderRadius: '0.75rem', border: '1px solid hsl(var(--border))' }} />
-              <Area type="monotone" dataKey="calories" stroke="hsl(var(--chart-4))" fill="hsl(var(--chart-4))" fillOpacity={0.2} />
+              <defs>
+                <linearGradient id="calGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#FF375F" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#FF375F" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+              <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#8E8E93' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 9, fill: '#8E8E93' }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} />
+              <Area
+                type="monotone"
+                dataKey="calories"
+                stroke="#FF375F"
+                strokeWidth={2}
+                fill="url(#calGrad)"
+              />
             </AreaChart>
           </ResponsiveContainer>
-        </Card>
+        </div>
       </div>
     </div>
   )

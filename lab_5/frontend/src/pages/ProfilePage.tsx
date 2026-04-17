@@ -1,13 +1,75 @@
 import { useState, useEffect } from 'react'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Loader2, LogOut } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Loader2 } from 'lucide-react'
 import { useProfile, useUpdateProfile } from '../hooks/useProfile'
 import { useAuthStore } from '../stores/authStore'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+import ActivityRing from '../components/common/ActivityRing'
+
+const WORKOUT_TYPES = [
+  'Strength Training', 'Cardio', 'HIIT', 'Yoga', 'Calisthenics',
+  'CrossFit', 'Swimming', 'Running', 'Cycling', 'Martial Arts',
+]
+
+const INJURY_OPTIONS = [
+  'Lower Back', 'Shoulder', 'Knee', 'Wrist', 'Ankle',
+  'Neck', 'Hip', 'Elbow', 'None',
+]
+
+function DarkInput({
+  id, type = 'text', value, onChange, placeholder,
+}: {
+  id?: string
+  type?: string
+  value: string
+  onChange: (v: string) => void
+  placeholder?: string
+}) {
+  return (
+    <input
+      id={id}
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      className="w-full px-4 py-2.5 rounded-2xl text-sm text-white placeholder-[#636366] outline-none"
+      style={{ background: '#2C2C2E', border: '1px solid rgba(255,255,255,0.06)' }}
+      onFocus={(e) => (e.target.style.borderColor = 'rgba(173,255,47,0.4)')}
+      onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.06)')}
+    />
+  )
+}
+
+function DarkLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-xs font-semibold mb-1.5" style={{ color: '#8E8E93' }}>
+      {children}
+    </p>
+  )
+}
+
+function CheckPill({
+  label, checked, onToggle,
+}: {
+  label: string
+  checked: boolean
+  onToggle: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all text-left"
+      style={
+        checked
+          ? { background: 'rgba(173,255,47,0.15)', color: '#ADFF2F', border: '1px solid rgba(173,255,47,0.35)' }
+          : { background: '#2C2C2E', color: '#8E8E93', border: '1px solid rgba(255,255,255,0.06)' }
+      }
+    >
+      {checked ? '✓ ' : ''}{label}
+    </button>
+  )
+}
 
 export default function ProfilePage() {
   const { data: profile, isLoading } = useProfile()
@@ -22,6 +84,8 @@ export default function ProfilePage() {
     fitness_level: '',
     workout_days_per_week: '',
     session_duration_min: '',
+    preferred_workout_types: [] as string[],
+    injuries: [] as string[],
   })
 
   useEffect(() => {
@@ -34,9 +98,20 @@ export default function ProfilePage() {
         fitness_level: profile.fitness_level,
         workout_days_per_week: String(profile.workout_days_per_week),
         session_duration_min: String(profile.session_duration_min),
+        preferred_workout_types: profile.preferred_workout_types,
+        injuries: profile.injuries,
       })
     }
   }, [profile])
+
+  const toggleArrayItem = (field: 'preferred_workout_types' | 'injuries', value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: prev[field].includes(value)
+        ? prev[field].filter((v) => v !== value)
+        : [...prev[field], value],
+    }))
+  }
 
   const handleSave = async () => {
     await updateProfile.mutateAsync({
@@ -47,85 +122,174 @@ export default function ProfilePage() {
       fitness_level: form.fitness_level,
       workout_days_per_week: Number(form.workout_days_per_week),
       session_duration_min: Number(form.session_duration_min),
+      preferred_workout_types: form.preferred_workout_types,
+      injuries: form.injuries.filter((i) => i !== 'none'),
     })
   }
 
   if (isLoading) return <LoadingSpinner />
 
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Profile</h1>
+  const bmr = profile ? Math.round(profile.bmr) : null
+  const tdee = profile ? Math.round(profile.tdee) : null
+  const bmrProgress = bmr ? Math.min(1, bmr / 3000) : 0
+  const tdeeProgress = tdee ? Math.min(1, tdee / 4000) : 0
 
-      <Card className="p-6">
-        <div className="mb-6">
-          <p className="text-lg font-semibold">{user?.display_name || 'User'}</p>
-          <p className="text-sm text-muted-foreground">{user?.email}</p>
-        </div>
+  return (
+    <div className="space-y-5 max-w-2xl">
+      <h1 className="text-2xl font-bold text-white tracking-tight">Profile</h1>
+
+      {/* User card */}
+      <div className="rounded-3xl p-5" style={{ background: '#1C1C1E' }}>
+        <p className="text-lg font-bold text-white">{user?.display_name || 'User'}</p>
+        <p className="text-sm" style={{ color: '#8E8E93' }}>{user?.email}</p>
 
         {profile && (
-          <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-muted rounded-xl">
-            <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">BMR</p>
-              <p className="text-lg font-bold mt-0.5">{Math.round(profile.bmr)} cal</p>
+          <div className="flex items-center gap-6 mt-5">
+            <div className="flex flex-col items-center gap-2">
+              <ActivityRing progress={bmrProgress} color="#BF5AF2" size={80} strokeWidth={10}>
+                <span className="text-[10px] font-bold text-white">{bmr}</span>
+              </ActivityRing>
+              <p className="text-[10px] font-semibold uppercase" style={{ color: '#8E8E93' }}>BMR cal</p>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">TDEE</p>
-              <p className="text-lg font-bold mt-0.5">{Math.round(profile.tdee)} cal</p>
+            <div className="flex flex-col items-center gap-2">
+              <ActivityRing progress={tdeeProgress} color="#FF375F" size={80} strokeWidth={10}>
+                <span className="text-[10px] font-bold text-white">{tdee}</span>
+              </ActivityRing>
+              <p className="text-[10px] font-semibold uppercase" style={{ color: '#8E8E93' }}>TDEE cal</p>
+            </div>
+            <div className="flex-1 space-y-2">
+              <div className="rounded-xl p-3" style={{ background: '#2C2C2E' }}>
+                <p className="text-[10px] uppercase font-semibold" style={{ color: '#8E8E93' }}>BMR</p>
+                <p className="text-base font-bold" style={{ color: '#BF5AF2' }}>{bmr} cal</p>
+              </div>
+              <div className="rounded-xl p-3" style={{ background: '#2C2C2E' }}>
+                <p className="text-[10px] uppercase font-semibold" style={{ color: '#8E8E93' }}>TDEE</p>
+                <p className="text-base font-bold" style={{ color: '#FF375F' }}>{tdee} cal</p>
+              </div>
             </div>
           </div>
         )}
+      </div>
 
+      {/* Basic info */}
+      <div className="rounded-3xl p-5 space-y-4" style={{ background: '#1C1C1E' }}>
+        <h2 className="font-bold text-white">Body & Fitness</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="age">Age</Label>
-            <Input id="age" type="number" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} />
+          <div>
+            <DarkLabel>Age</DarkLabel>
+            <DarkInput id="age" type="number" value={form.age} onChange={(v) => setForm({ ...form, age: v })} />
           </div>
-          <div className="space-y-2">
-            <Label>Gender</Label>
+          <div>
+            <DarkLabel>Gender</DarkLabel>
             <Select value={form.gender} onValueChange={(v) => setForm({ ...form, gender: v })}>
-              <SelectTrigger><SelectValue placeholder="Gender" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+              <SelectTrigger
+                className="w-full rounded-2xl border-0 text-sm text-white"
+                style={{ background: '#2C2C2E' }}
+              >
+                <SelectValue placeholder="Gender" />
+              </SelectTrigger>
+              <SelectContent style={{ background: '#2C2C2E', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <SelectItem value="male" style={{ color: '#fff' }}>Male</SelectItem>
+                <SelectItem value="female" style={{ color: '#fff' }}>Female</SelectItem>
+                <SelectItem value="other" style={{ color: '#fff' }}>Other</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="height">Height (cm)</Label>
-            <Input id="height" type="number" value={form.height_cm} onChange={(e) => setForm({ ...form, height_cm: e.target.value })} />
+          <div>
+            <DarkLabel>Height (cm)</DarkLabel>
+            <DarkInput id="height" type="number" value={form.height_cm} onChange={(v) => setForm({ ...form, height_cm: v })} />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="weight">Weight (kg)</Label>
-            <Input id="weight" type="number" value={form.weight_kg} onChange={(e) => setForm({ ...form, weight_kg: e.target.value })} />
+          <div>
+            <DarkLabel>Weight (kg)</DarkLabel>
+            <DarkInput id="weight" type="number" value={form.weight_kg} onChange={(v) => setForm({ ...form, weight_kg: v })} />
           </div>
-          <div className="space-y-2">
-            <Label>Fitness Level</Label>
+          <div>
+            <DarkLabel>Fitness Level</DarkLabel>
             <Select value={form.fitness_level} onValueChange={(v) => setForm({ ...form, fitness_level: v })}>
-              <SelectTrigger><SelectValue placeholder="Fitness Level" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="beginner">Beginner</SelectItem>
-                <SelectItem value="intermediate">Intermediate</SelectItem>
-                <SelectItem value="advanced">Advanced</SelectItem>
+              <SelectTrigger
+                className="w-full rounded-2xl border-0 text-sm text-white"
+                style={{ background: '#2C2C2E' }}
+              >
+                <SelectValue placeholder="Fitness Level" />
+              </SelectTrigger>
+              <SelectContent style={{ background: '#2C2C2E', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <SelectItem value="beginner" style={{ color: '#fff' }}>Beginner</SelectItem>
+                <SelectItem value="intermediate" style={{ color: '#fff' }}>Intermediate</SelectItem>
+                <SelectItem value="advanced" style={{ color: '#fff' }}>Advanced</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="days">Days/Week</Label>
-            <Input id="days" type="number" value={form.workout_days_per_week} onChange={(e) => setForm({ ...form, workout_days_per_week: e.target.value })} />
+          <div>
+            <DarkLabel>Days / Week</DarkLabel>
+            <DarkInput type="number" value={form.workout_days_per_week} onChange={(v) => setForm({ ...form, workout_days_per_week: v })} />
           </div>
         </div>
+      </div>
 
-        <div className="flex gap-3 mt-6">
-          <Button onClick={handleSave} disabled={updateProfile.isPending}>
-            {updateProfile.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-            Save Changes
-          </Button>
-          <Button variant="destructive" onClick={() => signOut()}>
-            Sign Out
-          </Button>
+      {/* Workout preferences */}
+      <div className="rounded-3xl p-5 space-y-3" style={{ background: '#1C1C1E' }}>
+        <div>
+          <h2 className="font-bold text-white">Workout Preferences</h2>
+          <p className="text-xs mt-0.5" style={{ color: '#8E8E93' }}>Select your preferred workout types</p>
         </div>
-      </Card>
+        <div className="flex flex-wrap gap-2">
+          {WORKOUT_TYPES.map((type) => {
+            const value = type.toLowerCase().replace(/\s+/g, '_')
+            return (
+              <CheckPill
+                key={type}
+                label={type}
+                checked={form.preferred_workout_types.includes(value)}
+                onToggle={() => toggleArrayItem('preferred_workout_types', value)}
+              />
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Injuries */}
+      <div className="rounded-3xl p-5 space-y-3" style={{ background: '#1C1C1E' }}>
+        <div>
+          <h2 className="font-bold text-white">Injuries & Limitations</h2>
+          <p className="text-xs mt-0.5" style={{ color: '#8E8E93' }}>Select any areas of concern</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {INJURY_OPTIONS.map((injury) => {
+            const value = injury.toLowerCase().replace(/\s+/g, '_')
+            return (
+              <CheckPill
+                key={injury}
+                label={injury}
+                checked={form.injuries.includes(value)}
+                onToggle={() => toggleArrayItem('injuries', value)}
+              />
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={updateProfile.isPending}
+          className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all"
+          style={{ background: '#ADFF2F', color: '#000', cursor: updateProfile.isPending ? 'not-allowed' : 'pointer' }}
+        >
+          {updateProfile.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+          Save Changes
+        </button>
+        <button
+          type="button"
+          onClick={() => signOut()}
+          className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all"
+          style={{ background: 'rgba(255,55,95,0.12)', color: '#FF375F', border: '1px solid rgba(255,55,95,0.2)' }}
+        >
+          <LogOut className="h-4 w-4" />
+          Sign Out
+        </button>
+      </div>
     </div>
   )
 }

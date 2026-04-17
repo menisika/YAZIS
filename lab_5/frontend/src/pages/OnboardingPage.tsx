@@ -1,14 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useCreateProfile } from '../hooks/useProfile'
 import { useAuthStore } from '../stores/authStore'
+import ActivityRing from '../components/common/ActivityRing'
 
 const WORKOUT_TYPES = [
   'Strength Training', 'Cardio', 'HIIT', 'Yoga', 'Calisthenics',
@@ -19,6 +15,55 @@ const INJURY_OPTIONS = [
   'Lower Back', 'Shoulder', 'Knee', 'Wrist', 'Ankle',
   'Neck', 'Hip', 'Elbow', 'None',
 ]
+
+function DarkInput({
+  id, type = 'text', value, onChange, placeholder,
+}: {
+  id?: string
+  type?: string
+  value: string
+  onChange: (v: string) => void
+  placeholder?: string
+}) {
+  return (
+    <input
+      id={id}
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      className="w-full px-4 py-3 rounded-2xl text-sm text-white placeholder-[#636366] outline-none"
+      style={{ background: '#2C2C2E', border: '1px solid rgba(255,255,255,0.06)' }}
+      onFocus={(e) => (e.target.style.borderColor = 'rgba(173,255,47,0.4)')}
+      onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.06)')}
+    />
+  )
+}
+
+function DarkLabel({ htmlFor, children }: { htmlFor?: string; children: React.ReactNode }) {
+  return (
+    <label htmlFor={htmlFor} className="block text-xs font-semibold mb-1.5" style={{ color: '#8E8E93' }}>
+      {children}
+    </label>
+  )
+}
+
+function CheckPill({ label, checked, onToggle }: { label: string; checked: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="text-sm font-medium px-4 py-2 rounded-full transition-all"
+      style={
+        checked
+          ? { background: 'rgba(173,255,47,0.15)', color: '#ADFF2F', border: '1px solid rgba(173,255,47,0.35)' }
+          : { background: '#2C2C2E', color: '#8E8E93', border: '1px solid rgba(255,255,255,0.06)' }
+      }
+    >
+      {checked ? '✓ ' : ''}{label}
+    </button>
+  )
+}
 
 export default function OnboardingPage() {
   const navigate = useNavigate()
@@ -71,127 +116,184 @@ export default function OnboardingPage() {
     }
   }
 
+  const STEP_TITLES = ['Body Info', 'Fitness Level', 'Preferences', 'Limitations']
+
   const steps = [
     <div key="basics" className="space-y-4">
-      <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
-      <div className="space-y-2">
-        <Label htmlFor="ob-age">Age</Label>
-        <Input id="ob-age" type="number" value={form.age} onChange={(e) => updateField('age', e.target.value)} />
+      <div>
+        <h2 className="text-xl font-bold text-white">Basic Information</h2>
+        <p className="text-sm mt-0.5" style={{ color: '#8E8E93' }}>Tell us about yourself</p>
       </div>
-      <div className="space-y-2">
-        <Label>Gender</Label>
+      <div>
+        <DarkLabel htmlFor="ob-age">Age</DarkLabel>
+        <DarkInput id="ob-age" type="number" value={form.age} onChange={(v) => updateField('age', v)} placeholder="e.g. 25" />
+      </div>
+      <div>
+        <DarkLabel>Gender</DarkLabel>
         <Select value={form.gender} onValueChange={(v) => updateField('gender', v)}>
-          <SelectTrigger><SelectValue placeholder="Gender" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="male">Male</SelectItem>
-            <SelectItem value="female">Female</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="ob-height">Height (cm)</Label>
-        <Input id="ob-height" type="number" value={form.height_cm} onChange={(e) => updateField('height_cm', e.target.value)} />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="ob-weight">Weight (kg)</Label>
-        <Input id="ob-weight" type="number" value={form.weight_kg} onChange={(e) => updateField('weight_kg', e.target.value)} />
-      </div>
-    </div>,
-
-    <div key="level" className="space-y-4">
-      <h2 className="text-xl font-semibold mb-4">Fitness Level</h2>
-      <div className="space-y-2">
-        <Label>Your Fitness Level</Label>
-        <Select value={form.fitness_level} onValueChange={(v) => updateField('fitness_level', v)}>
-          <SelectTrigger><SelectValue placeholder="Your fitness level" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="beginner">Beginner (0-1 years)</SelectItem>
-            <SelectItem value="intermediate">Intermediate (1-3 years)</SelectItem>
-            <SelectItem value="advanced">Advanced (3+ years)</SelectItem>
+          <SelectTrigger className="w-full rounded-2xl border-0 text-white" style={{ background: '#2C2C2E' }}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent style={{ background: '#2C2C2E', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <SelectItem value="male" style={{ color: '#fff' }}>Male</SelectItem>
+            <SelectItem value="female" style={{ color: '#fff' }}>Female</SelectItem>
+            <SelectItem value="other" style={{ color: '#fff' }}>Other</SelectItem>
           </SelectContent>
         </Select>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
-          <Label htmlFor="ob-days">Days per week</Label>
-          <Input id="ob-days" type="number" value={form.workout_days_per_week} onChange={(e) => updateField('workout_days_per_week', e.target.value)} />
+        <div>
+          <DarkLabel htmlFor="ob-height">Height (cm)</DarkLabel>
+          <DarkInput id="ob-height" type="number" value={form.height_cm} onChange={(v) => updateField('height_cm', v)} placeholder="175" />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="ob-dur">Session (min)</Label>
-          <Input id="ob-dur" type="number" value={form.session_duration_min} onChange={(e) => updateField('session_duration_min', e.target.value)} />
+        <div>
+          <DarkLabel htmlFor="ob-weight">Weight (kg)</DarkLabel>
+          <DarkInput id="ob-weight" type="number" value={form.weight_kg} onChange={(v) => updateField('weight_kg', v)} placeholder="70" />
+        </div>
+      </div>
+    </div>,
+
+    <div key="level" className="space-y-4">
+      <div>
+        <h2 className="text-xl font-bold text-white">Fitness Level</h2>
+        <p className="text-sm mt-0.5" style={{ color: '#8E8E93' }}>How experienced are you?</p>
+      </div>
+      <div>
+        <DarkLabel>Your Fitness Level</DarkLabel>
+        <Select value={form.fitness_level} onValueChange={(v) => updateField('fitness_level', v)}>
+          <SelectTrigger className="w-full rounded-2xl border-0 text-white" style={{ background: '#2C2C2E' }}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent style={{ background: '#2C2C2E', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <SelectItem value="beginner" style={{ color: '#fff' }}>Beginner (0–1 years)</SelectItem>
+            <SelectItem value="intermediate" style={{ color: '#fff' }}>Intermediate (1–3 years)</SelectItem>
+            <SelectItem value="advanced" style={{ color: '#fff' }}>Advanced (3+ years)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <DarkLabel htmlFor="ob-days">Days / week</DarkLabel>
+          <DarkInput id="ob-days" type="number" value={form.workout_days_per_week} onChange={(v) => updateField('workout_days_per_week', v)} />
+        </div>
+        <div>
+          <DarkLabel htmlFor="ob-dur">Session (min)</DarkLabel>
+          <DarkInput id="ob-dur" type="number" value={form.session_duration_min} onChange={(v) => updateField('session_duration_min', v)} />
         </div>
       </div>
     </div>,
 
     <div key="prefs" className="space-y-4">
-      <h2 className="text-xl font-semibold mb-4">Workout Preferences</h2>
-      <p className="text-sm text-muted-foreground mb-3">Select your preferred workout types</p>
-      <div className="space-y-3">
+      <div>
+        <h2 className="text-xl font-bold text-white">Workout Preferences</h2>
+        <p className="text-sm mt-0.5" style={{ color: '#8E8E93' }}>Select all that apply</p>
+      </div>
+      <div className="flex flex-wrap gap-2">
         {WORKOUT_TYPES.map((type) => {
           const value = type.toLowerCase().replace(/\s+/g, '_')
           return (
-            <div key={type} className="flex items-center space-x-3">
-              <Checkbox
-                id={`wt-${value}`}
-                checked={form.preferred_workout_types.includes(value)}
-                onCheckedChange={() => toggleArrayItem('preferred_workout_types', value)}
-              />
-              <Label htmlFor={`wt-${value}`} className="cursor-pointer">{type}</Label>
-            </div>
+            <CheckPill
+              key={type}
+              label={type}
+              checked={form.preferred_workout_types.includes(value)}
+              onToggle={() => toggleArrayItem('preferred_workout_types', value)}
+            />
           )
         })}
       </div>
     </div>,
 
     <div key="injuries" className="space-y-4">
-      <h2 className="text-xl font-semibold mb-4">Injuries & Limitations</h2>
-      <p className="text-sm text-muted-foreground mb-3">Select any areas of concern so we can adjust your workouts.</p>
-      <div className="space-y-3">
+      <div>
+        <h2 className="text-xl font-bold text-white">Injuries & Limitations</h2>
+        <p className="text-sm mt-0.5" style={{ color: '#8E8E93' }}>Select any areas of concern</p>
+      </div>
+      <div className="flex flex-wrap gap-2">
         {INJURY_OPTIONS.map((injury) => {
           const value = injury.toLowerCase().replace(/\s+/g, '_')
           return (
-            <div key={injury} className="flex items-center space-x-3">
-              <Checkbox
-                id={`inj-${value}`}
-                checked={form.injuries.includes(value)}
-                onCheckedChange={() => toggleArrayItem('injuries', value)}
-              />
-              <Label htmlFor={`inj-${value}`} className="cursor-pointer">{injury}</Label>
-            </div>
+            <CheckPill
+              key={injury}
+              label={injury}
+              checked={form.injuries.includes(value)}
+              onToggle={() => toggleArrayItem('injuries', value)}
+            />
           )
         })}
       </div>
     </div>,
   ]
 
+  const progress = (step + 1) / steps.length
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/5 p-4">
-      <Card className="w-full max-w-lg p-8">
+    <div className="min-h-screen flex items-center justify-center bg-black p-4">
+      <div className="w-full max-w-md">
+        {/* Progress ring header */}
+        <div className="flex items-center gap-5 mb-8">
+          <ActivityRing progress={progress} color="#ADFF2F" size={64} strokeWidth={8}>
+            <span className="text-[10px] font-bold text-white">{step + 1}/{steps.length}</span>
+          </ActivityRing>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#8E8E93' }}>
+              Step {step + 1} of {steps.length}
+            </p>
+            <p className="font-bold text-white">{STEP_TITLES[step]}</p>
+          </div>
+        </div>
+
+        {/* Step dots */}
         <div className="flex gap-2 mb-8">
           {steps.map((_, i) => (
-            <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= step ? 'bg-primary' : 'bg-muted'}`} />
+            <div
+              key={i}
+              className="h-1 flex-1 rounded-full transition-all"
+              style={{ background: i <= step ? '#ADFF2F' : '#2C2C2E' }}
+            />
           ))}
         </div>
 
-        {steps[step]}
+        {/* Form card */}
+        <div className="rounded-3xl p-6 space-y-6" style={{ background: '#1C1C1E' }}>
+          {steps[step]}
 
-        <div className="flex justify-between mt-8">
-          <Button variant="outline" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>
-            Back
-          </Button>
-          {step < steps.length - 1 ? (
-            <Button onClick={() => setStep(step + 1)}>
-              Next
-            </Button>
-          ) : (
-            <Button onClick={handleSubmit} disabled={createProfile.isPending}>
-              {createProfile.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              Complete Setup
-            </Button>
-          )}
+          <div className="flex justify-between pt-2">
+            <button
+              type="button"
+              onClick={() => setStep(Math.max(0, step - 1))}
+              disabled={step === 0}
+              className="px-5 py-2.5 rounded-full text-sm font-semibold transition-all"
+              style={step === 0
+                ? { background: '#2C2C2E', color: '#636366', cursor: 'not-allowed' }
+                : { background: '#2C2C2E', color: '#fff', cursor: 'pointer' }
+              }
+            >
+              Back
+            </button>
+            {step < steps.length - 1 ? (
+              <button
+                type="button"
+                onClick={() => setStep(step + 1)}
+                className="px-6 py-2.5 rounded-full text-sm font-bold"
+                style={{ background: '#ADFF2F', color: '#000' }}
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={createProfile.isPending}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold"
+                style={{ background: '#ADFF2F', color: '#000', cursor: createProfile.isPending ? 'not-allowed' : 'pointer' }}
+              >
+                {createProfile.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                Complete Setup
+              </button>
+            )}
+          </div>
         </div>
-      </Card>
+      </div>
     </div>
   )
 }

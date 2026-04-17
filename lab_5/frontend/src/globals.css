@@ -3,58 +3,79 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222 47% 11%;
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
-  --primary: 199 89% 48%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222 47% 11%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
-  --accent: 152 60% 45%;
+  /* iOS black surface system */
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 240 5% 11%;
+  --card-foreground: 0 0% 100%;
+  --popover: 240 5% 11%;
+  --popover-foreground: 0 0% 100%;
+
+  /* Primary = neon green-yellow */
+  --primary: 82 100% 59%;
+  --primary-foreground: 0 0% 0%;
+
+  --secondary: 240 4% 17%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 240 4% 17%;
+  --muted-foreground: 240 5% 57%;
+
+  /* Accent = neon pink */
+  --accent: 349 100% 60%;
   --accent-foreground: 0 0% 100%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 199 89% 48%;
-  --radius: 0.75rem;
-  --chart-1: 199 89% 48%;
-  --chart-2: 152 60% 45%;
-  --chart-3: 262 52% 55%;
-  --chart-4: 25 95% 53%;
-  --chart-5: 340 75% 55%;
+
+  --destructive: 349 100% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 0 0% 100% / 0.1;
+  --input: 240 4% 17%;
+  --ring: 82 100% 59%;
+  --radius: 1rem;
+
+  /* Neon palette */
+  --neon-green: #ADFF2F;
+  --neon-pink: #FF375F;
+  --neon-purple: #BF5AF2;
+  --neon-cyan: #32D2FF;
+  --neon-yellow: #FFD60A;
+  --surface: #1C1C1E;
+  --surface2: #2C2C2E;
+  --text-secondary: #8E8E93;
+
+  /* Charts */
+  --chart-1: 82 100% 59%;
+  --chart-2: 349 100% 60%;
+  --chart-3: 280 85% 65%;
+  --chart-4: 198 100% 60%;
+  --chart-5: 45 100% 52%;
 }
 
+/* Keep .dark identical so Radix dark variants resolve correctly */
 .dark {
-  --background: 222 47% 6%;
-  --foreground: 210 40% 98%;
-  --card: 222 47% 9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222 47% 9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 199 89% 48%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 217 33% 17%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217 33% 17%;
-  --muted-foreground: 215 20% 65%;
-  --accent: 152 60% 40%;
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 240 5% 11%;
+  --card-foreground: 0 0% 100%;
+  --popover: 240 5% 11%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 82 100% 59%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 240 4% 17%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 240 4% 17%;
+  --muted-foreground: 240 5% 57%;
+  --accent: 349 100% 60%;
   --accent-foreground: 0 0% 100%;
-  --destructive: 0 62% 50%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 217 33% 17%;
-  --input: 217 33% 17%;
-  --ring: 199 89% 48%;
-  --chart-1: 199 89% 48%;
-  --chart-2: 152 60% 45%;
-  --chart-3: 262 52% 55%;
-  --chart-4: 25 95% 53%;
-  --chart-5: 340 75% 55%;
+  --destructive: 349 100% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 100% / 0.1;
+  --input: 240 4% 17%;
+  --ring: 82 100% 59%;
+  --chart-1: 82 100% 59%;
+  --chart-2: 349 100% 60%;
+  --chart-3: 280 85% 65%;
+  --chart-4: 198 100% 60%;
+  --chart-5: 45 100% 52%;
 }
 
 @theme inline {
@@ -100,10 +121,15 @@
   to { opacity: 0; transform: scale(0.95); }
 }
 
+@keyframes slideUpFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
+  background-color: #000000;
+  color: #ffffff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

@@ -4,7 +4,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useProfile, useUpdateProfile } from '../hooks/useProfile'
 import { useAuthStore } from '../stores/authStore'
 import LoadingSpinner from '../components/common/LoadingSpinner'
-import ActivityRing from '../components/common/ActivityRing'
 
 const WORKOUT_TYPES = [
   'Strength Training', 'Cardio', 'HIIT', 'Yoga', 'Calisthenics',
@@ -84,6 +83,7 @@ export default function ProfilePage() {
     fitness_level: '',
     workout_days_per_week: '',
     session_duration_min: '',
+    calorie_goal: '500',
     preferred_workout_types: [] as string[],
     injuries: [] as string[],
   })
@@ -98,6 +98,7 @@ export default function ProfilePage() {
         fitness_level: profile.fitness_level,
         workout_days_per_week: String(profile.workout_days_per_week),
         session_duration_min: String(profile.session_duration_min),
+        calorie_goal: String(profile.calorie_goal ?? 500),
         preferred_workout_types: profile.preferred_workout_types,
         injuries: profile.injuries,
       })
@@ -122,6 +123,7 @@ export default function ProfilePage() {
       fitness_level: form.fitness_level,
       workout_days_per_week: Number(form.workout_days_per_week),
       session_duration_min: Number(form.session_duration_min),
+      calorie_goal: Number(form.calorie_goal),
       preferred_workout_types: form.preferred_workout_types,
       injuries: form.injuries.filter((i) => i !== 'none'),
     })
@@ -131,8 +133,6 @@ export default function ProfilePage() {
 
   const bmr = profile ? Math.round(profile.bmr) : null
   const tdee = profile ? Math.round(profile.tdee) : null
-  const bmrProgress = bmr ? Math.min(1, bmr / 3000) : 0
-  const tdeeProgress = tdee ? Math.min(1, tdee / 4000) : 0
 
   return (
     <div className="space-y-5 max-w-2xl">
@@ -144,28 +144,14 @@ export default function ProfilePage() {
         <p className="text-sm" style={{ color: '#8E8E93' }}>{user?.email}</p>
 
         {profile && (
-          <div className="flex items-center gap-6 mt-5">
-            <div className="flex flex-col items-center gap-2">
-              <ActivityRing progress={bmrProgress} color="#BF5AF2" size={80} strokeWidth={10}>
-                <span className="text-[10px] font-bold text-white">{bmr}</span>
-              </ActivityRing>
-              <p className="text-[10px] font-semibold uppercase" style={{ color: '#8E8E93' }}>BMR cal</p>
+          <div className="flex gap-3 mt-5">
+            <div className="rounded-xl p-3 flex-1" style={{ background: '#2C2C2E' }}>
+              <p className="text-[10px] uppercase font-semibold" style={{ color: '#8E8E93' }}>BMR</p>
+              <p className="text-base font-bold" style={{ color: '#BF5AF2' }}>{bmr} cal</p>
             </div>
-            <div className="flex flex-col items-center gap-2">
-              <ActivityRing progress={tdeeProgress} color="#FF375F" size={80} strokeWidth={10}>
-                <span className="text-[10px] font-bold text-white">{tdee}</span>
-              </ActivityRing>
-              <p className="text-[10px] font-semibold uppercase" style={{ color: '#8E8E93' }}>TDEE cal</p>
-            </div>
-            <div className="flex-1 space-y-2">
-              <div className="rounded-xl p-3" style={{ background: '#2C2C2E' }}>
-                <p className="text-[10px] uppercase font-semibold" style={{ color: '#8E8E93' }}>BMR</p>
-                <p className="text-base font-bold" style={{ color: '#BF5AF2' }}>{bmr} cal</p>
-              </div>
-              <div className="rounded-xl p-3" style={{ background: '#2C2C2E' }}>
-                <p className="text-[10px] uppercase font-semibold" style={{ color: '#8E8E93' }}>TDEE</p>
-                <p className="text-base font-bold" style={{ color: '#FF375F' }}>{tdee} cal</p>
-              </div>
+            <div className="rounded-xl p-3 flex-1" style={{ background: '#2C2C2E' }}>
+              <p className="text-[10px] uppercase font-semibold" style={{ color: '#8E8E93' }}>TDEE</p>
+              <p className="text-base font-bold" style={{ color: '#FF375F' }}>{tdee} cal</p>
             </div>
           </div>
         )}
@@ -223,6 +209,20 @@ export default function ProfilePage() {
             <DarkLabel>Days / Week</DarkLabel>
             <DarkInput type="number" value={form.workout_days_per_week} onChange={(v) => setForm({ ...form, workout_days_per_week: v })} />
           </div>
+        </div>
+      </div>
+
+      {/* Goals */}
+      <div className="rounded-3xl p-5 space-y-4" style={{ background: '#1C1C1E' }}>
+        <h2 className="font-bold text-white">Goals</h2>
+        <div>
+          <DarkLabel>Weekly Calorie Burn Goal (kcal)</DarkLabel>
+          <DarkInput
+            type="number"
+            value={form.calorie_goal}
+            onChange={(v) => setForm({ ...form, calorie_goal: v })}
+            placeholder="500"
+          />
         </div>
       </div>
 

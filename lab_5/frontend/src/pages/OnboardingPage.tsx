@@ -80,6 +80,7 @@ export default function OnboardingPage() {
     preferred_workout_types: [] as string[],
     workout_days_per_week: '4',
     session_duration_min: '60',
+    calorie_goal: '500',
     injuries: [] as string[],
   })
 
@@ -107,6 +108,7 @@ export default function OnboardingPage() {
         preferred_workout_types: form.preferred_workout_types,
         workout_days_per_week: Number(form.workout_days_per_week),
         session_duration_min: Number(form.session_duration_min),
+        calorie_goal: Number(form.calorie_goal),
         injuries: form.injuries.filter((i) => i !== 'None'),
       })
       if (user) setUser({ ...user, has_profile: true })
@@ -180,6 +182,10 @@ export default function OnboardingPage() {
           <DarkLabel htmlFor="ob-dur">Session (min)</DarkLabel>
           <DarkInput id="ob-dur" type="number" value={form.session_duration_min} onChange={(v) => updateField('session_duration_min', v)} />
         </div>
+      </div>
+      <div>
+        <DarkLabel htmlFor="ob-calories">Weekly Calorie Burn Goal (kcal)</DarkLabel>
+        <DarkInput id="ob-calories" type="number" value={form.calorie_goal} onChange={(v) => updateField('calorie_goal', v)} placeholder="500" />
       </div>
     </div>,
 

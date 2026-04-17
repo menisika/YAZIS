@@ -15,6 +15,7 @@ interface UserProfile {
   bmr: number
   tdee: number
   injuries: string[]
+  calorie_goal: number
   updated_at: string
 }
 
@@ -28,6 +29,7 @@ interface ProfileInput {
   workout_days_per_week: number
   session_duration_min: number
   injuries: string[]
+  calorie_goal?: number
 }
 
 export function useProfile() {

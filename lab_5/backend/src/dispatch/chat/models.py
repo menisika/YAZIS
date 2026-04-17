@@ -14,14 +14,17 @@ class ChatConversation(SQLModel, table=True):
     title: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    messages: list["ChatMessage"] = Relationship(back_populates="conversation")
+    messages: list["ChatMessage"] = Relationship(
+        back_populates="conversation",
+        cascade_delete=True,
+    )
 
 
 class ChatMessage(SQLModel, table=True):
     __tablename__ = "chat_message"
 
     id: int | None = Field(default=None, primary_key=True)
-    conversation_id: int = Field(foreign_key="chat_conversation.id", index=True)
+    conversation_id: int = Field(foreign_key="chat_conversation.id", index=True, ondelete="CASCADE")
     role: str  # user / assistant / system
     content: str
     created_at: datetime = Field(default_factory=datetime.utcnow)

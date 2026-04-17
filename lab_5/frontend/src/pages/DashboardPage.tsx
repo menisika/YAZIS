@@ -11,10 +11,10 @@ import {
   type PlanDayStatus,
 } from '../hooks/useWorkout'
 import { useAnalyticsSummary } from '../hooks/useAnalytics'
+import { useProfile } from '../hooks/useProfile'
 import { formatDuration, DAY_NAMES_SHORT } from '../lib/formatters'
 
 const TODAY_IDX = (new Date().getDay() + 6) % 7
-const CALORIE_GOAL = 500
 
 function WeeklyStrip({
   days,
@@ -94,9 +94,11 @@ export default function DashboardPage() {
   const { data: summary } = useAnalyticsSummary()
   const generateWorkout = useGenerateWorkout()
 
+  const { data: profile } = useProfile()
   const activePlan = plans?.[0]
+  const calorieGoal = profile?.calorie_goal ?? 500
   const calories = Math.round(summary?.total_calories ?? 0)
-  const calorieProgress = Math.min(1, calories / CALORIE_GOAL)
+  const calorieProgress = Math.min(1, calories / calorieGoal)
 
   const startToday = () => {
     if (todayWorkout) {
@@ -136,7 +138,7 @@ export default function DashboardPage() {
             <div>
               <p className="text-xs font-semibold mb-0.5" style={{ color: '#8E8E93' }}>MOVE</p>
               <p className="text-xl font-bold" style={{ color: '#FF375F' }}>
-                {calories}<span className="text-sm font-medium ml-1" style={{ color: '#8E8E93' }}>/{CALORIE_GOAL} KCAL</span>
+                {calories}<span className="text-sm font-medium ml-1" style={{ color: '#8E8E93' }}>/{calorieGoal} KCAL</span>
               </p>
             </div>
             <div>

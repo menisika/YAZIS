@@ -36,6 +36,7 @@ class UserProfile(SQLModel, table=True):
     bmr: float = 0.0
     tdee: float = 0.0
     injuries: list[str] = Field(default=[], sa_column=Column(JSON))
+    calorie_goal: int = 500
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     user: Optional[User] = Relationship(back_populates="profile")
@@ -63,6 +64,7 @@ class UserProfileCreate(BaseModel):
     workout_days_per_week: int = 4
     session_duration_min: int = 60
     injuries: list[str] = []
+    calorie_goal: int = 500
 
 
 class UserProfileUpdate(BaseModel):
@@ -75,6 +77,7 @@ class UserProfileUpdate(BaseModel):
     workout_days_per_week: int | None = None
     session_duration_min: int | None = None
     injuries: list[str] | None = None
+    calorie_goal: int | None = None
 
 
 class UserProfileRead(BaseModel):
@@ -91,4 +94,5 @@ class UserProfileRead(BaseModel):
     bmr: float
     tdee: float
     injuries: list[str]
+    calorie_goal: int
     updated_at: datetime

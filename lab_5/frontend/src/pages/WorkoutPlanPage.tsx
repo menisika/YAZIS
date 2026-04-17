@@ -58,6 +58,7 @@ interface DayCardProps {
 function DayCard({ dow, day, isToday, isBusy, menuOpen, onToggleMenu, onToggleRest, onStart }: DayCardProps) {
   const isRest = day?.is_rest ?? true
   const status = day?.status ?? (isRest ? 'rest' : 'upcoming')
+  const [showExercises, setShowExercises] = useState(false)
 
   const { attributes, listeners, setNodeRef: setDragRef, transform, isDragging } = useDraggable({ id: dow })
   const { setNodeRef: setDropRef, isOver } = useDroppable({ id: dow })
@@ -133,17 +134,27 @@ function DayCard({ dow, day, isToday, isBusy, menuOpen, onToggleMenu, onToggleRe
               >
                 {day.focus}
               </div>
-              {day.exercises.slice(0, 4).map((ex) => (
-                <div key={ex.id} className="flex justify-between text-xs" style={{ color: '#8E8E93' }}>
-                  <span className="truncate mr-2 text-white/80">{ex.exercise_name}</span>
-                  <span className="whitespace-nowrap font-semibold">
-                    {ex.sets}×{ex.reps_min}–{ex.reps_max}
-                  </span>
-                </div>
-              ))}
-              {day.exercises.length > 4 && (
-                <p className="text-[10px]" style={{ color: '#8E8E93' }}>+{day.exercises.length - 4} more</p>
-              )}
+              <div className={showExercises ? '' : 'hidden sm:block'}>
+                {day.exercises.slice(0, 4).map((ex) => (
+                  <div key={ex.id} className="flex justify-between text-xs" style={{ color: '#8E8E93' }}>
+                    <span className="truncate mr-2 text-white/80">{ex.exercise_name}</span>
+                    <span className="whitespace-nowrap font-semibold">
+                      {ex.sets}×{ex.reps_min}–{ex.reps_max}
+                    </span>
+                  </div>
+                ))}
+                {day.exercises.length > 4 && (
+                  <p className="text-[10px]" style={{ color: '#8E8E93' }}>+{day.exercises.length - 4} more</p>
+                )}
+              </div>
+              <button
+                type="button"
+                className="sm:hidden w-full text-xs font-semibold py-1.5 rounded-xl transition-colors"
+                style={{ color: '#8E8E93', background: 'rgba(255,255,255,0.04)' }}
+                onClick={() => setShowExercises((v) => !v)}
+              >
+                {showExercises ? 'Hide exercises' : `${day.exercises.length} exercises ▾`}
+              </button>
               <button
                 type="button"
                 onClick={isToday ? onStart : undefined}

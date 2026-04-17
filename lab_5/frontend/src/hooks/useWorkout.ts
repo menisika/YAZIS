@@ -14,11 +14,14 @@ export interface PlanExercise {
   notes: string | null
 }
 
+export type PlanDayStatus = 'rest' | 'done' | 'today' | 'skipped' | 'upcoming'
+
 export interface PlanDay {
   plan_id: number
   day_of_week: number
   focus: string
   is_rest: boolean
+  status: PlanDayStatus
   exercises: PlanExercise[]
 }
 

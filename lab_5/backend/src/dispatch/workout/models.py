@@ -72,6 +72,7 @@ class WorkoutPlanDayRead(BaseModel):
     day_of_week: int
     focus: str
     is_rest: bool
+    status: str  # rest | done | today | skipped | upcoming
     exercises: list[WorkoutPlanExerciseRead] = []
 
 

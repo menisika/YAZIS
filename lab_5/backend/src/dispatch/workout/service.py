@@ -1,10 +1,11 @@
-from datetime import date
+from datetime import date, datetime, timedelta
 
 from sqlalchemy import text
 from sqlmodel import Session, select
 
 from src.dispatch.exceptions import NotFoundError
 from src.dispatch.exercise.models import Exercise
+from src.dispatch.session.models import WorkoutSession
 from src.dispatch.workout.models import (
     WorkoutPlan,
     WorkoutPlanDay,
@@ -51,7 +52,17 @@ def get_today_plan(*, db_session: Session, user_id: int) -> WorkoutPlanDayRead |
     if not plan_day:
         return None
 
-    return _to_day_read(db_session=db_session, day=plan_day)
+    # Today's card: if completed this week, show "done"; otherwise "today".
+    completed = _completed_dows_this_week(
+        db_session=db_session, user_id=user_id, plan_id=plan.id
+    )
+    if plan_day.is_rest:
+        status = "rest"
+    elif day_of_week in completed:
+        status = "done"
+    else:
+        status = "today"
+    return _to_day_read(db_session=db_session, day=plan_day, status=status)
 
 
 def delete_user_plan(*, db_session: Session, user_id: int) -> None:
@@ -180,19 +191,61 @@ def toggle_rest(*, db_session: Session, plan_id: int, day_of_week: int) -> None:
     db_session.commit()
 
 
+def _completed_dows_this_week(*, db_session: Session, user_id: int, plan_id: int) -> set[int]:
+    today = date.today()
+    monday = datetime.combine(today - timedelta(days=today.weekday()), datetime.min.time())
+    rows = db_session.exec(
+        select(WorkoutSession.plan_day_of_week)
+        .where(WorkoutSession.user_id == user_id)
+        .where(WorkoutSession.plan_id == plan_id)
+        .where(WorkoutSession.status == "completed")
+        .where(WorkoutSession.started_at >= monday)
+    ).all()
+    return {dow for dow in rows if dow is not None}
+
+
+def _compute_day_statuses(
+    *, db_session: Session, user_id: int, plan_id: int, rest_dows: set[int]
+) -> dict[int, str]:
+    completed = _completed_dows_this_week(db_session=db_session, user_id=user_id, plan_id=plan_id)
+    today_dow = date.today().weekday()
+    statuses: dict[int, str] = {}
+    for dow in range(7):
+        if dow in rest_dows:
+            statuses[dow] = "rest"
+        elif dow in completed:
+            statuses[dow] = "done"
+        elif dow == today_dow:
+            statuses[dow] = "today"
+        elif dow < today_dow:
+            statuses[dow] = "skipped"
+        else:
+            statuses[dow] = "upcoming"
+    return statuses
+
+
 def _to_plan_read(*, db_session: Session, plan: WorkoutPlan) -> WorkoutPlanRead:
     days = db_session.exec(
         select(WorkoutPlanDay)
         .where(WorkoutPlanDay.plan_id == plan.id)
         .order_by(WorkoutPlanDay.day_of_week)
     ).all()
+    rest_dows = {d.day_of_week for d in days if d.is_rest}
+    statuses = _compute_day_statuses(
+        db_session=db_session, user_id=plan.user_id, plan_id=plan.id, rest_dows=rest_dows
+    )
     return WorkoutPlanRead(
         **plan.model_dump(),
-        days=[_to_day_read(db_session=db_session, day=d) for d in days],
+        days=[
+            _to_day_read(db_session=db_session, day=d, status=statuses.get(d.day_of_week, "upcoming"))
+            for d in days
+        ],
     )
 
 
-def _to_day_read(*, db_session: Session, day: WorkoutPlanDay) -> WorkoutPlanDayRead:
+def _to_day_read(
+    *, db_session: Session, day: WorkoutPlanDay, status: str
+) -> WorkoutPlanDayRead:
     exercises = db_session.exec(
         select(WorkoutPlanExercise)
         .where(WorkoutPlanExercise.plan_id == day.plan_id)
@@ -219,5 +272,6 @@ def _to_day_read(*, db_session: Session, day: WorkoutPlanDay) -> WorkoutPlanDayR
         day_of_week=day.day_of_week,
         focus=day.focus,
         is_rest=day.is_rest,
+        status="rest" if day.is_rest else status,
         exercises=ex_reads,
     )

@@ -1,9 +1,9 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from sqlmodel import Session, select
 
 from src.dispatch.common.utils import estimate_calories_burned
-from src.dispatch.exceptions import NotFoundError
+from src.dispatch.exceptions import BadRequestError, NotFoundError
 from src.dispatch.exercise.models import Exercise
 from src.dispatch.session.models import (
     SessionCreate,
@@ -16,6 +16,11 @@ from src.dispatch.user.models import UserProfile
 
 
 def create(*, db_session: Session, user_id: int, session_in: SessionCreate) -> WorkoutSession:
+    if session_in.plan_day_of_week is not None:
+        today_dow = date.today().weekday()
+        if session_in.plan_day_of_week != today_dow:
+            raise BadRequestError("Can only start today's workout")
+
     workout_session = WorkoutSession(
         user_id=user_id,
         plan_id=session_in.plan_id,

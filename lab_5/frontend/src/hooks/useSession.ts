@@ -57,6 +57,7 @@ export function useStartSession() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sessions'] })
+      queryClient.invalidateQueries({ queryKey: ['workouts'] })
     },
   })
 }
@@ -79,6 +80,7 @@ export function useEndSession() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sessions'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      queryClient.invalidateQueries({ queryKey: ['workouts'] })
     },
   })
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Loader2, Pause, Play, ChevronLeft, ChevronRight, Video } from 'lucide-react'
+import { Loader2, Pause, Play, ChevronLeft, ChevronRight, Video, Flag } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,9 +15,12 @@ import ExerciseVideoPlayer from '../components/common/ExerciseVideoPlayer'
 import api from '../config/api'
 import type { PlanDay } from '../hooks/useWorkout'
 
+const TODAY_IDX = (new Date().getDay() + 6) % 7
+
 export default function ActiveWorkoutPage() {
   const { planId, dayOfWeek } = useParams()
   const navigate = useNavigate()
+  const isToday = Number(dayOfWeek) === TODAY_IDX
   const [planDay, setPlanDay] = useState<PlanDay | null>(null)
   const [loading, setLoading] = useState(true)
   const [showVideo, setShowVideo] = useState(false)
@@ -115,14 +118,23 @@ export default function ActiveWorkoutPage() {
           size="lg"
           className="text-xl px-12 py-8 font-bold"
           onClick={handleStart}
-          disabled={startSession.isPending}
+          disabled={startSession.isPending || !isToday}
         >
           {startSession.isPending && <Loader2 className="h-5 w-5 animate-spin mr-2" />}
           START WORKOUT
         </Button>
+        {!isToday && (
+          <p className="text-sm text-muted-foreground">
+            Only today's workout can be started.
+          </p>
+        )}
       </div>
     )
   }
+
+  const isLastExercise =
+    planDay.exercises.length > 0 &&
+    store.currentExerciseIndex === planDay.exercises.length - 1
 
   return (
     <div className="space-y-6">
@@ -218,20 +230,29 @@ export default function ActiveWorkoutPage() {
               <ChevronLeft className="h-4 w-4 mr-1" />
               Previous
             </Button>
-            <Button
-              variant="outline"
-              disabled={store.currentExerciseIndex >= planDay.exercises.length - 1}
-              onClick={() => {
-                store.setExerciseIndex(store.currentExerciseIndex + 1)
-                setWeight('')
-                setReps('')
-                setRpe('')
-                setShowVideo(false)
-              }}
-            >
-              Next Exercise
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
+            {isLastExercise ? (
+              <Button
+                variant="destructive"
+                onClick={() => setShowEndConfirm(true)}
+              >
+                <Flag className="h-4 w-4 mr-1" />
+                End Workout
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  store.setExerciseIndex(store.currentExerciseIndex + 1)
+                  setWeight('')
+                  setReps('')
+                  setRpe('')
+                  setShowVideo(false)
+                }}
+              >
+                Next Exercise
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            )}
           </div>
         </Card>
       )}

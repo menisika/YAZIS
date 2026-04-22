@@ -1,0 +1,23 @@
+# Version control
+.git
+.gitignore
+
+# Node (installed fresh in the deps stage)
+node_modules/
+
+# Vite build output (not needed for dev server)
+dist/
+
+# IDE & OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Env files with secrets (injected at runtime via docker-compose env_file)
+.env
+.env.local
+.env.production
+
+# Docs
+*.md

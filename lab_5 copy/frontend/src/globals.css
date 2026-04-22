@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* iOS black surface system */
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 240 5% 11%;
+  --card-foreground: 0 0% 100%;
+  --popover: 240 5% 11%;
+  --popover-foreground: 0 0% 100%;
+
+  /* Primary = neon green-yellow */
+  --primary: 82 100% 59%;
+  --primary-foreground: 0 0% 0%;
+
+  --secondary: 240 4% 17%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 240 4% 17%;
+  --muted-foreground: 240 5% 57%;
+
+  /* Accent = neon pink */
+  --accent: 349 100% 60%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 349 100% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 0 0% 100% / 0.1;
+  --input: 240 4% 17%;
+  --ring: 82 100% 59%;
+  --radius: 1rem;
+
+  /* Neon palette */
+  --neon-green: #ADFF2F;
+  --neon-pink: #FF375F;
+  --neon-purple: #BF5AF2;
+  --neon-cyan: #32D2FF;
+  --neon-yellow: #FFD60A;
+  --surface: #1C1C1E;
+  --surface2: #2C2C2E;
+  --text-secondary: #8E8E93;
+
+  /* Charts */
+  --chart-1: 82 100% 59%;
+  --chart-2: 349 100% 60%;
+  --chart-3: 280 85% 65%;
+  --chart-4: 198 100% 60%;
+  --chart-5: 45 100% 52%;
+}
+
+/* Keep .dark identical so Radix dark variants resolve correctly */
+.dark {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 240 5% 11%;
+  --card-foreground: 0 0% 100%;
+  --popover: 240 5% 11%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 82 100% 59%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 240 4% 17%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 240 4% 17%;
+  --muted-foreground: 240 5% 57%;
+  --accent: 349 100% 60%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 349 100% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 100% / 0.1;
+  --input: 240 4% 17%;
+  --ring: 82 100% 59%;
+  --chart-1: 82 100% 59%;
+  --chart-2: 349 100% 60%;
+  --chart-3: 280 85% 65%;
+  --chart-4: 198 100% 60%;
+  --chart-5: 45 100% 52%;
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --animate-in: animateIn 0.2s ease-out;
+  --animate-out: animateOut 0.2s ease-in;
+}
+
+@keyframes animateIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes animateOut {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.95); }
+}
+
+@keyframes slideUpFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #000000;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

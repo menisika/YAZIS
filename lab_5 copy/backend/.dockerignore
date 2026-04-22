@@ -1,0 +1,39 @@
+# Version control
+.git
+.gitignore
+
+# Python byte-cache (volume-mounted src would pollute the host)
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments (built fresh in image)
+.venv/
+venv/
+env/
+
+# IDE & OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Test artefacts
+tests/
+.coverage
+htmlcov/
+pytest.ini
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# Docs / examples not needed at runtime
+*.md
+.env.example
